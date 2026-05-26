@@ -298,10 +298,25 @@ const Checkout = () => {
                       autoComplete="country-name"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                       required={true}
+                      defaultValue="France"
                     >
-                      <option>United States</option>
-                      <option>Canada</option>
-                      <option>Mexico</option>
+                      <optgroup label="Europe">
+                        <option>France</option>
+                        <option>Belgique</option>
+                        <option>Suisse</option>
+                        <option>Luxembourg</option>
+                        <option>Allemagne</option>
+                        <option>Espagne</option>
+                        <option>Italie</option>
+                        <option>Pays-Bas</option>
+                        <option>Portugal</option>
+                        <option>Royaume-Uni</option>
+                      </optgroup>
+                      <optgroup label="Autres">
+                        <option>United States</option>
+                        <option>Canada</option>
+                        <option>Mexico</option>
+                      </optgroup>
                     </select>
                   </div>
                 </div>

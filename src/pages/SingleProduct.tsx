@@ -44,24 +44,29 @@ const SingleProduct = () => {
     fetchProducts();
   }, [params.id]);
 
+  const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
+
   const handleAddToCart = () => {
-    if (singleProduct) {
-      dispatch(
-        addProductToTheCart({
-          id: singleProduct.id + size + color,
-          image: singleProduct.image,
-          title: singleProduct.title,
-          category: singleProduct.category,
-          price: singleProduct.price,
-          quantity,
-          size,
-          color,
-          popularity: singleProduct.popularity,
-          stock: singleProduct.stock,
-        })
-      );
-      toast.success("Product added to the cart");
+    if (!singleProduct) return;
+    if (isOutOfStock) {
+      toast.error("Ce produit est en rupture de stock");
+      return;
     }
+    dispatch(
+      addProductToTheCart({
+        id: singleProduct.id + size + color,
+        image: singleProduct.image,
+        title: singleProduct.title,
+        category: singleProduct.category,
+        price: singleProduct.price,
+        quantity: Math.min(quantity, singleProduct.stock),
+        size,
+        color,
+        popularity: singleProduct.popularity,
+        stock: singleProduct.stock,
+      })
+    );
+    toast.success("Produit ajouté au panier");
   };
 
   return (
@@ -120,8 +125,36 @@ const SingleProduct = () => {
               }
             />
           </div>
+          {/* Stock indicator */}
+          {singleProduct && (
+            <div className="flex items-center gap-2">
+              {isOutOfStock ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-600 bg-red-50 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+                  Rupture de stock
+                </span>
+              ) : (singleProduct.stock ?? 99) <= 5 ? (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" />
+                  Stock faible — {singleProduct.stock} restant{singleProduct.stock > 1 ? "s" : ""}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-700 bg-green-50 px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                  En stock
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-col gap-3">
-            <Button mode="brown" text="Add to cart" onClick={handleAddToCart} />
+            <Button
+              mode="brown"
+              text={isOutOfStock ? "Rupture de stock" : "Add to cart"}
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              style={isOutOfStock ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+            />
             <p className="text-secondaryBrown text-sm text-right">
               Delivery estimated on the Friday, July 26
             </p>
