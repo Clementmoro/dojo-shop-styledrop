@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { HiTrash as TrashIcon } from "react-icons/hi2";
+import { useState, useEffect, useRef } from "react";
+import { HiTrash as TrashIcon, HiCheck } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { removeProductFromTheCart } from "../features/cart/cartSlice";
@@ -19,6 +19,23 @@ const Checkout = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isGift, setIsGift] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const paymentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setCurrentStep(2);
+        } else {
+          setCurrentStep(1);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (paymentRef.current) observer.observe(paymentRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const handleCheckoutSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,9 +90,50 @@ const Checkout = () => {
     }
   };
 
+  const STEPS = ["Livraison", "Paiement", "Confirmation"];
+
   return (
     <div className="mx-auto max-w-screen-2xl">
-      <div className="pb-24 pt-16 px-5 max-[400px]:px-3">
+
+      {/* ── Sticky checkout stepper ── */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-5">
+        <div className="flex items-center justify-center gap-0 max-w-xs mx-auto">
+          {STEPS.map((label, idx) => {
+            const stepNum = idx + 1;
+            const isCompleted = stepNum < currentStep;
+            const isActive = stepNum === currentStep;
+            return (
+              <div key={label} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors duration-300"
+                    style={{
+                      backgroundColor: isCompleted || isActive ? "#4B3F8A" : "#D1D5DB",
+                      color: isCompleted || isActive ? "#fff" : "#9CA3AF",
+                    }}
+                  >
+                    {isCompleted ? <HiCheck className="w-4 h-4" /> : stepNum}
+                  </div>
+                  <span
+                    className="text-[10px] mt-1 font-medium transition-colors duration-300"
+                    style={{ color: isCompleted || isActive ? "#4B3F8A" : "#9CA3AF" }}
+                  >
+                    {label}
+                  </span>
+                </div>
+                {idx < STEPS.length - 1 && (
+                  <div
+                    className="w-12 h-0.5 mb-4 mx-1 transition-colors duration-300"
+                    style={{ backgroundColor: isCompleted ? "#4B3F8A" : "#D1D5DB" }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="pb-24 pt-10 px-5 max-[400px]:px-3">
         <h2 className="sr-only">Checkout</h2>
 
         <form
@@ -436,7 +494,7 @@ const Checkout = () => {
             </div>
 
             {/* Payment */}
-            <div className="mt-10 border-t border-gray-200 pt-10">
+            <div ref={paymentRef} className="mt-10 border-t border-gray-200 pt-10">
               <h2 className="text-lg font-medium text-gray-900">Payment</h2>
 
               <fieldset className="mt-4">

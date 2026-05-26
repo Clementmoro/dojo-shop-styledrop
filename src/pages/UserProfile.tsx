@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "../components/Button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import customFetch from "../axios/custom";
 import { checkUserProfileFormData } from "../utils/checkUserProfileFormData";
@@ -9,6 +9,8 @@ import { store } from "../store";
 
 const UserProfile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const toastShown = useRef(false);
   const [user, setUser] = useState<User>();
 
   const logout = () => {
@@ -25,16 +27,14 @@ const UserProfile = () => {
 
   const updateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Get form data
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
-    // Check if form data is valid
     if (!checkUserProfileFormData(data)) return;
     const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
     if (userId) {
       try {
         await customFetch.put(`/users/${userId}`, data);
-      } catch (e) {
+      } catch {
         toast.error("User update failed");
         return;
       }
@@ -48,12 +48,23 @@ const UserProfile = () => {
   useEffect(() => {
     const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
     if (!userId) {
-      toast.error("Please login to view this page");
+      // Single toast — useRef prevents double-fire in React StrictMode
+      if (!toastShown.current) {
+        toastShown.current = true;
+        toast.error("Veuillez vous connecter pour accéder à votre profil");
+      }
       navigate("/login");
     } else {
       fetchUser(userId);
     }
   }, [navigate]);
+
+  // ── Post-purchase view for guest who just ordered ─────────────────────────
+  // (should not reach here if not logged in, but kept as safeguard)
+  if (location.state?.fromPurchase) {
+    return null; // redirected above if not logged in
+  }
+
   return (
     <div className="max-w-screen-lg mx-auto mt-24 px-5">
       <h1 className="text-3xl font-bold mb-8">User Profile</h1>
