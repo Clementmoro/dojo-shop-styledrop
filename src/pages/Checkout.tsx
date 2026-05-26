@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { HiTrash as TrashIcon } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -6,25 +7,6 @@ import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
-
-/*
-address: "Marka Markovic 22"
-apartment: "132"
-cardNumber: "21313"
-city: "Belgrade"
-company: "Bojan Cesnak"
-country: "United States"
-cvc: "122"
-emailAddress: "kuzma@gmail.com"
-expirationDate: "12312"
-firstName: "Aca22"
-lastName: "Kuzma"
-nameOnCard: "Aca JK"
-paymentType: "on"
-phone: "06123123132"
-postalCode: "11080"
-region: "Serbia"
-*/
 
 const paymentMethods = [
   { id: "credit-card", title: "Credit card" },
@@ -36,16 +18,30 @@ const Checkout = () => {
   const { productsInCart, subtotal } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [isGift, setIsGift] = useState(false);
 
   const handleCheckoutSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
 
+    const gift = isGift
+      ? {
+          isGift: true,
+          giftMessage: data.giftMessage as string,
+          giftRecipientName: data.giftRecipientName as string,
+          giftAddress: data.giftAddress as string,
+          giftCity: data.giftCity as string,
+          giftPostalCode: data.giftPostalCode as string,
+          giftCountry: (data.giftCountry as string) || "France",
+        }
+      : { isGift: false };
+
     const checkoutData = {
       data,
       products: productsInCart,
       subtotal: subtotal,
+      gift,
     };
 
     if (!checkCheckoutFormData(checkoutData)) return;
@@ -311,6 +307,134 @@ const Checkout = () => {
               </div>
             </div>
 
+            {/* Gift mode */}
+            <div className="mt-10 border-t border-gray-200 pt-10">
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="gift-mode"
+                    name="giftMode"
+                    type="checkbox"
+                    checked={isGift}
+                    onChange={(e) => setIsGift(e.target.checked)}
+                    className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-500"
+                  />
+                </div>
+                <div className="ml-3">
+                  <label htmlFor="gift-mode" className="text-sm font-medium text-gray-900 cursor-pointer">
+                    C'est un cadeau 🎁
+                  </label>
+                  <p className="text-sm text-gray-500">
+                    Le prix sera masqué sur le bon de livraison. Vous pouvez ajouter un message et une adresse de livraison différente.
+                  </p>
+                </div>
+              </div>
+
+              {isGift && (
+                <div className="mt-6 space-y-6 rounded-md border border-pink-100 bg-pink-50 p-5">
+                  {/* Message cadeau */}
+                  <div>
+                    <label htmlFor="gift-message" className="block text-sm font-medium text-gray-700">
+                      Message cadeau
+                    </label>
+                    <div className="mt-1">
+                      <textarea
+                        id="gift-message"
+                        name="giftMessage"
+                        rows={3}
+                        maxLength={300}
+                        placeholder="Joyeux anniversaire ! J'espère que ce cadeau te plaira..."
+                        className="block w-full py-2 px-3 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm resize-none"
+                        required={isGift}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Adresse destinataire */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Adresse de livraison du destinataire</h3>
+                    <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-4">
+                      <div className="sm:col-span-2">
+                        <label htmlFor="gift-recipient-name" className="block text-sm font-medium text-gray-700">
+                          Nom du destinataire
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            type="text"
+                            id="gift-recipient-name"
+                            name="giftRecipientName"
+                            className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
+                            required={isGift}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label htmlFor="gift-address" className="block text-sm font-medium text-gray-700">
+                          Adresse
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            type="text"
+                            id="gift-address"
+                            name="giftAddress"
+                            className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
+                            required={isGift}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label htmlFor="gift-city" className="block text-sm font-medium text-gray-700">
+                          Ville
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            type="text"
+                            id="gift-city"
+                            name="giftCity"
+                            className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
+                            required={isGift}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label htmlFor="gift-postal-code" className="block text-sm font-medium text-gray-700">
+                          Code postal
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            type="text"
+                            id="gift-postal-code"
+                            name="giftPostalCode"
+                            className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
+                            required={isGift}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label htmlFor="gift-country" className="block text-sm font-medium text-gray-700">
+                          Pays
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            type="text"
+                            id="gift-country"
+                            name="giftCountry"
+                            defaultValue="France"
+                            className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
+                            required={isGift}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Payment */}
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h2 className="text-lg font-medium text-gray-900">Payment</h2>
@@ -490,6 +614,15 @@ const Checkout = () => {
                   </li>
                 ))}
               </ul>
+
+              {isGift && (
+                <div className="flex items-center gap-2 bg-pink-500 px-4 py-3 sm:px-6">
+                  <span className="text-sm font-medium text-white">
+                    🎁 Mode cadeau activé — les prix seront masqués sur le bon de livraison.
+                  </span>
+                </div>
+              )}
+
               <dl className="space-y-6 border-t border-gray-200 px-4 py-6 sm:px-6">
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Subtotal</dt>
