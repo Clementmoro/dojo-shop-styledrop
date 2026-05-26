@@ -215,7 +215,7 @@ const Checkout = () => {
                     htmlFor="company"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Company
+                    Company <span className="text-gray-400 font-normal">(optional)</span>
                   </label>
                   <div className="mt-1">
                     <input
@@ -223,7 +223,6 @@ const Checkout = () => {
                       name="company"
                       id="company"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
-                      required={true}
                     />
                   </div>
                 </div>
@@ -252,7 +251,7 @@ const Checkout = () => {
                     htmlFor="apartment"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Apartment, suite, etc.
+                    Apartment, suite, etc. <span className="text-gray-400 font-normal">(optional)</span>
                   </label>
                   <div className="mt-1">
                     <input
@@ -260,7 +259,6 @@ const Checkout = () => {
                       name="apartment"
                       id="apartment"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
-                      required={true}
                     />
                   </div>
                 </div>

@@ -29,6 +29,9 @@ interface Order {
   id: number;
   orderStatus: string;
   orderDate: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  transactionId: string;
   data: {
     email: string;
   };
