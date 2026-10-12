@@ -202,7 +202,7 @@ const QuizPopup = () => {
         {/* ── INTRO ─────────────────────────────────────────────────────────── */}
         {step === "intro" && (
           <div className="px-8 py-12 text-center">
-            <p className="text-sm font-semibold tracking-widest text-secondaryBrown uppercase mb-2">
+            <p className="text-sm font-semibold tracking-widest text-exaltNavy uppercase mb-2">
               Et si on faisait connaissance ?
             </p>
             <h2 className="text-3xl font-bold text-gray-900 mb-3">
@@ -213,7 +213,7 @@ const QuizPopup = () => {
             </p>
             <button
               onClick={handleStart}
-              className="w-full bg-secondaryBrown text-white py-3 text-base font-medium tracking-wide mb-3 transition hover:opacity-90"
+              className="w-full bg-exaltNavy text-white py-3 text-base font-medium tracking-wide mb-3 transition hover:opacity-90"
             >
               Commencer
             </button>
@@ -237,7 +237,7 @@ const QuizPopup = () => {
               </div>
               <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-secondaryBrown rounded-full transition-all duration-300"
+                  className="h-full bg-exaltNavy rounded-full transition-all duration-300"
                   style={{ width: `${((currentQuestionIndex + 1) / 3) * 100}%` }}
                 />
               </div>
@@ -257,7 +257,7 @@ const QuizPopup = () => {
                       opt.value
                     )
                   }
-                  className="w-full text-left px-5 py-3 border border-gray-200 text-gray-700 text-sm font-medium transition hover:border-secondaryBrown hover:text-secondaryBrown"
+                  className="w-full text-left px-5 py-3 border border-gray-200 text-gray-700 text-sm font-medium transition hover:border-exaltNavy hover:text-exaltNavy"
                 >
                   {opt.label}
                 </button>
@@ -280,7 +280,7 @@ const QuizPopup = () => {
         {/* ── RESULTS ───────────────────────────────────────────────────────── */}
         {step === "results" && (
           <div className="px-8 py-8">
-            <p className="text-xs font-semibold tracking-widest text-secondaryBrown uppercase mb-1">
+            <p className="text-xs font-semibold tracking-widest text-exaltNavy uppercase mb-1">
               Ta sélection eXalt
             </p>
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -311,7 +311,7 @@ const QuizPopup = () => {
                   <p className="text-sm font-medium text-gray-800 leading-tight">
                     {product.title}
                   </p>
-                  <p className="text-sm text-secondaryBrown font-semibold mt-0.5">
+                  <p className="text-sm text-exaltNavy font-semibold mt-0.5">
                     {product.price}€
                   </p>
                 </button>
@@ -320,7 +320,7 @@ const QuizPopup = () => {
 
             <button
               onClick={handleViewSelection}
-              className="w-full bg-secondaryBrown text-white py-3 text-sm font-medium tracking-wide transition hover:opacity-90 mb-4"
+              className="w-full bg-exaltNavy text-white py-3 text-sm font-medium tracking-wide transition hover:opacity-90 mb-4"
             >
               Voir ma sélection
             </button>
@@ -338,11 +338,11 @@ const QuizPopup = () => {
                     value={emailValue}
                     onChange={(e) => setEmailValue(e.target.value)}
                     placeholder="ton@email.com"
-                    className="flex-1 border border-gray-200 px-3 py-2 text-sm outline-none focus:border-secondaryBrown"
+                    className="flex-1 border border-gray-200 px-3 py-2 text-sm outline-none focus:border-exaltNavy"
                   />
                   <button
                     type="submit"
-                    className="bg-secondaryBrown text-white px-4 py-2 text-sm font-medium transition hover:opacity-90"
+                    className="bg-exaltNavy text-white px-4 py-2 text-sm font-medium transition hover:opacity-90"
                   >
                     Envoyer
                   </button>
@@ -369,7 +369,7 @@ const QuizPopup = () => {
             </p>
             <button
               onClick={() => handleSkipChoice(true)}
-              className="w-full bg-secondaryBrown text-white py-3 text-sm font-medium tracking-wide transition hover:opacity-90 mb-3"
+              className="w-full bg-exaltNavy text-white py-3 text-sm font-medium tracking-wide transition hover:opacity-90 mb-3"
             >
               Oui, à chaque visite
             </button>

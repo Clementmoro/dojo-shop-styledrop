@@ -4,13 +4,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        secondaryBrown: "#8A8475",
         exaltNavy: "#0A0F5C",
+        exaltNavyLight: "#1B2290",
         exaltPink: "#F0047F",
         exaltYellow: "#FFD600",
+        exaltCream: "#F6F5FB",
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],
+        display: ["'Space Grotesk'", "Inter", "sans-serif"],
       },
     },
   },

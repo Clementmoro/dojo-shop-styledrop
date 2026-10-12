@@ -2,6 +2,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import {
   Cart,
   Checkout,
+  Coulisses,
   HomeLayout,
   Landing,
   Login,
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
         path: "order-history",
         element: <OrderHistory />,
         loader: orderHistoryLoader,
+      },
+      {
+        path: "coulisses",
+        element: <Coulisses />,
       },
       {
         path: "order-history/:id",

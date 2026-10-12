@@ -2,21 +2,32 @@ import { Link } from "react-router-dom";
 
 const Banner = () => {
   return (
-    <div className="banner w-full flex flex-col justify-end items-center max-sm:h-[550px] max-sm:gap-2">
-      <h2 className="text-white text-center text-6xl font-bold tracking-[1.86px] leading-[60px] max-sm:text-4xl max-[400px]:text-3xl">
-        Wear the <span className="text-exaltYellow">eXalt</span> <br />
-        Spirit
-      </h2>
-      <h3 className="text-white text-3xl font-normal leading-[72px] tracking-[0.9px] max-sm:text-xl max-[400px]:text-lg">
-        Goodies & Merch officiel eXalt
-      </h3>
-      <div className="flex justify-center items-center gap-3 pb-10 max-[400px]:flex-col max-[400px]:gap-1 w-[420px] max-sm:w-[350px] max-[400px]:w-[300px]">
-        <Link to="/shop" className="bg-exaltPink text-white text-center text-xl font-semibold tracking-[0.6px] w-full h-12 flex items-center justify-center">
-          Shop Now
-        </Link>
-        <Link to="/shop" className="text-white border-white border-2 text-center text-xl font-normal tracking-[0.6px] w-full h-12 flex items-center justify-center">
-          Voir la collection
-        </Link>
+    <div className="banner w-full max-sm:h-[520px]">
+      <div className="max-w-screen-2xl mx-auto h-full flex flex-col justify-center px-5 max-[400px]:px-3">
+        <p className="text-exaltYellow text-sm font-semibold uppercase tracking-[0.2em] mb-4">
+          Boutique officielle
+        </p>
+        <h1 className="font-display text-white text-7xl font-bold leading-[1.05] max-w-2xl max-md:text-5xl max-[400px]:text-4xl">
+          Porte l'esprit <span className="text-exaltPink">eXalt</span>
+        </h1>
+        <p className="text-white/85 text-xl mt-5 max-w-lg max-sm:text-base">
+          Hoodies, accessoires, papeterie et éditions limitées. Pour les eXaltés, leurs clients et
+          tous ceux qui nous rejoignent.
+        </p>
+        <div className="flex gap-3 mt-8 max-[400px]:flex-col w-[440px] max-sm:w-full">
+          <Link
+            to="/shop"
+            className="bg-exaltPink hover:bg-white hover:text-exaltNavy transition-colors text-white font-semibold rounded-full h-12 w-full flex items-center justify-center"
+          >
+            Découvrir la boutique
+          </Link>
+          <Link
+            to="/shop/limited-edition"
+            className="text-white border-2 border-white hover:bg-white hover:text-exaltNavy transition-colors font-semibold rounded-full h-12 w-full flex items-center justify-center"
+          >
+            Édition limitée
+          </Link>
+        </div>
       </div>
     </div>
   );

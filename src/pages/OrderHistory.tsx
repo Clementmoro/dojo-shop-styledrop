@@ -26,22 +26,22 @@ const OrderHistory = () => {
 
   useEffect(() => {
     if (!user?.id) {
-      toast.error("Please login to view this page");
+      toast.error("Connecte-toi pour accéder à cette page");
       navigate("/login");
     }
   }, [user, navigate]);
 
   return (
     <div className="max-w-screen-2xl mx-auto pt-20 px-5">
-      <h1 className="text-3xl font-bold mb-8">Order History</h1>
+      <h1 className="text-3xl font-bold mb-8">Mes commandes</h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
             <tr>
-              <th className="py-3 px-4 border-b">Order ID</th>
+              <th className="py-3 px-4 border-b">N° de commande</th>
               <th className="py-3 px-4 border-b">Date</th>
               <th className="py-3 px-4 border-b">Total</th>
-              <th className="py-3 px-4 border-b">Status</th>
+              <th className="py-3 px-4 border-b">Statut</th>
               <th className="py-3 px-4 border-b">Actions</th>
             </tr>
           </thead>
@@ -61,7 +61,7 @@ const OrderHistory = () => {
                     to={`/order-history/${order.id}`}
                     className="text-blue-500 hover:underline"
                   >
-                    View Details
+                    Voir le détail
                   </Link>
                 </td>
               </tr>

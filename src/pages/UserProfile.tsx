@@ -14,7 +14,7 @@ const UserProfile = () => {
   const [user, setUser] = useState<User>();
 
   const logout = () => {
-    toast.error("Logged out successfully");
+    toast.error("Tu es déconnecté");
     localStorage.removeItem("user");
     store.dispatch(setLoginStatus(false));
     navigate("/login");
@@ -35,12 +35,12 @@ const UserProfile = () => {
       try {
         await customFetch.put(`/users/${userId}`, data);
       } catch {
-        toast.error("User update failed");
+        toast.error("La mise à jour a échoué");
         return;
       }
-      toast.success("User updated successfully");
+      toast.success("Profil mis à jour");
     } else {
-      toast.error("Please login to view this page");
+      toast.error("Connecte-toi pour accéder à cette page");
       navigate("/login");
     }
   };
@@ -48,7 +48,7 @@ const UserProfile = () => {
   useEffect(() => {
     const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
     if (!userId) {
-      // Single toast — useRef prevents double-fire in React StrictMode
+      // Single toast : useRef prevents double-fire in React StrictMode
       if (!toastShown.current) {
         toastShown.current = true;
         toast.error("Veuillez vous connecter pour accéder à votre profil");
@@ -67,14 +67,14 @@ const UserProfile = () => {
 
   return (
     <div className="max-w-screen-lg mx-auto mt-24 px-5">
-      <h1 className="text-3xl font-bold mb-8">User Profile</h1>
+      <h1 className="text-3xl font-bold mb-8">Mon profil</h1>
       <form className="flex flex-col gap-6" onSubmit={updateUser}>
         <div className="flex flex-col gap-1">
           <label htmlFor="firstname">First Name</label>
           <input
             type="text"
-            className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-            placeholder="Enter first name"
+            className="bg-white border border-gray-300 rounded-xl text-base h-12 px-4 w-full focus:border-exaltNavy focus:ring-exaltNavy max-[450px]:text-base"
+            placeholder="Prénom"
             id="firstname"
             name="name"
             defaultValue={user?.name}
@@ -84,8 +84,8 @@ const UserProfile = () => {
           <label htmlFor="lastname">Last Name</label>
           <input
             type="text"
-            className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-            placeholder="Enter last name"
+            className="bg-white border border-gray-300 rounded-xl text-base h-12 px-4 w-full focus:border-exaltNavy focus:ring-exaltNavy max-[450px]:text-base"
+            placeholder="Nom"
             id="lastname"
             name="lastname"
             defaultValue={user?.lastname}
@@ -95,8 +95,8 @@ const UserProfile = () => {
           <label htmlFor="email">Email</label>
           <input
             type="email"
-            className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-            placeholder="Enter email address"
+            className="bg-white border border-gray-300 rounded-xl text-base h-12 px-4 w-full focus:border-exaltNavy focus:ring-exaltNavy max-[450px]:text-base"
+            placeholder="Adresse e-mail"
             id="email"
             name="email"
             defaultValue={user?.email}
@@ -106,21 +106,21 @@ const UserProfile = () => {
           <label htmlFor="password">Password</label>
           <input
             type="password"
-            className="bg-white border border-black text-xl py-2 px-3 w-full outline-none max-[450px]:text-base"
-            placeholder="Enter password"
+            className="bg-white border border-gray-300 rounded-xl text-base h-12 px-4 w-full focus:border-exaltNavy focus:ring-exaltNavy max-[450px]:text-base"
+            placeholder="Mot de passe"
             id="password"
             name="password"
             defaultValue={user?.password}
           />
         </div>
-        <Button type="submit" text="Update Profile" mode="brown" />
+        <Button type="submit" text="Mettre à jour" mode="primary" />
         <Link
           to="/order-history"
           className="bg-white text-black text-center text-xl border border-gray-400 font-normal tracking-[0.6px] leading-[72px] w-full h-12 flex items-center justify-center max-md:text-base"
         >
-          Order History
+          Mes commandes
         </Link>
-        <Button onClick={logout} text="Logout" mode="white" />
+        <Button onClick={logout} text="Se déconnecter" mode="white" />
       </form>
     </div>
   );

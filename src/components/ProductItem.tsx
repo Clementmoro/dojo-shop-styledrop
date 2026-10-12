@@ -19,51 +19,39 @@ const ProductItem = ({
   stock: number;
 }) => {
   const isOutOfStock = stock === 0;
+  const isLimited = category === "limited-edition";
 
   return (
-    <div className="w-[400px] flex flex-col gap-2 justify-center max-md:w-[300px]">
-      <Link
-        to={`/product/${id}`}
-        className="relative w-full h-[300px] max-md:h-[200px] overflow-hidden"
-      >
+    <Link to={`/product/${id}`} className="group flex flex-col gap-3">
+      <div className="relative aspect-square rounded-2xl bg-exaltCream overflow-hidden">
         <img
           src={image.startsWith("http") || image.startsWith("/") ? image : `/assets/${image}`}
           alt={title}
-          className={`w-full h-full object-cover ${isOutOfStock ? "opacity-50 grayscale" : ""}`}
+          className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+            isOutOfStock ? "opacity-50 grayscale" : ""
+          }`}
         />
         {isOutOfStock && (
           <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
             Rupture de stock
           </span>
         )}
-      </Link>
-      <Link
-        to={`/product/${id}`}
-        className="text-black text-center text-3xl tracking-[1.02px] max-md:text-2xl"
-      >
-        <h2>{title}</h2>
-      </Link>
-      <p className="text-secondaryBrown text-lg tracking-wide text-center max-md:text-base">
-        {formatCategoryName(category)}
-      </p>
-      <p className="text-black text-2xl text-center font-bold max-md:text-xl">
-        {price}€
-      </p>
-      <div className="w-full flex flex-col gap-1">
-        <Link
-          to={`/product/${id}`}
-          className="text-white bg-secondaryBrown text-center text-xl font-normal tracking-[0.6px] leading-[72px] w-full h-12 flex items-center justify-center max-md:text-base"
-        >
-          View product
-        </Link>
-        <Link
-          to={`/product/${id}`}
-          className="bg-white text-black text-center text-xl border border-[rgba(0,0,0,0.40)] font-normal tracking-[0.6px] leading-[72px] w-full h-12 flex items-center justify-center max-md:text-base"
-        >
-          Learn more
-        </Link>
+        {!isOutOfStock && isLimited && (
+          <span className="absolute top-3 left-3 bg-exaltYellow text-exaltNavy text-xs font-bold px-2.5 py-1 rounded-full">
+            Édition limitée
+          </span>
+        )}
       </div>
-    </div>
+      <div className="flex justify-between items-start gap-3 px-1">
+        <div>
+          <h2 className="text-base font-semibold text-exaltNavy group-hover:text-exaltPink transition-colors">
+            {title}
+          </h2>
+          <p className="text-sm text-gray-500">{formatCategoryName(category)}</p>
+        </div>
+        <p className="text-base font-bold text-exaltNavy whitespace-nowrap">{price} €</p>
+      </div>
+    </Link>
   );
 };
 export default ProductItem;

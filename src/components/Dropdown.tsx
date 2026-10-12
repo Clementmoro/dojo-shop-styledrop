@@ -12,10 +12,10 @@ const Dropdown = ({
   return (
     <div>
       <div
-        className="flex justify-between items-center border-b border-black/30 h-14 cursor-pointer"
+        className="flex justify-between items-center border-b border-gray-200 h-14 cursor-pointer"
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <p className="text-black/95 text-base">{dropdownTitle}</p>
+        <p className="text-exaltNavy font-medium text-base">{dropdownTitle}</p>
         {isOpen ? (
           <HiChevronUp className="text-base" />
         ) : (
@@ -24,7 +24,7 @@ const Dropdown = ({
       </div>
       {isOpen && (
         <div className="mt-4">
-          <p className="text-sm">{children}</p>
+          <p className="text-sm text-gray-600 leading-relaxed pb-4">{children}</p>
         </div>
       )}
     </div>

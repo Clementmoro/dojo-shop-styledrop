@@ -4,7 +4,7 @@ export const checkLoginFormData = (data: {
   [k: string]: FormDataEntryValue;
 }) => {
     if(data?.email === "" || data?.password === "") {
-        toast.error("Please fill in all fields");
+        toast.error("Remplis tous les champs");
         return false;
     }
     return true;

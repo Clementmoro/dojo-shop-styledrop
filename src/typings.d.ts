@@ -6,6 +6,8 @@ interface Product {
   price: number;
   popularity: number;
   stock: number;
+  description?: string;
+  hidden?: boolean;
 }
 
 interface ProductInCart extends Product {

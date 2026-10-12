@@ -14,7 +14,7 @@ export const checkUserProfileFormData = (data: {
     email === "" &&
     password === ""
   ) {
-    toast.error("Please enter all the fields");
+    toast.error("Remplis tous les champs");
     return false;
   }
   return true;

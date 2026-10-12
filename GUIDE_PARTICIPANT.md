@@ -1,175 +1,162 @@
-# 🚀 Guide Participant — Dojo Claude Code
-## eXalt Promptathon · 3h · Niveau débutant
+# 🧭 Guide participant · Dojo Claude Code
 
-> **Pas besoin de coder.** Tout ce dont tu as besoin, c'est d'un navigateur et d'un compte GitHub.
-
----
-
-## Étape 1 — Crée ton compte GitHub (si ce n'est pas déjà fait)
-
-1. Va sur **[github.com](https://github.com)**
-2. Clique sur **"Sign up"**
-3. Crée un compte avec ton email (perso ou pro)
-4. Vérifie ton email et connecte-toi
-
-> ⏱️ **2 minutes max** — si tu as déjà un compte GitHub, passe directement à l'étape 2.
+> Pas besoin de coder. Un navigateur, un compte GitHub et un compte Claude suffisent.
 
 ---
 
-## Étape 2 — Ouvre la boutique eXalt
+## Avant de commencer
 
-Va directement sur : **[dojo-shop-styledrop.vercel.app](https://dojo-shop-styledrop.vercel.app)**
+**1. Accepte l'invitation GitHub.** Tu as reçu un e-mail « invited you to collaborate on Clementmoro/dojo-shop-styledrop ». Clique sur **Accept invitation**. C'est ce qui permettra à Sam de mettre ton prototype en ligne en Phase 3.
 
-✅ **Tu vois la boutique ? Tu es prêt pour les phases 1 et 2.**
+**2. Ouvre la boutique** dans un onglet : [dojo-shop-styledrop.vercel.app](https://dojo-shop-styledrop.vercel.app)
 
-> Le code source est disponible ici : **[github.com/Clementmoro/dojo-shop-styledrop](https://github.com/Clementmoro/dojo-shop-styledrop)**
+**3. Ouvre Claude Code** dans un autre onglet : [claude.ai/code](https://claude.ai/code). Connecte GitHub si on te le demande, puis choisis le repo **`Clementmoro/dojo-shop-styledrop`**.
+
+**4. Dis bonjour à Sam :**
+
+```
+Bonjour ! Je m'appelle [ton prénom], je suis consultant PM et c'est mon premier jour
+sur la mission eXalt. Tu peux me présenter le produit ?
+```
+
+Sam, c'est Claude dans le rôle du tech lead de l'équipe. Il a lu tout le code et toutes les données. Il termine chaque réponse par des **👉 Pistes** : si tu ne sais pas quoi demander, copie-en une.
 
 ---
 
-## Étape 3 — Connecte-toi à Claude Code
+## 🔍 Phase 1 · Discovery (35 min)
 
-1. Va sur **[claude.ai/code](https://claude.ai/code)** dans un nouvel onglet
-2. Connecte-toi avec ton compte Anthropic (ou crée-en un gratuitement)
-3. Dans l'interface Claude Code, connecte-toi au repo GitHub :
-   - Clique sur **"Connect to GitHub Codespace"**
-   - Autorise l'accès à GitHub si demandé
-   - Sélectionne le Codespace `dojo-shop-styledrop`
+**L'objectif :** répondre à la question de la sponsor client, « où est-ce qu'on perd nos clients ? ».
 
-> 💡 **Claude Code voit tout le code du projet.** Il peut lire les fichiers, comprendre l'architecture, et modifier le code en direct.
+La boutique cache **plusieurs frictions**, et les données du trimestre en gardent la trace. Tu as trois terrains de jeu :
 
-> ⚠️ **Le Codespace est nécessaire uniquement pour la Phase 3 (Vibe Coding).** Pour les phases 1 et 2, la boutique Vercel suffit — pas besoin de le lancer tout de suite.
+| Terrain | Où | Pour quoi faire |
+|---|---|---|
+| Le brief | `mission/BRIEF.md` | Comprendre ce que veut le client et ses KPIs |
+| Le site | La boutique en ligne | Vivre le parcours comme un vrai client |
+| Les données | `mission/data/` | Prouver avec des chiffres ce que tu ressens sur le site |
+
+**Pour démarrer :**
+
+```
+Lis le brief de Sophie dans mission/BRIEF.md et résume-moi ce qu'elle attend de moi.
+```
+
+```
+Dans les données du funnel, à quelle étape on perd le plus de monde ? Et sur mobile ?
+```
+
+```
+Je vais passer une commande complète sur le site. Dis-moi quoi regarder à chaque étape.
+```
+
+```
+Une autre promo de consultants est passée sur cette boutique avant moi.
+Qu'est-ce qu'ils ont ajouté, et où je peux le voir sur GitHub ?
+```
+
+**Le bon réflexe :** une intuition sur le site, une preuve dans la donnée. « Le total me paraît cher » devient « la chute panier → checkout est de X % ».
+
+### 🥚 Bonus : les 3 secrets
+
+En plus des frictions, 3 secrets sont cachés dans la boutique. Sam sait où ils sont mais ne te le dira pas : au mieux, un indice. Un bon PM regarde là où les utilisateurs ne regardent jamais…
+
+### 📝 Ton carnet de chasse
+
+Note ce que tu trouves, on fait le décompte au débrief.
+
+| # | Ce que j'ai trouvé | Où (site, donnée, code) | La preuve chiffrée |
+|---|---|---|---|
+| 1 | | | |
+| 2 | | | |
+| 3 | | | |
+| 4 | | | |
+| 5 | | | |
+| 6 | | | |
+
+Features de la promo précédente retrouvées : ____ / 6
+
+Secrets trouvés : ☐ ☐ ☐
 
 ---
 
-## Étape 4 — Dis bonjour à Claude
+## 📋 Phase 2 · Documentation (25 min)
 
-Dans la fenêtre de chat Claude Code, tape :
+Transforme ta chasse en livrables. Choisis-en 2, génère un premier jet, puis itère au moins 2 fois.
 
 ```
-Bonjour ! Je viens de rejoindre la mission eXalt en tant que consultant PM.
-C'est mon premier jour. Peux-tu me présenter le produit sur lequel je vais travailler ?
+À partir de ce qu'on a trouvé ensemble, fais-moi une journey map de l'acheteur :
+étape, action, émotion, friction, preuve dans les données.
 ```
 
-Claude va lire le fichier `CLAUDE.md` automatiquement et te briefer comme si tu étais en mission réelle. 🎯
+```
+Priorise les frictions trouvées avec une matrice impact / effort,
+et propose 3 quick wins avant le Drop #2 du 20 novembre.
+```
+
+```
+Rédige les user stories des 3 quick wins, avec critères d'acceptation.
+```
+
+```
+Écris la réponse à Sophie : un mail de 15 lignes avec le diagnostic et la recommandation.
+```
+
+> 💬 Sam fait le premier jet. Le jugement, c'est toi : corrige ce qui est faux, ajoute ce que tu as vu.
 
 ---
 
-## Les 3 phases du dojo
+## 🚀 Phase 3 · Prototypage (50 min)
 
-| Phase | Durée | Objectif |
-|-------|-------|----------|
-| **Phase 1 · Discovery** | 35 min | Explorer le produit, comprendre le code, identifier les frictions |
-| **Phase 2 · Documentation** | 40 min | Produire de vrais livrables PM avec Claude |
-| **Phase 3 · Vibe Coding** | 55 min | Prototyper une feature de ton choix |
+Choisis une amélioration (idéalement un de tes quick wins) et décris-la à Sam :
+
+```
+Je m'appelle [ton prénom]. Je veux prototyper [ta feature en 1 ou 2 phrases].
+Le problème que ça résout : [le problème].
+```
+
+**Ce qui va se passer :**
+1. Sam crée ta **branche** : ton brouillon, la version officielle du site n'est pas touchée.
+2. Il code, puis **sauvegarde** (commit) et **envoie sur GitHub** (push).
+3. Vercel construit ta version en 1 à 2 minutes. Sam te donne ton lien : 🔗 **ton prototype est en ligne**.
+4. Tu testes, tu demandes des ajustements, Sam met à jour. À chaque fois, un nouveau lien.
+
+**Idées si tu sèches :** corriger ce que tu as trouvé en Phase 1, ou ajouter une wishlist, des avis clients, une alerte « prévenez-moi du retour en stock », une section nouveautés, un guide des tailles…
+
+> ⚠️ Ne demande jamais à Sam de toucher à `main` : la mise en prod, c'est l'animateur qui la fait.
 
 ---
 
-## Prompts de démarrage par phase
+## 🚢 Mise en prod en continu (à partir de 01:55)
 
-### 🔍 Phase 1 · Discovery
-
-```
-Décris-moi l'architecture de ce projet comme si j'étais un PM non-technique.
-Quelles sont les pages principales, les fonctionnalités clés, et comment les données circulent ?
-```
+**Ton proto te plaît ?** Dis à Sam :
 
 ```
-Fais-moi visiter le parcours complet d'un client sur cette boutique, de l'arrivée
-sur la homepage jusqu'à la confirmation de commande. Où est-ce qu'un utilisateur
-pourrait décrocher selon toi ?
+Mon proto est prêt, je veux le proposer pour la prod.
 ```
 
-```
-Compare cette boutique à ce qu'on trouve sur des sites comme Zara ou ASOS.
-Qu'est-ce qui manque ? Qu'est-ce qui est bien fait ?
-```
+Sam met ta branche à jour, puis te donne un lien de **Pull Request**. Ouvre-le, clique sur **Create pull request** : c'est ta demande de mise en prod.
 
----
+**L'animateur merge et annonce :** « Nouvelle feature en prod ! » sans dire laquelle. Tout le monde la cherche sur [la boutique](https://dojo-shop-styledrop.vercel.app).
 
-### 📋 Phase 2 · Documentation
+**Le premier qui la trouve** désigne son auteur, qui la pitche en 1 minute, debout :
+1. **La friction** de départ
+2. **La feature** en une phrase
+3. **Ton brief** à Sam
+4. **La suite** : ce que tu ferais ensuite
 
-```
-Génère une carte du parcours utilisateur complet pour la boutique eXalt,
-de la découverte du site à la livraison. Format tableau avec : étape,
-action utilisateur, émotion probable, point de friction potentiel.
-```
-
-```
-Reverse-engineer les User Stories existantes à partir du code.
-Format : En tant que [persona], je veux [action] afin de [bénéfice].
-Donne-moi les 10 User Stories principales de ce produit.
-```
-
-```
-Crée 2 personas pour la boutique eXalt goodies : un consultant eXalt régulier
-et un client externe découvrant la marque. Format fiche complète avec
-nom, âge, contexte, motivations, frustrations.
-```
-
-```
-Fais une analyse des features manquantes par rapport aux standards
-du e-commerce fashion. Priorise-les en MoSCoW et estime l'impact business.
-```
+Ton proto n'est pas mergé à temps ? Tu montres ton lien de preview pendant la clôture.
 
 ---
 
-### 💻 Phase 3 · Vibe Coding
-
-```
-Je veux prototyper [décris ta feature en 1-2 phrases].
-Le problème utilisateur que ça résout : [décris le problème].
-Avant de coder, dis-moi ce que tu vas faire et comment tu vas le faire.
-```
-
-**Idées de features à prototyper :**
-- 🔍 Barre de recherche en temps réel sur le catalogue
-- ❤️ Système de wishlist / favoris
-- ⭐ Affichage de notes et avis produits
-- 🏷️ Filtre par prix (slider min-max)
-- 🎨 Sélecteur de couleur visuel (pastilles colorées)
-- 📦 Badge "Stock faible" sur les produits
-- 🆕 Section "Nouveautés" sur la homepage
-- 💬 Pop-in de bienvenue avec offre de lancement
-
----
-
-## En cas de problème
+## En cas de pépin
 
 | Problème | Solution |
-|----------|----------|
-| La boutique ne se lance pas | Ouvre le terminal dans le Codespace et tape `npm start` |
-| Le Codespace est lent | Attends 30 secondes, il chauffe au démarrage |
-| Claude ne voit pas les fichiers | Vérifie que tu es bien connecté au bon Codespace |
-| Une page affiche une erreur | Demande à Claude : "J'ai cette erreur : [colle l'erreur]" |
-| Je suis bloqué sur une phase | Demande à Claude : "Je suis bloqué, guide-moi étape par étape" |
+|---|---|
+| Je ne vois pas le repo dans Claude Code | Vérifie que tu as accepté l'invitation GitHub, puis recharge |
+| Sam dit qu'il ne peut pas pousser | Appelle l'animateur (invitation pas encore acceptée ?) |
+| Mon lien de preview ne marche pas | Demande à Sam : « Le lien ne marche pas, tu peux vérifier ? » |
+| Je suis perdu | Demande à Sam : « Je suis perdu, on en est où et je fais quoi maintenant ? » |
 
 ---
 
-## Tips pour bien bosser avec Claude Code
-
-✅ **Sois précis** : "Ajoute un filtre par prix entre 0 et 100€ sur la page /shop" vaut mieux que "améliore les filtres"
-
-✅ **Demande des explications** : "Explique-moi ce que tu viens de faire en termes non-techniques"
-
-✅ **Valide avant de merger** : "Qu'est-ce que ça change dans le comportement de l'appli ?"
-
-✅ **Itère** : "C'est bien mais je voudrais que le filtre se reset quand je change de catégorie"
-
-❌ **Évite les prompts vagues** : "Rends le site plus joli" → Claude ne sait pas quoi faire
-
-❌ **N'accepte pas aveuglément** : Lis le résumé que Claude donne avant chaque modif
-
----
-
-## À la fin du dojo — ton pitch (5 min)
-
-Prépare-toi à présenter :
-1. **La feature que tu as prototypée** (1 phrase)
-2. **Le problème utilisateur qu'elle résout** (1 phrase)
-3. **Une démo live** de la feature dans le navigateur
-4. **Ce que tu aurais fait différemment** avec plus de temps
-
----
-
-*Dojo organisé par eXalt — Promptathon 2025*
-*Répo : [github.com/Clementmoro/dojo-shop-styledrop](https://github.com/Clementmoro/dojo-shop-styledrop)*
+*Dojo Claude Code · eXalt*
