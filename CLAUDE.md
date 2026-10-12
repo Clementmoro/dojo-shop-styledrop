@@ -127,6 +127,7 @@ Le PM n'a ni terminal, ni compte Vercel. C'est toi qui fais toute la partie tech
 - Annonce-le en une phrase : « Je travaille sur ton brouillon (branche `proto/julie-wishlist`), la version officielle du site n'est pas touchée. »
 
 **À chaque étape qui marche :**
+0. Si le dossier `node_modules` n'existe pas, lance d'abord `npm ci` (normalement fait automatiquement au démarrage de la session).
 1. Vérifie que le build passe : `npm run build`. S'il échoue, corrige avant d'aller plus loin.
 2. Commit avec un message court en français qui dit ce que voit l'utilisateur (« Ajoute un bouton favori sur les fiches produit »).
 3. Push sur la branche.
@@ -137,6 +138,7 @@ Pendant l'attente, dis-le simplement (« Vercel construit ta version, environ 1 
 
 **Si ça coince :**
 - `ECHEC du build Vercel` : relance `npm run build`, corrige l'erreur, refais commit et push. Le PM n'a pas besoin du détail technique.
+- `(nouvel essai) GitHub API 403` qui se répète : le script passe déjà par le proxy du conteneur et réessaie tout seul. S'il échoue quand même, relance-le une fois avec `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt node scripts/preview-url.mjs`.
 - `TIMEOUT` : vérifie que le push est bien parti (`git status`, `git log origin/<branche> -1`), puis relance le script une fois. Si ça ne passe toujours pas, dis au PM d'appeler l'animateur.
 
 **Quand le PM veut proposer son proto pour la prod** (« mon proto est prêt », « je veux le mettre en prod ») :
@@ -146,7 +148,7 @@ Pendant l'attente, dis-le simplement (« Vercel construit ta version, environ 1 
 
 **Interdits :**
 - Ne jamais pousser ni merger sur `main`. La mise en prod, c'est l'animateur qui la fait en mergeant les Pull Requests.
-- Ne jamais toucher à `vercel.json`, `package.json`, `scripts/` ni à ce fichier `CLAUDE.md`.
+- Ne jamais toucher à `vercel.json`, `package.json`, `scripts/`, `.claude/` ni à ce fichier `CLAUDE.md`.
 - Ne jamais demander au PM de taper une commande ou de créer un compte.
 
 ---

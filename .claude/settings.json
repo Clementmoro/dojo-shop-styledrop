@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$CLAUDE_CODE_REMOTE\" = \"true\" ] || exit 0; [ -d node_modules ] || npm ci --no-audit --no-fund >/dev/null 2>&1 || true",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
