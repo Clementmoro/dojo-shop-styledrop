@@ -10,7 +10,8 @@ import {
 } from "../features/cart/cartSlice";
 import toast from "react-hot-toast";
 import {
-  EXPIRED_PROMO_CODES,
+  findActivePromoCode,
+  isExpiredPromoCode,
   formatPrice,
   getPromoDiscountRate,
 } from "../utils/promoCodes";
@@ -34,7 +35,7 @@ const Cart = () => {
 
   const handleApplyPromo = () => {
     if (!promoInput.trim()) return;
-    if (EXPIRED_PROMO_CODES.includes(promoInput.trim())) {
+    if (isExpiredPromoCode(promoInput)) {
       setPromoError("Code expiré");
       return;
     }
@@ -43,7 +44,7 @@ const Cart = () => {
       setPromoError("Code invalide");
       return;
     }
-    dispatch(applyPromoCode({ code: promoInput.trim(), rate }));
+    dispatch(applyPromoCode({ code: findActivePromoCode(promoInput) ?? promoInput.trim(), rate }));
     setPromoError(null);
     setPromoInput("");
     toast.success(`-${rate * 100} % appliqué`);
