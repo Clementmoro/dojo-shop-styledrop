@@ -18,7 +18,7 @@ const SidebarMenu = ({
   const navigate = useNavigate();
 
   const logout = () => {
-    toast.error("Logged out successfully");
+    toast.error("Tu es déconnecté");
     localStorage.removeItem("user");
     store.dispatch(setLoginStatus(false));
     navigate("/login");
@@ -39,8 +39,8 @@ const SidebarMenu = ({
         <div
           className={
             isSidebarOpen
-              ? "fixed top-0 left-0 w-64 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-lg transform border-r border-black translate-x-0"
-              : "fixed top-0 left-0 w-64 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-lg transform border-r border-black -translate-x-full"
+              ? "fixed top-0 left-0 w-64 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-lg transform border-r border-gray-200 translate-x-0"
+              : "fixed top-0 left-0 w-64 z-50 h-full transition-transform duration-300 ease-in-out bg-white shadow-lg transform border-r border-gray-200 -translate-x-full"
           }
         >
           <div className="flex justify-end mr-1 mt-1">
@@ -50,62 +50,63 @@ const SidebarMenu = ({
             />
           </div>
           <div className="flex justify-center mt-2">
-            <Link
-              to="/"
-              className="text-4xl font-light tracking-[1.08px] max-sm:text-3xl max-[400px]:text-2xl"
-            >
-              FASHION
+            <Link to="/" onClick={() => setIsSidebarOpen(false)}>
+              <img
+                src="https://images.prismic.io/exalt/ZlTQKaWtHYXtT1CW_HEADER_Logo.png?auto=format%2Ccompress&fit=max&w=256"
+                alt="eXalt"
+                className="h-8"
+              />
             </Link>
           </div>
           <div className="flex flex-col items-center gap-1 mt-7">
             <Link
               to="/"
-              className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
             >
-              Home
+              Accueil
             </Link>
             <Link
               to="/shop"
-              className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
             >
-              Shop
+              Boutique
             </Link>
             <Link
               to="/search"
-              className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
             >
-              Search
+              Recherche
             </Link>
             {loginStatus ? (
               <>
                 <button
                   onClick={logout}
-                  className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+                  className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
                 >
-                  Logout
+                  Se déconnecter
                 </button>
               </>
             ) : (
               <>
                 <Link
                   to="/login"
-                  className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+                  className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
                 >
-                  Sign in
+                  Se connecter
                 </Link>
                 <Link
                   to="/register"
-                  className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+                  className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
                 >
-                  Sign up
+                  Créer un compte
                 </Link>
               </>
             )}
             <Link
               to="/cart"
-              className="py-2 border-y border-secondaryBrown w-full block flex justify-center"
+              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
             >
-              Cart
+              Panier
             </Link>
           </div>
         </div>

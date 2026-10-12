@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+# Rien à voir ici. Vraiment rien.
+Disallow: /coulisses

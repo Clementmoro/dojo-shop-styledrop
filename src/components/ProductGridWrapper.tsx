@@ -36,8 +36,10 @@ const ProductGridWrapper = ({
       }
       const response = await customFetch("/products");
       const allProducts = await response.data;
-      let searchedProducts = allProducts.filter((product: Product) =>
-        product.title.toLowerCase().includes(query.toLowerCase())
+      let searchedProducts = allProducts.filter(
+        (product: Product) =>
+          !product.hidden &&
+          product.title.toLowerCase().includes(query.toLowerCase())
       );
 
       if (category) {

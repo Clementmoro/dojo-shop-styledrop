@@ -1,0 +1,20 @@
+id,produit,categorie,prix_eur,stock_actuel,vues_fiche,ajouts_panier,commandes,ca_eur
+1,"eXalt Navy Hoodie",clothing,55.00,30,1012,151,11,605.00
+2,"eXalt Classic T-Shirt",clothing,25.00,50,770,149,11,275.00
+3,"eXalt Polo Navy",clothing,35.00,25,628,85,6,210.00
+4,"eXalt Navy Sweatshirt",clothing,45.00,20,611,78,6,270.00
+5,"eXalt Logo Cap",accessories,20.00,0,1903,11,3,60.00
+6,"eXalt Tote Bag",accessories,18.00,40,469,36,5,90.00
+7,"eXalt Premium Backpack",accessories,75.00,15,677,3,0,0.00
+8,"eXalt Laptop Sleeve 15""",accessories,40.00,20,427,51,5,200.00
+9,"eXalt Notebook A5",stationery,15.00,100,567,229,20,300.00
+10,"eXalt Pen Set",stationery,12.00,80,367,322,22,264.00
+11,"eXalt Travel Mug",stationery,28.00,35,519,232,16,448.00
+12,"eXalt Sticker Pack",stationery,8.00,200,987,528,38,304.00
+13,"eXalt x Flow Hoodie",limited-edition,75.00,5,1390,150,15,1125.00
+14,"eXalt Pink Cap · Drop #1",limited-edition,35.00,10,922,99,6,210.00
+15,"eXalt Premium Notebook · Gold Edition",limited-edition,30.00,8,471,19,2,60.00
+16,"eXalt Heritage T-Shirt",limited-edition,45.00,12,542,48,4,180.00
+17,"eXalt Polo Pink Edition",clothing,38.00,15,561,13,1,38.00
+18,"eXalt Conference Bag",accessories,50.00,20,464,59,4,200.00
+99,"???",inconnue,,1,3,0,0,0.00

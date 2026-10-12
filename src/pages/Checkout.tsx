@@ -7,15 +7,18 @@ import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
+import { formatPrice } from "../utils/promoCodes";
 
 const paymentMethods = [
-  { id: "credit-card", title: "Credit card" },
+  { id: "credit-card", title: "Carte bancaire" },
   { id: "paypal", title: "PayPal" },
-  { id: "etransfer", title: "eTransfer" },
+  { id: "etransfer", title: "Virement" },
 ];
 
 const Checkout = () => {
-  const { productsInCart, subtotal } = useAppSelector((state) => state.cart);
+  const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector((state) => state.cart);
+  const discount = subtotal * discountRate;
+  const taxableAmount = subtotal - discount;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isGift, setIsGift] = useState(false);
@@ -83,10 +86,10 @@ const Checkout = () => {
     }
 
     if (response.status === 201) {
-      toast.success("Order has been placed successfully");
+      toast.success("Commande validée, merci !");
       navigate("/order-confirmation");
     } else {
-      toast.error("Something went wrong, please try again later");
+      toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
     }
   };
 
@@ -143,7 +146,7 @@ const Checkout = () => {
           <div>
             <div>
               <h2 className="text-lg font-medium text-gray-900">
-                Contact information
+                Coordonnées
               </h2>
 
               <div className="mt-4">
@@ -151,7 +154,7 @@ const Checkout = () => {
                   htmlFor="email-address"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Email address
+                  Adresse e-mail
                 </label>
                 <div className="mt-1">
                   <input
@@ -168,7 +171,7 @@ const Checkout = () => {
 
             <div className="mt-10 border-t border-gray-200 pt-10">
               <h2 className="text-lg font-medium text-gray-900">
-                Shipping information
+                Livraison
               </h2>
 
               <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
@@ -177,7 +180,7 @@ const Checkout = () => {
                     htmlFor="first-name"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    First name
+                    Prénom
                   </label>
                   <div className="mt-1">
                     <input
@@ -196,7 +199,7 @@ const Checkout = () => {
                     htmlFor="last-name"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Last name
+                    Nom
                   </label>
                   <div className="mt-1">
                     <input
@@ -215,7 +218,7 @@ const Checkout = () => {
                     htmlFor="company"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Company <span className="text-gray-400 font-normal">(optional)</span>
+                    Entreprise <span className="text-gray-400 font-normal">(facultatif)</span>
                   </label>
                   <div className="mt-1">
                     <input
@@ -232,7 +235,7 @@ const Checkout = () => {
                     htmlFor="address"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Address
+                    Adresse
                   </label>
                   <div className="mt-1">
                     <input
@@ -251,7 +254,7 @@ const Checkout = () => {
                     htmlFor="apartment"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Apartment, suite, etc. <span className="text-gray-400 font-normal">(optional)</span>
+                    Complément d'adresse <span className="text-gray-400 font-normal">(facultatif)</span>
                   </label>
                   <div className="mt-1">
                     <input
@@ -268,7 +271,7 @@ const Checkout = () => {
                     htmlFor="city"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    City
+                    Ville
                   </label>
                   <div className="mt-1">
                     <input
@@ -287,7 +290,7 @@ const Checkout = () => {
                     htmlFor="country"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Country
+                    Pays
                   </label>
                   <div className="mt-1">
                     <select
@@ -343,7 +346,7 @@ const Checkout = () => {
                     htmlFor="postal-code"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Postal code
+                    Code postal
                   </label>
                   <div className="mt-1">
                     <input
@@ -362,7 +365,7 @@ const Checkout = () => {
                     htmlFor="phone"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Phone
+                    Téléphone
                   </label>
                   <div className="mt-1">
                     <input
@@ -508,7 +511,7 @@ const Checkout = () => {
 
             {/* Payment */}
             <div ref={paymentRef} className="mt-10 border-t border-gray-200 pt-10">
-              <h2 className="text-lg font-medium text-gray-900">Payment</h2>
+              <h2 className="text-lg font-medium text-gray-900">Paiement</h2>
 
               <fieldset className="mt-4">
                 <legend className="sr-only">Payment type</legend>
@@ -549,7 +552,7 @@ const Checkout = () => {
                     htmlFor="card-number"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Card number
+                    Numéro de carte
                   </label>
                   <div className="mt-1">
                     <input
@@ -568,7 +571,7 @@ const Checkout = () => {
                     htmlFor="name-on-card"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Name on card
+                    Nom sur la carte
                   </label>
                   <div className="mt-1">
                     <input
@@ -587,7 +590,7 @@ const Checkout = () => {
                     htmlFor="expiration-date"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Expiration date (MM/YY)
+                    Date d'expiration (MM/AA)
                   </label>
                   <div className="mt-1">
                     <input
@@ -606,7 +609,7 @@ const Checkout = () => {
                     htmlFor="cvc"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    CVC
+                    Cryptogramme
                   </label>
                   <div className="mt-1">
                     <input
@@ -625,7 +628,7 @@ const Checkout = () => {
 
           {/* Order summary */}
           <div className="mt-10 lg:mt-0">
-            <h2 className="text-lg font-medium text-gray-900">Order summary</h2>
+            <h2 className="text-lg font-medium text-gray-900">Récapitulatif</h2>
 
             <div className="mt-4 border border-gray-200 bg-white shadow-sm">
               <h3 className="sr-only">Items in your cart</h3>
@@ -677,7 +680,7 @@ const Checkout = () => {
 
                         <div className="ml-4">
                           <p className="text-base">
-                            Quantity: {product?.quantity}
+                            Quantité : {product?.quantity}
                           </p>
                         </div>
                       </div>
@@ -689,40 +692,46 @@ const Checkout = () => {
               {isGift && (
                 <div className="flex items-center gap-2 bg-pink-500 px-4 py-3 sm:px-6">
                   <span className="text-sm font-medium text-white">
-                    🎁 Mode cadeau activé — les prix seront masqués sur le bon de livraison.
+                    🎁 Mode cadeau activé : les prix seront masqués sur le bon de livraison.
                   </span>
                 </div>
               )}
 
               <dl className="space-y-6 border-t border-gray-200 px-4 py-6 sm:px-6">
                 <div className="flex items-center justify-between">
-                  <dt className="text-sm">Subtotal</dt>
+                  <dt className="text-sm">Sous-total</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    {subtotal}€
+                    {formatPrice(subtotal)}
+                  </dd>
+                </div>
+                {promoCode && (
+                  <div className="flex items-center justify-between text-green-700">
+                    <dt className="text-sm">Code {promoCode}</dt>
+                    <dd className="text-sm font-medium">-{formatPrice(discount)}</dd>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <dt className="text-sm">Livraison</dt>
+                  <dd className="text-sm font-medium text-gray-900">
+                    {formatPrice(subtotal ? 5 : 0)}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-sm">Shipping</dt>
+                  <dt className="text-sm">TVA (20 %)</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    {subtotal ? 5 : 0}€
-                  </dd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm">Taxes</dt>
-                  <dd className="text-sm font-medium text-gray-900">
-                    {subtotal ? subtotal / 5 : 0}€
+                    {formatPrice(subtotal ? taxableAmount / 5 : 0)}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                   <dt className="text-base font-medium">Total</dt>
                   <dd className="text-base font-medium text-gray-900">
-                    {subtotal ? subtotal + 5 + subtotal / 5 : 0}€
+                    {formatPrice(subtotal ? taxableAmount + 5 + taxableAmount / 5 : 0)}
                   </dd>
                 </div>
               </dl>
 
               <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
-                <Button text="Confirm Order" mode="brown" />
+                <Button text="Valider la commande" mode="primary" />
               </div>
             </div>
           </div>

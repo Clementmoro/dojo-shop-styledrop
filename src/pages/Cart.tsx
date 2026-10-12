@@ -1,210 +1,232 @@
-import {
-  HiCheck as CheckIcon,
-  HiXMark as XMarkIcon,
-  HiQuestionMarkCircle as QuestionMarkCircleIcon,
-} from "react-icons/hi2";
+import { useState } from "react";
+import { HiCheck as CheckIcon, HiXMark as XMarkIcon } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { Link } from "react-router-dom";
 import {
+  applyPromoCode,
+  removePromoCode,
   removeProductFromTheCart,
   updateProductQuantity,
 } from "../features/cart/cartSlice";
 import toast from "react-hot-toast";
+import {
+  EXPIRED_PROMO_CODES,
+  formatPrice,
+  getPromoDiscountRate,
+} from "../utils/promoCodes";
+
+const SHIPPING_FEE = 5;
+const TAX_RATE = 0.2;
 
 const Cart = () => {
-  const { productsInCart, subtotal } = useAppSelector((state) => state.cart);
+  const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector(
+    (state) => state.cart
+  );
   const dispatch = useAppDispatch();
+  const [promoInput, setPromoInput] = useState("");
+  const [promoError, setPromoError] = useState<string | null>(null);
+
+  const discount = subtotal * discountRate;
+  const taxableAmount = subtotal - discount;
+  const tax = taxableAmount * TAX_RATE;
+  const shipping = subtotal === 0 ? 0 : SHIPPING_FEE;
+  const total = subtotal === 0 ? 0 : taxableAmount + tax + shipping;
+
+  const handleApplyPromo = () => {
+    if (!promoInput.trim()) return;
+    if (EXPIRED_PROMO_CODES.includes(promoInput.trim())) {
+      setPromoError("Code expiré");
+      return;
+    }
+    const rate = getPromoDiscountRate(promoInput);
+    if (rate === null) {
+      setPromoError("Code invalide");
+      return;
+    }
+    dispatch(applyPromoCode({ code: promoInput.trim(), rate }));
+    setPromoError(null);
+    setPromoInput("");
+    toast.success(`-${rate * 100} % appliqué`);
+  };
 
   return (
-    <div className="bg-white mx-auto max-w-screen-2xl px-5 max-[400px]:px-3">
-      <div className="pb-24 pt-16">
-        <h1 className="text-3xl tracking-tight text-gray-900 sm:text-4xl">
-          Shopping Cart
-        </h1>
-        <form className="mt-12 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
-          <section aria-labelledby="cart-heading" className="lg:col-span-7">
-            <h2 id="cart-heading" className="sr-only">
-              Items in your shopping cart
-            </h2>
+    <div className="mx-auto max-w-screen-2xl px-5 max-[400px]:px-3">
+      <div className="pb-24 pt-12">
+        <h1 className="font-display text-4xl font-bold text-exaltNavy max-sm:text-3xl">Mon panier</h1>
 
-            <ul
-              role="list"
-              className="divide-y divide-gray-200 border-b border-t border-gray-200"
+        {productsInCart.length === 0 ? (
+          <div className="mt-12 rounded-3xl bg-exaltCream p-12 text-center">
+            <p className="text-lg text-exaltNavy">Ton panier est vide pour l'instant.</p>
+            <Link
+              to="/shop"
+              className="inline-flex mt-6 bg-exaltNavy hover:bg-exaltPink transition-colors text-white font-semibold rounded-full h-12 px-8 items-center"
             >
-              {productsInCart.map((product) => (
-                <li key={product.id} className="flex py-6 sm:py-10">
-                  <div className="flex-shrink-0">
-                    <img
-                      src={product.image?.startsWith("http") || product.image?.startsWith("/") ? product.image : `/assets/${product.image}`}
-                      alt={product.title}
-                      className="h-24 w-24 object-cover object-center sm:h-48 sm:w-48"
-                    />
-                  </div>
+              Découvrir la boutique
+            </Link>
+          </div>
+        ) : (
+          <form className="mt-10 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-12 xl:gap-x-16">
+            <section aria-labelledby="cart-heading" className="lg:col-span-7">
+              <h2 id="cart-heading" className="sr-only">
+                Articles du panier
+              </h2>
 
-                  <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
-                    <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
-                      <div>
-                        <div className="flex justify-between">
-                          <h3 className="text-sm">
-                            <Link
-                              to={`/product/${product.id}`}
-                              className="font-medium text-gray-700 hover:text-gray-800"
-                            >
-                              {product.title}
-                            </Link>
-                          </h3>
-                        </div>
-                        <div className="mt-1 flex text-sm">
-                          <p className="text-gray-500">{product.color}</p>
-                          {product.size ? (
-                            <p className="ml-4 border-l border-gray-200 pl-4 text-gray-500">
-                              {product.size}
-                            </p>
-                          ) : null}
-                        </div>
-                        <p className="mt-1 text-sm font-medium text-gray-900">
-                          {product.price}€
-                        </p>
-                      </div>
-
-                      <div className="mt-4 sm:mt-0 sm:pr-9">
-                        <label htmlFor="quantity mr-5">Quantity: </label>
-                        <input
-                          type="number"
-                          id="quantity"
-                          className="w-16 h-7 indent-1 bg-white border"
-                          value={product?.quantity}
-                          onChange={(e) => {
-                            dispatch(
-                              updateProductQuantity({
-                                id: product?.id,
-                                quantity: parseInt(e.target.value),
-                              })
-                            );
-                          }}
-                        />
-
-                        <div className="absolute right-0 top-0">
-                          <button
-                            type="button"
-                            className="-m-2 inline-flex p-2 text-gray-400 hover:text-gray-500"
-                            onClick={() =>{
-                              dispatch(
-                                removeProductFromTheCart({ id: product?.id })
-                              ); toast.error("Product removed from the cart");}
-                            }
-                          >
-                            <span className="sr-only">Remove</span>
-                            <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                          </button>
-                        </div>
-                      </div>
+              <ul role="list" className="divide-y divide-gray-100 border-b border-t border-gray-100">
+                {productsInCart.map((product) => (
+                  <li key={product.id} className="flex py-6 sm:py-8">
+                    <div className="flex-shrink-0 rounded-2xl bg-exaltCream overflow-hidden">
+                      <img
+                        src={product.image?.startsWith("http") || product.image?.startsWith("/") ? product.image : `/assets/${product.image}`}
+                        alt={product.title}
+                        className="h-24 w-24 object-cover object-center sm:h-36 sm:w-36"
+                      />
                     </div>
 
-                    <p className="mt-4 flex space-x-2 text-sm text-gray-700">
-                      {product?.stock ? (
-                        <CheckIcon
-                          className="h-5 w-5 flex-shrink-0 text-green-500"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <XMarkIcon
-                          className="h-5 w-5 flex-shrink-0 text-red-600"
-                          aria-hidden="true"
-                        />
-                      )}
+                    <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
+                      <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
+                        <div>
+                          <h3 className="text-base font-semibold text-exaltNavy">{product.title}</h3>
+                          <div className="mt-1 flex text-sm text-gray-500">
+                            <p>{product.color}</p>
+                            {product.size ? (
+                              <p className="ml-4 border-l border-gray-200 pl-4">{product.size}</p>
+                            ) : null}
+                          </div>
+                          <p className="mt-1 text-sm font-semibold text-exaltNavy">{product.price} €</p>
+                        </div>
 
-                      <span>
-                        {product?.stock ? "In stock" : `Out of stock`}
-                      </span>
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+                        <div className="mt-4 sm:mt-0 sm:pr-9 text-sm">
+                          <label htmlFor={`quantity-${product.id}`} className="mr-2 text-gray-600">
+                            Quantité
+                          </label>
+                          <input
+                            type="number"
+                            id={`quantity-${product.id}`}
+                            className="w-16 h-9 rounded-lg border-gray-300 text-center"
+                            value={product?.quantity}
+                            onChange={(e) => {
+                              dispatch(
+                                updateProductQuantity({
+                                  id: product?.id,
+                                  quantity: parseInt(e.target.value),
+                                })
+                              );
+                            }}
+                          />
 
-          {/* Order summary */}
-          <section
-            aria-labelledby="summary-heading"
-            className="mt-16 bg-gray-50 px-4 py-6 sm:p-6 lg:col-span-5 lg:mt-0 lg:p-8"
-          >
-            <h2
-              id="summary-heading"
-              className="text-lg font-medium text-gray-900"
+                          <div className="absolute right-0 top-0">
+                            <button
+                              type="button"
+                              className="-m-2 inline-flex p-2 text-gray-400 hover:text-exaltPink"
+                              onClick={() => {
+                                dispatch(removeProductFromTheCart({ id: product?.id }));
+                                toast.error("Produit retiré du panier");
+                              }}
+                            >
+                              <span className="sr-only">Retirer</span>
+                              <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="mt-4 flex space-x-2 text-sm text-gray-600">
+                        {product?.stock ? (
+                          <CheckIcon className="h-5 w-5 flex-shrink-0 text-green-500" aria-hidden="true" />
+                        ) : (
+                          <XMarkIcon className="h-5 w-5 flex-shrink-0 text-red-600" aria-hidden="true" />
+                        )}
+                        <span>{product?.stock ? "En stock" : "Rupture de stock"}</span>
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            {/* Order summary */}
+            <section
+              aria-labelledby="summary-heading"
+              className="mt-12 rounded-3xl bg-exaltCream px-6 py-8 lg:col-span-5 lg:mt-0 lg:p-8"
             >
-              Order summary
-            </h2>
+              <h2 id="summary-heading" className="text-lg font-semibold text-exaltNavy">
+                Récapitulatif
+              </h2>
 
-            <dl className="mt-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <dt className="text-sm text-gray-600">Subtotal</dt>
-                <dd className="text-sm font-medium text-gray-900">
-                  {subtotal}€
-                </dd>
-              </div>
-              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <dt className="flex items-center text-sm text-gray-600">
-                  <span>Shipping estimate</span>
-                  <a
-                    href="#"
-                    className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-                  >
-                    <span className="sr-only">
-                      Learn more about how shipping is calculated
-                    </span>
-                    <QuestionMarkCircleIcon
-                      className="h-5 w-5 text-secondaryBrown"
-                      aria-hidden="true"
-                    />
-                  </a>
-                </dt>
-                <dd className="text-sm font-medium text-gray-900">
-                  {subtotal === 0 ? 0 : 5.0}€
-                </dd>
-              </div>
-              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <dt className="flex text-sm text-gray-600">
-                  <span>Tax estimate</span>
-                  <a
-                    href="#"
-                    className="ml-2 flex-shrink-0 text-gray-400 hover:text-gray-500"
-                  >
-                    <span className="sr-only">
-                      Learn more about how tax is calculated
-                    </span>
-                    <QuestionMarkCircleIcon
-                      className="h-5 w-5 text-secondaryBrown"
-                      aria-hidden="true"
-                    />
-                  </a>
-                </dt>
-                <dd className="text-sm font-medium text-gray-900">
-                  {subtotal / 5}€
-                </dd>
-              </div>
-              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                <dt className="text-base font-medium text-gray-900">
-                  Order total
-                </dt>
-                <dd className="text-base font-medium text-gray-900">
-                  {subtotal === 0 ? 0 : subtotal + subtotal / 5 + 5}€
-                </dd>
-              </div>
-            </dl>
+              <dl className="mt-6 space-y-4 text-sm">
+                <div className="flex items-center justify-between">
+                  <dt className="text-gray-600">Sous-total</dt>
+                  <dd className="font-medium text-exaltNavy">{formatPrice(subtotal)}</dd>
+                </div>
+                {promoCode && (
+                  <div className="flex items-center justify-between text-green-700">
+                    <dt className="flex items-center gap-2">
+                      Code {promoCode}
+                      <button
+                        type="button"
+                        className="text-xs underline text-gray-500"
+                        onClick={() => dispatch(removePromoCode())}
+                      >
+                        retirer
+                      </button>
+                    </dt>
+                    <dd className="font-medium">-{formatPrice(discount)}</dd>
+                  </div>
+                )}
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                  <dt className="text-gray-600">Livraison</dt>
+                  <dd className="font-medium text-exaltNavy">{formatPrice(shipping)}</dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                  <dt className="text-gray-600">TVA (20 %)</dt>
+                  <dd className="font-medium text-exaltNavy">{formatPrice(tax)}</dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                  <dt className="text-base font-semibold text-exaltNavy">Total</dt>
+                  <dd className="text-base font-bold text-exaltNavy">{formatPrice(total)}</dd>
+                </div>
+              </dl>
 
-            {productsInCart.length > 0 && (
+              {!promoCode && (
+                <div className="mt-6">
+                  <label htmlFor="promo" className="text-sm font-medium text-exaltNavy">
+                    Code promo
+                  </label>
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      id="promo"
+                      type="text"
+                      value={promoInput}
+                      onChange={(e) => {
+                        setPromoInput(e.target.value);
+                        setPromoError(null);
+                      }}
+                      placeholder="Ton code"
+                      className="flex-1 h-11 rounded-full border-gray-300 px-4 text-sm focus:border-exaltNavy focus:ring-exaltNavy"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyPromo}
+                      className="h-11 px-5 rounded-full border border-exaltNavy text-exaltNavy text-sm font-semibold hover:bg-exaltNavy hover:text-white transition-colors"
+                    >
+                      Appliquer
+                    </button>
+                  </div>
+                  {promoError && <p className="mt-2 text-sm text-red-600">{promoError}</p>}
+                </div>
+              )}
+
               <div className="mt-6">
                 <Link
                   to="/checkout"
-                  className="text-white bg-secondaryBrown text-center text-xl font-normal tracking-[0.6px] leading-[72px] w-full h-12 flex items-center justify-center max-md:text-base"
+                  className="bg-exaltNavy hover:bg-exaltPink transition-colors text-white font-semibold rounded-full w-full h-12 flex items-center justify-center"
                 >
-                  Checkout
+                  Passer commande
                 </Link>
               </div>
-            )}
-          </section>
-        </form>
+            </section>
+          </form>
+        )}
       </div>
     </div>
   );

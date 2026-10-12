@@ -39,7 +39,7 @@ const OrderConfirmation = () => {
             />
             <button
               type="submit"
-              className="bg-secondaryBrown text-white py-2 text-sm font-medium tracking-wide hover:opacity-90 transition"
+              className="bg-exaltNavy text-white py-2 text-sm font-medium tracking-wide hover:opacity-90 transition"
             >
               Retrouver ma commande
             </button>
@@ -61,7 +61,7 @@ const OrderConfirmation = () => {
         </p>
         <button
           onClick={() => navigate("/register")}
-          className="w-full bg-secondaryBrown text-white py-2 text-sm font-medium tracking-wide hover:opacity-90 transition mb-2"
+          className="w-full bg-exaltNavy text-white py-2 text-sm font-medium tracking-wide hover:opacity-90 transition mb-2"
         >
           Créer mon compte
         </button>

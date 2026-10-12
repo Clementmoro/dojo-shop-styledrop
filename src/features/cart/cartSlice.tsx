@@ -3,11 +3,15 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 type CartState = {
   productsInCart: ProductInCart[];
   subtotal: number;
+  promoCode: string | null;
+  discountRate: number;
 };
 
 const initialState: CartState = {
   productsInCart: [],
   subtotal: 0,
+  promoCode: null,
+  discountRate: 0,
 };
 
 export const cartSlice = createSlice({
@@ -58,6 +62,17 @@ export const cartSlice = createSlice({
       });
       cartSlice.caseReducers.calculateTotalPrice(state);
     },
+    applyPromoCode: (
+      state,
+      action: PayloadAction<{ code: string; rate: number }>
+    ) => {
+      state.promoCode = action.payload.code;
+      state.discountRate = action.payload.rate;
+    },
+    removePromoCode: (state) => {
+      state.promoCode = null;
+      state.discountRate = 0;
+    },
     calculateTotalPrice: (state) => {
       state.subtotal = state.productsInCart.reduce(
         (acc, product) => acc + product.price * product.quantity,
@@ -72,6 +87,8 @@ export const {
   removeProductFromTheCart,
   updateProductQuantity,
   calculateTotalPrice,
+  applyPromoCode,
+  removePromoCode,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

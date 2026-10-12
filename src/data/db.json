@@ -7,7 +7,8 @@
       "category": "clothing",
       "price": 55,
       "popularity": 20,
-      "stock": 30
+      "stock": 30,
+      "description": "Le hoodie signature eXalt, coupe unisexe, molleton brossé 350 g. Logo brodé sur la poitrine. Le compagnon des afterworks et des matinées en mission."
     },
     {
       "id": "2",
@@ -16,7 +17,8 @@
       "category": "clothing",
       "price": 25,
       "popularity": 18,
-      "stock": 50
+      "stock": 50,
+      "description": "Un t-shirt blanc en coton bio, coupe droite, logo eXalt sérigraphié. Simple, propre, il va avec tout."
     },
     {
       "id": "3",
@@ -25,7 +27,8 @@
       "category": "clothing",
       "price": 35,
       "popularity": 12,
-      "stock": 25
+      "stock": 25,
+      "description": "Polo piqué navy, col côtelé, logo brodé ton sur ton. Assez habillé pour un comité de pilotage, assez confortable pour la journée."
     },
     {
       "id": "4",
@@ -34,7 +37,8 @@
       "category": "clothing",
       "price": 45,
       "popularity": 10,
-      "stock": 20
+      "stock": 20,
+      "description": "Sweatshirt col rond en molleton, navy profond, logo eXalt brodé. Le basique chaud de l'hiver."
     },
     {
       "id": "5",
@@ -43,7 +47,8 @@
       "category": "accessories",
       "price": 20,
       "popularity": 15,
-      "stock": 0
+      "stock": 0,
+      "description": "Casquette six panneaux en coton, logo eXalt brodé sur l'avant, réglable à l'arrière. Taille unique."
     },
     {
       "id": "6",
@@ -52,7 +57,8 @@
       "category": "accessories",
       "price": 18,
       "popularity": 22,
-      "stock": 40
+      "stock": 40,
+      "description": "Tote bag en coton épais, anses longues, logo eXalt. Pour le laptop, le déjeuner et tout le reste."
     },
     {
       "id": "7",
@@ -61,7 +67,8 @@
       "category": "accessories",
       "price": 75,
       "popularity": 8,
-      "stock": 15
+      "stock": 15,
+      "description": "Sac à dos premium, compartiment ordinateur 16 pouces rembourré, poche anti-vol, tissu déperlant. Pensé pour les journées entre deux clients."
     },
     {
       "id": "8",
@@ -70,7 +77,8 @@
       "category": "accessories",
       "price": 40,
       "popularity": 11,
-      "stock": 20
+      "stock": 20,
+      "description": "Housse pour ordinateur 15 pouces en néoprène, fermeture zippée, logo eXalt. Protège le laptop dans le sac."
     },
     {
       "id": "9",
@@ -79,7 +87,8 @@
       "category": "stationery",
       "price": 15,
       "popularity": 25,
-      "stock": 100
+      "stock": 100,
+      "description": "Carnet A5, 160 pages pointillées, couverture rigide navy, élastique de fermeture. Pour les ateliers, les rétros et les idées de 23 h."
     },
     {
       "id": "10",
@@ -88,7 +97,8 @@
       "category": "stationery",
       "price": 12,
       "popularity": 14,
-      "stock": 80
+      "stock": 80,
+      "description": "Lot de trois stylos à bille eXalt, encre bleue, corps métal. Ils finissent toujours par disparaître, donc on en met trois."
     },
     {
       "id": "11",
@@ -97,7 +107,8 @@
       "category": "stationery",
       "price": 28,
       "popularity": 17,
-      "stock": 35
+      "stock": 35,
+      "description": "Mug de voyage isotherme 350 ml, double paroi inox, couvercle étanche. Garde le café chaud pendant tout le daily."
     },
     {
       "id": "12",
@@ -106,7 +117,8 @@
       "category": "stationery",
       "price": 8,
       "popularity": 30,
-      "stock": 200
+      "stock": 200,
+      "description": "Pack de 12 stickers eXalt en vinyle résistant à l'eau. Pour le laptop, la gourde ou le frigo de l'agence."
     },
     {
       "id": "13",
@@ -115,25 +127,28 @@
       "category": "limited-edition",
       "price": 75,
       "popularity": 35,
-      "stock": 5
+      "stock": 5,
+      "description": "La collab eXalt x Flow : hoodie oversize, broderie exclusive dans le dos, série numérotée. Le best-seller de la boutique."
     },
     {
       "id": "14",
-      "title": "eXalt Pink Cap — Drop #1",
+      "title": "eXalt Pink Cap · Drop #1",
       "image": "/assets/products/exalt-pink-cap.png",
       "category": "limited-edition",
       "price": 35,
       "popularity": 28,
-      "stock": 10
+      "stock": 10,
+      "description": "Drop #1 : casquette rose fluo, brodée eXalt, série limitée. Ceux qui l'ont savent."
     },
     {
       "id": "15",
-      "title": "eXalt Premium Notebook — Gold Edition",
+      "title": "eXalt Premium Notebook · Gold Edition",
       "image": "/assets/products/exalt-gold-notebook.png",
       "category": "limited-edition",
       "price": 30,
       "popularity": 20,
-      "stock": 8
+      "stock": 8,
+      "description": "Carnet premium à tranche dorée, papier 120 g, couverture en simili-cuir navy. Édition limitée et numérotée."
     },
     {
       "id": "16",
@@ -142,7 +157,8 @@
       "category": "limited-edition",
       "price": 45,
       "popularity": 18,
-      "stock": 12
+      "stock": 12,
+      "description": "T-shirt Heritage, logo historique eXalt, coton épais délavé. Une pièce pour les anciens et les nostalgiques."
     },
     {
       "id": "17",
@@ -151,7 +167,8 @@
       "category": "clothing",
       "price": 38,
       "popularity": 9,
-      "stock": 15
+      "stock": 15,
+      "description": "Le polo eXalt en rose, même coupe que le navy, pour ceux qui assument."
     },
     {
       "id": "18",
@@ -160,7 +177,19 @@
       "category": "accessories",
       "price": 50,
       "popularity": 7,
-      "stock": 20
+      "stock": 20,
+      "description": "Sac de conférence en toile robuste, bandoulière réglable, poches multiples. Le sac officiel des événements eXalt."
+    },
+    {
+      "id": "99",
+      "title": "Hoodie Doré du Dojo",
+      "image": "/assets/products/exalt-navy-hoodie.png",
+      "category": "limited-edition",
+      "price": 999,
+      "popularity": 0,
+      "stock": 1,
+      "hidden": true,
+      "description": "Exemplaire unique. Il n'apparaît dans aucun catalogue, aucune recherche, aucun menu. Si tu lis ceci, c'est que tu as fouillé là où personne ne regarde. Bravo."
     }
   ],
   "orders": [

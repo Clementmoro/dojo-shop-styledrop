@@ -14,55 +14,55 @@ export const checkCheckoutFormData = (checkoutData: {
   const d = checkoutData.data;
 
   // Required fields
-  if (!d?.emailAddress) { toast.error("Email address is required"); return false; }
-  if (!d?.firstName)    { toast.error("First name is required");    return false; }
-  if (!d?.lastName)     { toast.error("Last name is required");     return false; }
-  if (!d?.address)      { toast.error("Address is required");       return false; }
-  if (!d?.city)         { toast.error("City is required");          return false; }
-  if (!d?.country)      { toast.error("Country is required");       return false; }
-  if (!d?.postalCode)   { toast.error("Postal code is required");   return false; }
-  if (!d?.region)       { toast.error("Region is required");        return false; }
-  if (!d?.phone)        { toast.error("Phone is required");         return false; }
+  if (!d?.emailAddress) { toast.error("L'adresse e-mail est obligatoire"); return false; }
+  if (!d?.firstName)    { toast.error("Le prénom est obligatoire");    return false; }
+  if (!d?.lastName)     { toast.error("Le nom est obligatoire");     return false; }
+  if (!d?.address)      { toast.error("L'adresse est obligatoire");       return false; }
+  if (!d?.city)         { toast.error("La ville est obligatoire");          return false; }
+  if (!d?.country)      { toast.error("Le pays est obligatoire");       return false; }
+  if (!d?.postalCode)   { toast.error("Le code postal est obligatoire");   return false; }
+  if (!d?.region)       { toast.error("La région est obligatoire");        return false; }
+  if (!d?.phone)        { toast.error("Le téléphone est obligatoire");         return false; }
 
-  // Payment — required
-  if (!d?.nameOnCard)   { toast.error("Name on card is required");  return false; }
+  // Payment : required
+  if (!d?.nameOnCard)   { toast.error("Le nom sur la carte est obligatoire");  return false; }
 
-  // US1 — CB format validation
+  // US1 : CB format validation
   const cardNum = (d?.cardNumber as string)?.replace(/\s/g, "");
   if (!cardNum) {
-    toast.error("Card number is required");
+    toast.error("Le numéro de carte est obligatoire");
     return false;
   }
   if (!CARD_NUMBER_RE.test(cardNum)) {
-    toast.error("Numéro de carte invalide — 16 chiffres requis");
+    toast.error("Numéro de carte invalide : 16 chiffres requis");
     return false;
   }
 
   const cvc = d?.cvc as string;
   if (!cvc) {
-    toast.error("CVC is required");
+    toast.error("Le cryptogramme est obligatoire");
     return false;
   }
   if (!CVC_RE.test(cvc)) {
-    toast.error("CVC invalide — 3 ou 4 chiffres requis");
+    toast.error("CVC invalide : 3 ou 4 chiffres requis");
     return false;
   }
 
   const expiry = d?.expirationDate as string;
   if (!expiry) {
-    toast.error("Expiration date is required");
+    toast.error("La date d'expiration est obligatoire");
     return false;
   }
   if (!EXPIRY_RE.test(expiry)) {
-    toast.error("Date d'expiration invalide — format MM/AA requis");
+    toast.error("Date d'expiration invalide : format MM/AA requis");
     return false;
   }
 
   // Cart
-  if (checkoutData.products.length === 0) { toast.error("Your cart is empty");    return false; }
-  if (checkoutData.subtotal === 0)         { toast.error("Subtotal cannot be 0"); return false; }
+  if (checkoutData.products.length === 0) { toast.error("Ton panier est vide");    return false; }
+  if (checkoutData.subtotal === 0)         { toast.error("Le sous-total ne peut pas être nul"); return false; }
 
-  // US3 — apartment & company are optional: no validation
+  // US3 : apartment & company are optional: no validation
 
   return true;
 };

@@ -1,6 +1,6 @@
 const QuantityInput = ({...props}) => {
   return (
-    <input type="number" { ...props } className="w-full h-10 bg-white indent-2 outline-none border-black/30 border text-black/70" placeholder="Enter product quantity" />
+    <input type="number" { ...props } className="w-full h-12 px-4 rounded-xl bg-white border-gray-300 border text-exaltNavy focus:border-exaltNavy focus:ring-exaltNavy" placeholder="Quantité" />
   )
 }
 export default QuantityInput

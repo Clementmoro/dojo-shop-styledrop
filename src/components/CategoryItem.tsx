@@ -1,15 +1,22 @@
 import { Link } from "react-router-dom";
 
-const CategoryItem = ({ categoryTitle, image, link } : { categoryTitle: string; image: string; link: string; }) => {
+const CategoryItem = ({ categoryTitle, image, link }: { categoryTitle: string; image: string; link: string }) => {
   return (
-    <div className="w-[600px] relative max-[1250px]:w-[400px] max-[1250px]:h-[400px] max-sm:w-[300px] max-sm:h-[300px]">
-      <Link to={`/shop/${link}`}>
-      <img src={image.startsWith("http") ? image : `/assets/${image}`} className="h-full w-full object-cover" />
-      <div className="bg-secondaryBrown text-white absolute bottom-0 w-full h-16 flex justify-center items-center max-sm:h-12">
-        <h3 className="text-2xl max-sm:text-xl">{ categoryTitle }</h3>
+    <Link
+      to={`/shop/${link}`}
+      className="group relative block aspect-[4/5] rounded-2xl overflow-hidden"
+    >
+      <img
+        src={image.startsWith("http") ? image : `/assets/${image}`}
+        alt={categoryTitle}
+        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-exaltNavy/85 via-exaltNavy/10 to-transparent" />
+      <div className="absolute bottom-0 p-5 max-sm:p-3">
+        <h3 className="font-display text-white text-2xl font-bold max-sm:text-lg">{categoryTitle}</h3>
+        <p className="text-white/80 text-sm group-hover:text-exaltYellow transition-colors">Explorer →</p>
       </div>
-      </Link>
-    </div>
+    </Link>
   );
 };
 export default CategoryItem;

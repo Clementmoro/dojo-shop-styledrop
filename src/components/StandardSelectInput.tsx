@@ -13,7 +13,7 @@ const StandardSelectInput = ({
 }) => {
   return (
     <select
-      className="w-full py-2 border-black/30 border text-black/70 outline-none"
+      className="w-full h-12 px-4 rounded-xl border-gray-300 border text-exaltNavy focus:border-exaltNavy focus:ring-exaltNavy"
       {...props}
     >
       {selectList &&

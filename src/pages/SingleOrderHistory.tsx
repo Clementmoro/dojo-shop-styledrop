@@ -22,7 +22,7 @@ const SingleOrderHistory = () => {
 
   useEffect(() => {
     if (!user?.id) {
-      toast.error("Please login to view this page");
+      toast.error("Connecte-toi pour accéder à cette page");
       navigate("/login");
     }
   }, [user, navigate]);

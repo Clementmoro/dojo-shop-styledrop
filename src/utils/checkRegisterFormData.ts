@@ -4,19 +4,19 @@ export const checkRegisterFormData = (data: {
   [k: string]: FormDataEntryValue;
 }): boolean => {
   if (data?.name === "") {
-    toast.error("Please enter your name");
+    toast.error("Indique ton prénom");
     return false;
   } else if (data?.lastname === "") {
-    toast.error("Please enter your lastname");
+    toast.error("Indique ton nom");
     return false;
   } else if (data?.email === "") {
-    toast.error("Please enter your email");
+    toast.error("Indique ton e-mail");
     return false;
   } else if (data?.password === "") {
-    toast.error("Please enter your password");
+    toast.error("Indique un mot de passe");
     return false;
   } else if (data?.password !== data?.confirmPassword) {
-    toast.error("Passwords do not match");
+    toast.error("Les mots de passe ne correspondent pas");
     return false;
   }
   return true;

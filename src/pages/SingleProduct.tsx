@@ -14,6 +14,17 @@ import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import toast from "react-hot-toast";
 
+// Date de livraison estimée : aujourd'hui + 4 jours ouvrés
+const getEstimatedDelivery = () => {
+  const date = new Date();
+  let businessDays = 0;
+  while (businessDays < 4) {
+    date.setDate(date.getDate() + 1);
+    if (date.getDay() !== 0 && date.getDay() !== 6) businessDays++;
+  }
+  return date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+};
+
 const SingleProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [singleProduct, setSingleProduct] = useState<Product | null>(null);
@@ -45,6 +56,13 @@ const SingleProduct = () => {
   }, [params.id]);
 
   const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
+  const isSecret = Boolean(singleProduct?.hidden);
+
+  useEffect(() => {
+    if (isSecret) {
+      toast("🥚 Secret n°3 sur 3 : le produit fantôme", { id: "secret-3", duration: 6000 });
+    }
+  }, [isSecret]);
 
   const handleAddToCart = () => {
     if (!singleProduct) return;
@@ -70,25 +88,32 @@ const SingleProduct = () => {
   };
 
   return (
-    <div className="max-w-screen-2xl mx-auto px-5 max-[400px]:px-3">
-      <div className="grid grid-cols-3 gap-x-8 max-lg:grid-cols-1">
-        <div className="lg:col-span-2">
+    <div className="max-w-screen-2xl mx-auto px-5 pt-8 max-[400px]:px-3">
+      {isSecret && (
+        <div className="mb-6 rounded-2xl bg-exaltYellow text-exaltNavy px-6 py-4 font-semibold">
+          🥚 Tu as trouvé le produit fantôme. Il n'existe dans aucun menu : garde le secret jusqu'au débrief.
+        </div>
+      )}
+      <div className="grid grid-cols-2 gap-x-12 max-lg:grid-cols-1">
+        <div className="rounded-3xl bg-exaltCream overflow-hidden">
           <img
             src={singleProduct?.image?.startsWith("http") || singleProduct?.image?.startsWith("/") ? singleProduct.image : `/assets/${singleProduct?.image}`}
             alt={singleProduct?.title}
+            className={`w-full h-full object-cover ${isSecret ? "gold-product" : ""}`}
           />
         </div>
-        <div className="w-full flex flex-col gap-5 mt-9">
+        <div className="w-full flex flex-col gap-6 mt-6">
           <div className="flex flex-col gap-2">
-            <h1 className="text-4xl">{singleProduct?.title}</h1>
-            <div className="flex justify-between items-center">
-              <p className="text-base text-secondaryBrown">
-                {formatCategoryName(singleProduct?.category || "")}
-              </p>
-              <p className="text-base font-bold">{singleProduct?.price}€</p>
-            </div>
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-exaltPink">
+              {formatCategoryName(singleProduct?.category || "")}
+            </p>
+            <h1 className="font-display text-4xl font-bold text-exaltNavy">{singleProduct?.title}</h1>
+            <p className="text-2xl font-bold text-exaltNavy">{singleProduct?.price} €</p>
+            {singleProduct?.description && (
+              <p className="text-gray-600 leading-relaxed mt-2">{singleProduct.description}</p>
+            )}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <SelectInputUpgrade
               selectList={[
                 { id: "xs", value: "XS" },
@@ -136,7 +161,7 @@ const SingleProduct = () => {
               ) : (singleProduct.stock ?? 99) <= 5 ? (
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block" />
-                  Stock faible — {singleProduct.stock} restant{singleProduct.stock > 1 ? "s" : ""}
+                  Stock faible : {singleProduct.stock} restant{singleProduct.stock > 1 ? "s" : ""}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-700 bg-green-50 px-2.5 py-1 rounded-full">
@@ -149,37 +174,24 @@ const SingleProduct = () => {
 
           <div className="flex flex-col gap-3">
             <Button
-              mode="brown"
-              text={isOutOfStock ? "Rupture de stock" : "Add to cart"}
+              mode="primary"
+              text={isOutOfStock ? "Rupture de stock" : "Ajouter au panier"}
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              style={isOutOfStock ? { opacity: 0.5, cursor: "not-allowed" } : {}}
             />
-            <p className="text-secondaryBrown text-sm text-right">
-              Delivery estimated on the Friday, July 26
+            <p className="text-gray-500 text-sm text-right">
+              Livraison estimée le {getEstimatedDelivery()}
             </p>
           </div>
           <div>
-            {/* drowdown items */}
-            <Dropdown dropdownTitle="Description">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Labore
-              quos deleniti, mollitia, vitae harum suscipit voluptatem quasi, ab
-              assumenda accusantium rem praesentium accusamus quae quam tempore
-              nostrum corporis eaque. Mollitia.
+            <Dropdown dropdownTitle="Détails du produit">
+              Produit officiel eXalt. Marquage réalisé en France par notre atelier partenaire. Entretien
+              : lavage à 30 °C sur l'envers, pas de sèche-linge.
             </Dropdown>
 
-            <Dropdown dropdownTitle="Product Details">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga ad
-              at odio illo, necessitatibus, reprehenderit dolore voluptas ea
-              consequuntur ducimus repellat soluta mollitia facere sapiente.
-              Unde provident possimus hic dolore.
-            </Dropdown>
-
-            <Dropdown dropdownTitle="Delivery Details">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga ad
-              at odio illo, necessitatibus, reprehenderit dolore voluptas ea
-              consequuntur ducimus repellat soluta mollitia facere sapiente.
-              Unde provident possimus hic dolore.
+            <Dropdown dropdownTitle="Livraison et retours">
+              Expédition sous 48 h, livraison en 3 à 5 jours ouvrés. Livraison offerte dès 80 € d'achat.
+              Retours gratuits sous 30 jours.
             </Dropdown>
           </div>
         </div>
@@ -187,11 +199,11 @@ const SingleProduct = () => {
 
       {/* similar products */}
       <div>
-        <h2 className="text-black/90 text-5xl mt-24 mb-12 text-center max-lg:text-4xl">
-          Similar Products
+        <h2 className="font-display text-exaltNavy text-3xl font-bold mt-24 mb-2 max-sm:text-2xl">
+          Vous aimerez aussi
         </h2>
-        <div className="flex flex-wrap justify-between items-center gap-y-8 mt-12 max-xl:justify-start max-xl:gap-5 ">
-          {products.slice(0, 3).map((product: Product) => (
+        <div className="grid grid-cols-3 gap-6 mt-8 max-md:grid-cols-2 max-md:gap-4">
+          {products.filter((product) => product.id !== singleProduct?.id).slice(0, 3).map((product: Product) => (
             <ProductItem
               key={product?.id}
               id={product?.id}

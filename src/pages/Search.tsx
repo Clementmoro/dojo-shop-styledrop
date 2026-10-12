@@ -21,12 +21,12 @@ const Search = () => {
       >
         <input
           type="text"
-          placeholder="Search products"
+          placeholder="Rechercher un produit"
           className="border border-gray-300 focus:border-gray-400 h-12 text-xl px-3 w-full outline-none max-sm:text-lg"
           name="searchInput"
         />
         <div className="w-52 max-sm:w-40">
-          <Button mode="brown" text="Search" type="submit" />
+          <Button mode="primary" text="Rechercher" type="submit" />
         </div>
       </Form>
 
