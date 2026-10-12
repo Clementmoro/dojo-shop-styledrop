@@ -6,8 +6,17 @@ export const ACTIVE_PROMO_CODES: Record<string, number> = {
 
 export const EXPIRED_PROMO_CODES = ["EXALT2025"];
 
+// Tolère les variantes de saisie : majuscules/minuscules, espaces, tirets.
+// « bienvenue10 », « BIENVENUE 10 » et « BIENVENUE-10 » sont donc acceptés.
+const normalizePromoCode = (code: string) =>
+  code.toUpperCase().replace(/[\s-]/g, "");
+
 export const getPromoDiscountRate = (code: string): number | null => {
-  return ACTIVE_PROMO_CODES[code.trim()] ?? null;
+  const wanted = normalizePromoCode(code);
+  const match = Object.keys(ACTIVE_PROMO_CODES).find(
+    (key) => normalizePromoCode(key) === wanted
+  );
+  return match ? ACTIVE_PROMO_CODES[match] : null;
 };
 
 export const formatPrice = (amount: number) =>
