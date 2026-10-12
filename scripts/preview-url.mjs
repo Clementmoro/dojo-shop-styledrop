@@ -9,7 +9,7 @@ import { existsSync } from 'node:fs';
 // Derrière un proxy, le fetch de Node l'ignore par défaut : on se relance avec le proxy activé.
 const proxy = process.env.HTTPS_PROXY || process.env.https_proxy;
 if (proxy && !process.env.NODE_USE_ENV_PROXY) {
-  const env = { ...process.env, NODE_USE_ENV_PROXY: '1' };
+  const env = { ...process.env, NODE_USE_ENV_PROXY: '1', NODE_NO_WARNINGS: '1' };
   const ca = [process.env.NODE_EXTRA_CA_CERTS, '/root/.ccr/ca-bundle.crt', process.env.SSL_CERT_FILE].find(
     (p) => p && existsSync(p)
   );
@@ -19,7 +19,7 @@ if (proxy && !process.env.NODE_USE_ENV_PROXY) {
 }
 
 const FALLBACK_REPO = 'Clementmoro/dojo-shop-styledrop';
-const TIMEOUT_MS = 5 * 60 * 1000;
+const TIMEOUT_MS = 10 * 60 * 1000; // Vercel peut mettre plusieurs minutes à démarrer un build (file d'attente)
 const FIRST_WAIT_MS = 30 * 1000; // Vercel met rarement moins de 30 s : inutile d'interroger GitHub avant
 const INTERVAL_MS = 15 * 1000; // espacé pour rester sous la limite de l'API GitHub sans token
 
@@ -87,7 +87,9 @@ while (Date.now() - start < TIMEOUT_MS) {
   } catch (err) {
     console.log(`(nouvel essai) ${err.message}`);
   }
+  const waited = Math.round((Date.now() - start) / 1000);
+  console.log(`... toujours en attente de Vercel (${waited} s)`);
   await sleep(INTERVAL_MS);
 }
-console.log('TIMEOUT : pas de déploiement après 5 min. Vérifier que le commit est bien poussé.');
+console.log('TIMEOUT : pas de déploiement après 10 min. Vérifier que le commit est bien poussé, puis relancer le script.');
 process.exit(2);
