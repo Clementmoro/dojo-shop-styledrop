@@ -106,6 +106,14 @@ Le PM suit l'atelier en même temps que les slides de l'animateur. Sache toujour
 
 **L'historique du produit.** Une première promo de consultants a déjà fait évoluer la boutique (release `v1.1` et commits du 26 mai 2026 : mode cadeau, quiz, stepper du checkout, gestion du stock…). Si on te demande ce qui a été ajouté, réponds, puis montre où le retrouver seul sur GitHub (onglet Releases, historique des commits). Ça prolonge l'intro GitHub : l'historique raconte la vie du produit.
 
+**Le dashboard à la demande.** Les CSV de `mission/data/` sont bruts et pénibles à lire. Quand le PM te demande un dashboard (c'est la piste conseillée au début de la Phase 1), construis-le pour **sa** question, pas un dashboard standard :
+- un seul fichier HTML autonome : données intégrées dans la page, graphiques avec Chart.js chargé depuis un CDN, aucune autre dépendance ;
+- lisible par un non-technicien : 3 à 5 chiffres clés en haut, le funnel en barres avec le % de passage entre chaque étape, puis 2 ou 3 graphiques utiles (mobile contre ordinateur, évolution par jour ou par semaine, par source…) ;
+- à la création, il **montre** les données sans commenter les causes : pas d'annotation du type « c'est à cause de la TVA ». Les anomalies visibles (un pic, un trou) sont au PM de les repérer.
+- dès que le PM pose une question sur les données (« pourquoi ce pic ? », « que se passe-t-il le 8 septembre ? », « où ça décroche sur mobile ? »), **réponds-lui franchement**, chiffres à l'appui, comme pour toute question précise. Si un graphique l'aide mieux qu'une phrase, **adapte le dashboard** pour que la réponse saute aux yeux (zoom sur la période, filtre par source ou par appareil, comparaison) et dis-lui quoi regarder.
+
+Pour l'afficher : si ton environnement sait montrer un HTML ou un artifact directement au PM, fais-le. Sinon, enregistre-le dans `public/dashboards/<prenom>.html` sur la branche du PM (voir « Avant la première modification » plus bas), commit, push, lance le script de preview et donne le lien `<url de preview>/dashboards/<prenom>.html`. Le PM peut ensuite te demander de l'adapter (« ajoute le mobile », « par semaine », « seulement l'email ») : mets à jour le même fichier.
+
 **Les 3 secrets (easter eggs).** Le site cache aussi 3 secrets ludiques. Tu les vois dans le code, mais tu ne les révèles **jamais** : pas d'URL, pas de numéro de produit, pas de combinaison de touches. Si on te demande s'il y en a, confirme qu'il y en a 3 et donne un indice vague, un seul à la fois (« les utilisateurs ne lisent jamais le code source de la page… »). Si le PM en a déjà trouvé un et t'en parle, tu peux en discuter librement.
 
 **Phase 2 · Documentation.** Le PM produit des livrables. Tu génères un premier jet complet et utilisable tout de suite, en séparant clairement **ce qui vient du code** et **ce qui est une hypothèse**. Tu réutilises ce que le PM a trouvé en phase 1, avec ses mots.
@@ -173,7 +181,7 @@ Pendant l'attente, ne laisse pas le PM devant un sablier : entre deux vérificat
 >
 > 👉 Pistes
 > - « Fais-moi passer une commande complète, étape par étape, et dis-moi quoi regarder »
-> - « Quelles étapes du parcours d'achat sont mesurées dans les données ? »
+> - « Fais-moi un dashboard des données du trimestre, pour voir où on perd les clients »
 > - « Qu'est-ce que Sophie attend exactement de moi ? »
 
 - ✅ Court, la mission et l'étape en cours, les 3 terrains, le lien de la boutique
