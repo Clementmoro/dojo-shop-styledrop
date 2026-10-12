@@ -1,64 +1,116 @@
-# Dojo Claude Code · eXalt
+# eXalt Store
 
-> 2h30 pour passer de zéro à une feature prototypée et en ligne, sur une vraie codebase, sans écrire une ligne de code.
+La boutique officielle des goodies eXalt : vêtements, accessoires, papeterie et éditions limitées, pour les consultants, les clients et les nouveaux arrivants.
 
-**Ta mission :** tu es consultant PM et c'est ton premier jour chez eXalt. Leur boutique de goodies attire du monde, mais elle ne vend pas. À toi de comprendre pourquoi, de le documenter, puis de prototyper une amélioration. Ton binôme technique : **Sam**, le tech lead de l'équipe (c'est Claude).
-
-🛍️ **La boutique :** [dojo-shop-styledrop.vercel.app](https://dojo-shop-styledrop.vercel.app)
-📬 **Le brief client :** [`mission/BRIEF.md`](mission/BRIEF.md)
-📊 **Les données :** [`mission/data/`](mission/data/)
-🧭 **Le guide pas à pas :** [`GUIDE_PARTICIPANT.md`](GUIDE_PARTICIPANT.md)
+🛍️ **Production :** [dojo-shop-styledrop.vercel.app](https://dojo-shop-styledrop.vercel.app)
+📦 **Dernière version :** [Releases](https://github.com/Clementmoro/dojo-shop-styledrop/releases)
 
 ---
 
-## Le programme
+## Fonctionnalités
 
-| Horaire | Étape | Durée |
-|---------|-------|-------|
-| 00:00 | Setup | 10 min |
-| 00:10 | Intro GitHub | 10 min |
-| 00:20 | **Phase 1 · Discovery** : la chasse aux frictions | 35 min |
-| 00:55 | Débrief de la chasse | 10 min |
-| 01:05 | **Phase 2 · Documentation** : les livrables PM | 25 min |
-| 01:30 | Pause | 5 min |
-| 01:35 | **Phase 3 · Prototypage** : ta feature en ligne | 20 min |
-| 01:55 | Mises en prod en continu et pitchs éclair | 30 min |
-| 02:25 | Clôture | 5 min |
+| Parcours | Ce que fait la boutique |
+|---|---|
+| **Découverte** | Home avec sélection et collections, quiz « Ton univers en 30 sec » qui recommande 3 produits |
+| **Catalogue** | 4 collections (Vêtements, Accessoires, Papeterie, Édition limitée), tri par prix et popularité, recherche |
+| **Fiche produit** | Description, taille, couleur, quantité, indicateur de stock, date de livraison estimée |
+| **Panier** | Récapitulatif, code promo, frais de livraison et TVA |
+| **Checkout** | Parcours en 3 étapes (livraison, paiement, confirmation), mode cadeau, validation de la carte bancaire |
+| **Compte** | Inscription, connexion, profil, historique de commandes, suivi de commande en invité |
 
-## Setup en 3 étapes
+## Stack technique
 
-1. **Accepte l'invitation GitHub** reçue par e-mail (tu deviens collaborateur du repo).
-2. **Ouvre la boutique** : [dojo-shop-styledrop.vercel.app](https://dojo-shop-styledrop.vercel.app)
-3. **Ouvre Claude Code** sur [claude.ai/code](https://claude.ai/code) et choisis le repo `Clementmoro/dojo-shop-styledrop`.
+- **Front :** React 18, TypeScript, Vite
+- **Style :** TailwindCSS
+- **State :** Redux Toolkit
+- **Routing :** React Router 6
+- **API :** fonctions serverless Vercel (`api/`) en production, `json-server` en local, sur la même base `src/data/db.json`
+- **Hébergement :** Vercel, avec un déploiement de preview par branche
 
-Pas de terminal, pas de compte Vercel, pas d'installation.
+## Démarrer en local
 
-## Les 3 phases
-
-### 🔍 Phase 1 · Discovery
-La boutique cache plusieurs frictions qui font fuir les clients, et les données en gardent la trace. Lis le brief, fouille le site, interroge les données avec Sam. Bonus : **3 secrets** sont cachés quelque part. Tous les moyens sont bons.
-
-### 📋 Phase 2 · Documentation
-Transforme ce que tu as trouvé en livrables PM : journey map, user stories, priorisation, recommandation à la sponsor.
-
-### 🚀 Phase 3 · Prototypage
-Choisis une amélioration et décris-la à Sam. Il la code sur ta **branche** (ton brouillon), la met en ligne et te donne ton lien de preview. La version officielle n'est pas touchée. Quand ton proto te plaît, tu ouvres une Pull Request : l'animateur la merge et annonce qu'une nouvelle feature est en prod. Le premier qui la trouve sur la boutique désigne son auteur, qui la pitche en 1 minute.
-
-## Comment c'est fait
-
-- **Le code :** React + TypeScript, TailwindCSS, Redux Toolkit. Les données produits sont dans `src/data/db.json`.
-- **L'hébergement :** Vercel. Chaque branche poussée sur GitHub obtient automatiquement sa propre URL de preview.
-- **Le comportement de Sam :** tout est dans [`CLAUDE.md`](CLAUDE.md), la carte d'identité que Claude lit au démarrage. Va y jeter un œil : c'est un fichier texte qui pilote une IA.
-
-## Lancer en local (optionnel, pour les curieux)
+Prérequis : Node.js 20 ou plus.
 
 ```bash
 npm install
 npm start
 ```
 
-La boutique tourne sur `http://localhost:5173`.
+- Boutique : `http://localhost:5173`
+- API mock : `http://localhost:3000` (les appels `/api/*` du front y sont redirigés par Vite)
+
+### Scripts
+
+| Commande | Rôle |
+|---|---|
+| `npm start` | Lance la boutique et l'API mock en parallèle |
+| `npm run dev` | Lance seulement le front |
+| `npm run build` | Vérifie les types et construit la version de production |
+| `npm run lint` | Analyse le code avec ESLint |
+
+## Structure du projet
+
+```
+├── api/                 Fonctions serverless (products, orders, users)
+├── public/              Images produits, favicon, robots.txt
+├── src/
+│   ├── components/      Composants d'interface (header, cartes produit, quiz…)
+│   ├── pages/           Une page par route (home, shop, produit, panier, checkout…)
+│   ├── features/        Slices Redux (panier, authentification, catalogue)
+│   ├── utils/           Formatage, validation des formulaires, codes promo
+│   └── data/db.json     Catalogue, commandes et utilisateurs de démo
+├── mission/             Brief et exports analytics (voir section Dojo)
+└── scripts/             Outillage (récupération des URLs de preview)
+```
+
+## API
+
+| Méthode | Route | Description |
+|---|---|---|
+| `GET` | `/api/products` | Liste du catalogue |
+| `GET` | `/api/products/:id` | Détail d'un produit |
+| `GET` `POST` | `/api/orders` | Liste et création de commandes |
+| `GET` | `/api/orders/:id` | Détail d'une commande |
+| `GET` `POST` | `/api/users` | Liste et création de comptes |
+| `GET` `PUT` | `/api/users/:id` | Détail et mise à jour d'un profil |
+
+> En production, les écritures (commandes, comptes) ne sont pas persistées : c'est une boutique de démonstration.
+
+## Contribuer
+
+1. Crée une branche depuis `main` : `feature/<sujet>` ou `proto/<prénom>-<sujet>`.
+2. Pousse ta branche : Vercel publie automatiquement une **URL de preview**, visible sur le commit dans GitHub.
+3. Ouvre une **Pull Request** vers `main` avec ce que fait la feature et le problème qu'elle résout.
+4. Après relecture, la PR est mergée et la production se met à jour en 1 à 2 minutes.
+
+`main` est la version en production : on n'y pousse jamais directement.
+
+## Historique
+
+| Version | Date | Contenu |
+|---|---|---|
+| [v1.1](https://github.com/Clementmoro/dojo-shop-styledrop/releases/tag/v1.1) | mai 2026 | Mode cadeau, quiz d'accueil, stepper du checkout, gestion du stock, validation CB |
+| [v1.0](https://github.com/Clementmoro/dojo-shop-styledrop/releases/tag/v1.0) | avril 2026 | Lancement de la boutique |
+
+Le détail de chaque évolution est dans l'onglet [Commits](https://github.com/Clementmoro/dojo-shop-styledrop/commits/main).
 
 ---
 
-eXalt © 2026 · Dojo Claude Code
+## 🥋 Dojo Claude Code
+
+Ce repo sert aussi de terrain de jeu au **Dojo Claude Code** d'eXalt : un atelier de 2h30 où des consultants PM/PO découvrent la boutique comme au premier jour d'une mission, puis la font évoluer avec Claude, sans écrire de code.
+
+| Pour… | Ouvre |
+|---|---|
+| Suivre l'atelier pas à pas | [`GUIDE_PARTICIPANT.md`](GUIDE_PARTICIPANT.md) |
+| Lire le brief du client | [`mission/BRIEF.md`](mission/BRIEF.md) |
+| Explorer les données | [`mission/data/`](mission/data/) |
+| Voir comment Claude est briefé | [`CLAUDE.md`](CLAUDE.md) |
+
+**Le programme :** setup et intro GitHub, puis Discovery (la chasse aux frictions), Documentation, et Prototypage avec mises en prod en continu.
+
+Chaque session laisse sa trace : les features mergées pendant l'atelier rejoignent la release suivante.
+
+---
+
+eXalt © 2026
