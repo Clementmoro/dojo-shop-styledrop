@@ -21,9 +21,9 @@
 | 00:55 | Débrief de la chasse | 10 min |
 | 01:05 | **Phase 2 · Documentation** : les livrables PM | 25 min |
 | 01:30 | Pause | 5 min |
-| 01:35 | **Phase 3 · Prototypage** : ta feature en ligne | 40 min |
-| 02:15 | Pitchs | 10 min |
-| 02:25 | Mise en prod live et clôture | 5 min |
+| 01:35 | **Phase 3 · Prototypage** : ta feature en ligne | 20 min |
+| 01:55 | Mises en prod en continu et pitchs éclair | 30 min |
+| 02:25 | Clôture | 5 min |
 
 ## Setup en 3 étapes
 
@@ -42,7 +42,7 @@ La boutique cache plusieurs frictions qui font fuir les clients, et les données
 Transforme ce que tu as trouvé en livrables PM : journey map, user stories, priorisation, recommandation à la sponsor.
 
 ### 🚀 Phase 3 · Prototypage
-Choisis une amélioration et décris-la à Sam. Il la code sur ta **branche** (ton brouillon), la met en ligne et te donne ton lien de preview. La version officielle n'est pas touchée : à la fin, l'animateur choisit des protos à intégrer en prod.
+Choisis une amélioration et décris-la à Sam. Il la code sur ta **branche** (ton brouillon), la met en ligne et te donne ton lien de preview. La version officielle n'est pas touchée. Quand ton proto te plaît, tu ouvres une Pull Request : l'animateur la merge et annonce qu'une nouvelle feature est en prod. Le premier qui la trouve sur la boutique désigne son auteur, qui la pitche en 1 minute.
 
 ## Comment c'est fait
 

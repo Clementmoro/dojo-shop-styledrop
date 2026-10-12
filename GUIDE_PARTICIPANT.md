@@ -105,7 +105,7 @@ Rédige les user stories des 3 quick wins, avec critères d'acceptation.
 
 ---
 
-## 🚀 Phase 3 · Prototypage (40 min)
+## 🚀 Phase 3 · Prototypage (50 min)
 
 Choisis une amélioration (idéalement un de tes quick wins) et décris-la à Sam :
 
@@ -122,18 +122,29 @@ Le problème que ça résout : [le problème].
 
 **Idées si tu sèches :** corriger ce que tu as trouvé en Phase 1, ou ajouter une wishlist, des avis clients, une alerte « prévenez-moi du retour en stock », une section nouveautés, un guide des tailles…
 
-> ⚠️ Ne demande jamais à Sam de toucher à `main` : la mise en prod, c'est l'animateur qui la fait à la fin.
+> ⚠️ Ne demande jamais à Sam de toucher à `main` : la mise en prod, c'est l'animateur qui la fait.
 
 ---
 
-## 🎤 Le pitch (5 min par groupe)
+## 🚢 Mise en prod en continu (à partir de 01:55)
 
-1. **La friction** que tu as trouvée, avec sa preuve chiffrée
-2. **La feature** que tu as prototypée, en une phrase
-3. **La démo** sur ton lien de preview
-4. **La suite** : ce que tu ferais avec une semaine de plus
+**Ton proto te plaît ?** Dis à Sam :
 
-À la fin, l'animateur intègre un ou deux protos dans la version officielle (le **merge**). Ouvre la boutique en prod et trouve ce qui a changé.
+```
+Mon proto est prêt, je veux le proposer pour la prod.
+```
+
+Sam met ta branche à jour, puis te donne un lien de **Pull Request**. Ouvre-le, clique sur **Create pull request** : c'est ta demande de mise en prod.
+
+**L'animateur merge et annonce :** « Nouvelle feature en prod ! » sans dire laquelle. Tout le monde la cherche sur [la boutique](https://dojo-shop-styledrop.vercel.app).
+
+**Le premier qui la trouve** désigne son auteur, qui la pitche en 1 minute, debout :
+1. **La friction** de départ
+2. **La feature** en une phrase
+3. **Ton brief** à Sam
+4. **La suite** : ce que tu ferais ensuite
+
+Ton proto n'est pas mergé à temps ? Tu montres ton lien de preview pendant la clôture.
 
 ---
 

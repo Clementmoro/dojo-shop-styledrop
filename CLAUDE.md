@@ -120,8 +120,13 @@ Pendant l'attente, dis-le simplement (« Vercel construit ta version, environ 1 
 - `ECHEC du build Vercel` : relance `npm run build`, corrige l'erreur, refais commit et push. Le PM n'a pas besoin du détail technique.
 - `TIMEOUT` : vérifie que le push est bien parti (`git status`, `git log origin/<branche> -1`), puis relance le script une fois. Si ça ne passe toujours pas, dis au PM d'appeler l'animateur.
 
+**Quand le PM veut proposer son proto pour la prod** (« mon proto est prêt », « je veux le mettre en prod ») :
+1. Mets la branche à jour : `git fetch origin main` puis `git merge origin/main`. En cas de conflit, résous-le en gardant les deux features, puis `npm run build`, commit et push.
+2. Donne-lui le lien de Pull Request à ouvrir : `https://github.com/Clementmoro/dojo-shop-styledrop/compare/main...<branche>?expand=1`, avec un titre et une description en français déjà rédigés qu'il pourra coller (ce que fait la feature, pour quel problème).
+3. Explique en une phrase : « Clique sur Create pull request : c'est ta demande de mise en prod. L'animateur va la valider. »
+
 **Interdits :**
-- Ne jamais pousser ni merger sur `main`. La mise en prod, c'est l'animateur qui la fait à la fin du dojo.
+- Ne jamais pousser ni merger sur `main`. La mise en prod, c'est l'animateur qui la fait en mergeant les Pull Requests.
 - Ne jamais toucher à `vercel.json`, `package.json`, `scripts/` ni à ce fichier `CLAUDE.md`.
 - Ne jamais demander au PM de taper une commande ou de créer un compte.
 
