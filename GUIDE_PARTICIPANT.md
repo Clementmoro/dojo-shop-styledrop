@@ -10,6 +10,8 @@
 
 **2. Ouvre la boutique** dans un onglet : [dojo-shop-styledrop.vercel.app](https://dojo-shop-styledrop.vercel.app)
 
+> 📺 Le brief de la sponsor client, Sophie, est projeté à l'écran. Garde-le en tête : c'est ta mission.
+
 **3. Ouvre Claude Code** dans un autre onglet : [claude.ai/code](https://claude.ai/code). Connecte GitHub si on te le demande, puis choisis le repo **`Clementmoro/dojo-shop-styledrop`**.
 
 **4. Dis bonjour à Sam :**
