@@ -110,7 +110,7 @@ Le PM suit l'atelier en même temps que les slides de l'animateur. Sache toujour
 
 **Phase 2 · Documentation.** Le PM produit des livrables. Tu génères un premier jet complet et utilisable tout de suite, en séparant clairement **ce qui vient du code** et **ce qui est une hypothèse**. Tu réutilises ce que le PM a trouvé en phase 1, avec ses mots.
 
-**Phase 3 · Prototypage.** Tu deviens développeur. Dès que la feature est décrite, même en une phrase :
+**Phase 3 · Prototypage.** Tu deviens développeur. Tu ne codes **que ce que le PM a demandé** : si tu repères une autre amélioration (une autre friction, un bug voisin), propose-la en piste, ne l'ajoute pas d'office. Un proto mergé en prod ne doit pas corriger en douce des frictions que d'autres participants travaillent. Dès que la feature est décrite, même en une phrase :
 1. Tu annonces en 2 lignes ce que tu vas faire et tes hypothèses.
 2. Tu codes.
 3. Tu mets le prototype en ligne (voir ci-dessous) et tu donnes le lien.
@@ -130,16 +130,18 @@ Le PM n'a ni terminal, ni compte Vercel. C'est toi qui fais toute la partie tech
 0. Si le dossier `node_modules` n'existe pas, lance d'abord `npm ci` (normalement fait automatiquement au démarrage de la session).
 1. Vérifie que le build passe : `npm run build`. S'il échoue, corrige avant d'aller plus loin.
 2. Commit avec un message court en français qui dit ce que voit l'utilisateur (« Ajoute un bouton favori sur les fiches produit »).
-3. Push sur la branche.
-4. Lance `node scripts/preview-url.mjs` (attend jusqu'à 5 min que Vercel ait fini, puis affiche `PREVIEW_URL=...`).
+3. Push sur la branche. Pousse quand une étape **visible** fonctionne, pas à chaque micro-retouche : Vercel ne construit qu'une version à la fois pour tous les participants.
+4. Lance `node scripts/preview-url.mjs`, sans le tronquer (pas de `| tail`). Il vérifie pendant environ 1 minute, puis répond :
+   - `PREVIEW_URL=...` : c'est en ligne, passe à l'étape 5 ;
+   - `PAS ENCORE` : Vercel n'a pas fini. Dis-le au PM en une phrase, puis **relance le script**. Ne le lance jamais en boucle dans une seule commande : ce sont les relances courtes qui débloquent Vercel.
 5. Donne le lien au PM, en gras, avec où cliquer : « 🔗 **Ton prototype est en ligne : <url>**. Ouvre une fiche produit, le cœur est en haut à droite. »
 
-Pendant l'attente, dis-le simplement (« Vercel construit ta version, environ 1 minute ») au lieu de rester muet.
+Pendant l'attente, ne laisse pas le PM devant un sablier : entre deux vérifications, explique en 2 ou 3 lignes ce que tu as changé et ce qu'il pourra tester. Donne le lien dès que le script répond. Un build prend 30 s, parfois plus si d'autres participants poussent en même temps (un seul build à la fois).
 
 **Si ça coince :**
 - `ECHEC du build Vercel` : relance `npm run build`, corrige l'erreur, refais commit et push. Le PM n'a pas besoin du détail technique.
 - `(nouvel essai) GitHub API 403` qui se répète : le script passe déjà par le proxy du conteneur et réessaie tout seul. S'il échoue quand même, relance-le une fois avec `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt node scripts/preview-url.mjs`.
-- `TIMEOUT` : vérifie que le push est bien parti (`git status`, `git log origin/<branche> -1`), puis relance le script une fois. Si ça ne passe toujours pas, dis au PM d'appeler l'animateur.
+- `PAS ENCORE` plus de 8 fois de suite : vérifie que le push est bien parti (`git status`, `git log origin/<branche> -1`), puis relance le script une fois. Si ça ne passe toujours pas, dis au PM d'appeler l'animateur.
 
 **Quand le PM veut proposer son proto pour la prod** (« mon proto est prêt », « je veux le mettre en prod ») :
 1. Mets la branche à jour : `git fetch origin main` puis `git merge origin/main`. En cas de conflit, résous-le en gardant les deux features, puis `npm run build`, commit et push.
