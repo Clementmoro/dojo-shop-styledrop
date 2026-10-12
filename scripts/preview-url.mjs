@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Attend le déploiement Vercel du dernier commit poussé et affiche son URL de preview.
 // Usage : node scripts/preview-url.mjs [sha]
+// Sorties : PREVIEW_URL=... (code 0), ECHEC (code 1), PAS ENCORE (code 3, relancer le script).
 // Lit l'API publique GitHub (repo public, pas de token nécessaire).
 // Fonctionne en local comme dans un conteneur cloud derrière un proxy (claude.ai/code).
 import { execFileSync, execSync, spawnSync } from 'node:child_process';
@@ -19,9 +20,10 @@ if (proxy && !process.env.NODE_USE_ENV_PROXY) {
 }
 
 const FALLBACK_REPO = 'Clementmoro/dojo-shop-styledrop';
-const TIMEOUT_MS = 10 * 60 * 1000; // Vercel peut mettre plusieurs minutes à démarrer un build (file d'attente)
-const FIRST_WAIT_MS = 30 * 1000; // Vercel met rarement moins de 30 s : inutile d'interroger GitHub avant
-const INTERVAL_MS = 15 * 1000; // espacé pour rester sous la limite de l'API GitHub sans token
+// Vérification courte : une commande longue peut retarder le déclenchement de Vercel dans un
+// conteneur cloud. On vérifie pendant ~1 min puis on rend la main ; il suffit de relancer.
+const RUN_MS = 60 * 1000;
+const INTERVAL_MS = 20 * 1000; // espacé pour rester sous la limite de l'API GitHub sans token
 
 function repoFromRemote() {
   try {
@@ -66,10 +68,9 @@ async function api(path) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const start = Date.now();
-console.log(`Attente du déploiement Vercel de ${sha.slice(0, 7)} sur ${repo}...`);
-await sleep(FIRST_WAIT_MS);
+console.log(`Vérification du déploiement Vercel de ${sha.slice(0, 7)} sur ${repo}...`);
 
-while (Date.now() - start < TIMEOUT_MS) {
+while (true) {
   try {
     const deployments = await api(`/deployments?sha=${sha}`);
     if (deployments.length) {
@@ -83,13 +84,15 @@ while (Date.now() - start < TIMEOUT_MS) {
         console.log(`ECHEC du build Vercel : ${last.target_url || 'voir la PR ou le commit sur GitHub'}`);
         process.exit(1);
       }
+      console.log('... Vercel construit la version');
+    } else {
+      console.log('... Vercel n\'a pas encore démarré');
     }
   } catch (err) {
     console.log(`(nouvel essai) ${err.message}`);
   }
-  const waited = Math.round((Date.now() - start) / 1000);
-  console.log(`... toujours en attente de Vercel (${waited} s)`);
+  if (Date.now() - start + INTERVAL_MS > RUN_MS) break;
   await sleep(INTERVAL_MS);
 }
-console.log('TIMEOUT : pas de déploiement après 10 min. Vérifier que le commit est bien poussé, puis relancer le script.');
-process.exit(2);
+console.log('PAS ENCORE : relance le script dans quelques secondes.');
+process.exit(3);
