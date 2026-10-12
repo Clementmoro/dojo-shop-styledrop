@@ -44,6 +44,13 @@ Lis le brief de Sophie dans mission/BRIEF.md et résume-moi ce qu'elle attend de
 ```
 
 ```
+Les données sont illisibles en CSV : fais-moi un dashboard du trimestre pour voir
+où on perd les clients.
+```
+
+> 📊 Le dashboard est fait pour **toi** : demande à Sam de l'adapter à ta question (« ajoute le mobile », « par semaine », « seulement les visiteurs venus par email »).
+
+```
 Dans les données du funnel, à quelle étape on perd le plus de monde ? Et sur mobile ?
 ```
 
