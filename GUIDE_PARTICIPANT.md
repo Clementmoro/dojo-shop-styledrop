@@ -49,6 +49,11 @@ Dans les données du funnel, à quelle étape on perd le plus de monde ? Et sur 
 Je vais passer une commande complète sur le site. Dis-moi quoi regarder à chaque étape.
 ```
 
+```
+Une autre promo de consultants est passée sur cette boutique avant moi.
+Qu'est-ce qu'ils ont ajouté, et où je peux le voir sur GitHub ?
+```
+
 **Le bon réflexe :** une intuition sur le site, une preuve dans la donnée. « Le total me paraît cher » devient « la chute panier → checkout est de X % ».
 
 ### 🥚 Bonus : les 3 secrets
@@ -67,6 +72,8 @@ Note ce que tu trouves, on fait le décompte au débrief.
 | 4 | | | |
 | 5 | | | |
 | 6 | | | |
+
+Features de la promo précédente retrouvées : ____ / 6
 
 Secrets trouvés : ☐ ☐ ☐
 
