@@ -43,6 +43,7 @@ const AnnouncementBar = () => {
         {WELCOME_CODE}
         <span aria-hidden="true" className="text-xs">📋</span>
       </button>
+      <span className="ml-2 text-xs opacity-70 italic">(clique pour copier)</span>
       <span className="mx-3 opacity-50 max-md:hidden">·</span>
       <span className="max-md:hidden">Livraison offerte dès 80 €</span>
     </div>
