@@ -3,7 +3,6 @@ import {
   HiOutlineUser,
   HiOutlineMagnifyingGlass,
   HiOutlineShoppingBag,
-  HiXMark,
 } from "react-icons/hi2";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -29,6 +28,7 @@ const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const { productsInCart } = useAppSelector((state) => state.cart);
   const { loginStatus } = useAppSelector((state) => state.auth);
   const cartCount = productsInCart.reduce(
@@ -43,6 +43,25 @@ const Header = () => {
     setIsSearchOpen(false);
     setIsProfileOpen(false);
   }, [location.pathname]);
+
+  // Mobile : referme la recherche quand l'utilisateur touche en dehors ou appuie sur Échap
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const handlePointer = (e: PointerEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsSearchOpen(false);
+    };
+    document.addEventListener("pointerdown", handlePointer);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointer);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [isSearchOpen]);
 
   // Referme le menu profil au clic en dehors
   useEffect(() => {
@@ -131,14 +150,17 @@ const Header = () => {
               <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
             </Link>
             {/* Mobile : la loupe déplie le champ de recherche vers la gauche */}
-            <div className="flex flex-1 min-w-0 items-center justify-end lg:hidden">
+            <div
+              ref={searchRef}
+              className="flex flex-1 min-w-0 items-center justify-end lg:hidden"
+            >
               <form
                 onSubmit={handleSearch}
                 role="search"
                 aria-hidden={!isSearchOpen}
                 className={`flex-1 min-w-0 overflow-hidden transition-[max-width,opacity,margin] duration-300 ease-out motion-reduce:transition-none ${
                   isSearchOpen
-                    ? "max-w-[13rem] opacity-100 mr-2"
+                    ? "max-w-[18rem] opacity-100 mr-2"
                     : "max-w-0 opacity-0 mr-0 pointer-events-none"
                 }`}
               >
@@ -173,11 +195,9 @@ const Header = () => {
                   setIsProfileOpen(false);
                 }}
               >
-                {isSearchOpen ? (
-                  <HiXMark className="text-2xl max-sm:text-xl" />
-                ) : (
-                  <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
-                )}
+                <HiOutlineMagnifyingGlass
+                  className={`text-2xl max-sm:text-xl ${isSearchOpen ? "text-exaltPink" : ""}`}
+                />
               </button>
             </div>
 
@@ -190,7 +210,10 @@ const Header = () => {
               <HiOutlineUser className="text-2xl max-sm:text-xl" />
             </Link>
             {/* Mobile : l'icône profil ouvre un menu déroulant */}
-            <div className="relative lg:hidden" ref={profileRef}>
+            <div
+              className={`relative lg:hidden ${isSearchOpen ? "hidden" : ""}`}
+              ref={profileRef}
+            >
               <button
                 type="button"
                 aria-label="Mon compte"
@@ -259,7 +282,7 @@ const Header = () => {
             <Link
               to="/cart"
               aria-label="Panier"
-              className="relative hover:text-exaltPink"
+              className={`relative hover:text-exaltPink ${isSearchOpen ? "max-lg:hidden" : ""}`}
             >
               <HiOutlineShoppingBag className="text-2xl max-sm:text-xl" />
               {cartCount > 0 && (
