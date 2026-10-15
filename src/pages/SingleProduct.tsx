@@ -7,7 +7,7 @@ import {
   StandardSelectInput,
   WaitlistForm,
 } from "../components";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
@@ -70,6 +70,7 @@ const SingleProduct = () => {
   const [color, setColor] = useState<string>("black");
   const [quantity, setQuantity] = useState<number>(1);
   const params = useParams<{ id: string }>();
+  const { hash } = useLocation();
   const dispatch = useAppDispatch();
 
   // defining HOC instances
@@ -97,6 +98,19 @@ const SingleProduct = () => {
   const alternatives = singleProduct
     ? getAlternatives(singleProduct, products)
     : { label: "", items: [] };
+
+  // Arrivée depuis « Me prévenir » : on amène le client sur la liste d'attente
+  useEffect(() => {
+    if (hash !== "#liste-attente" || !isOutOfStock) return;
+    const timer = setTimeout(() => {
+      document.getElementById("liste-attente")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Sur ordinateur, le curseur est prêt dans le champ email (sur mobile, on évite d'ouvrir le clavier)
+      if (window.matchMedia("(pointer: fine)").matches) {
+        document.getElementById("waitlist-email")?.focus({ preventScroll: true });
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [hash, isOutOfStock]);
 
   useEffect(() => {
     if (isSecret) {

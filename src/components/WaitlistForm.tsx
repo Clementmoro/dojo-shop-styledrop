@@ -52,7 +52,7 @@ const WaitlistForm = ({ product }: { product: Product }) => {
 
   if (registered) {
     return (
-      <div role="status" className="rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-green-800">
+      <div id="liste-attente" role="status" className="rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-green-800">
         <p className="font-semibold">✅ Vous êtes sur la liste d'attente</p>
         <p className="text-sm mt-1">
           On vous envoie un email dès que « {product.title} » revient en stock.
@@ -64,6 +64,7 @@ const WaitlistForm = ({ product }: { product: Product }) => {
   return (
     <form
       onSubmit={handleSubmit}
+      id="liste-attente"
       aria-labelledby="waitlist-title"
       className="rounded-2xl border-2 border-exaltPink/40 bg-exaltCream p-4 sm:p-5 flex flex-col gap-3"
     >
@@ -89,6 +90,7 @@ const WaitlistForm = ({ product }: { product: Product }) => {
         <label className="flex flex-col gap-1">
           <span className="text-xs font-semibold text-exaltNavy">Email</span>
           <input
+            id="waitlist-email"
             type="email"
             required
             inputMode="email"
