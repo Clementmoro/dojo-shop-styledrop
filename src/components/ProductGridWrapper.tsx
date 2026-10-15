@@ -12,6 +12,7 @@ const ProductGridWrapper = ({
   category,
   page,
   limit,
+  showAll,
   children,
 }: {
   searchQuery?: string;
@@ -19,6 +20,8 @@ const ProductGridWrapper = ({
   category?: string;
   page?: number;
   limit?: number;
+  // Affiche tous les produits, sans pagination (page « Tout voir »)
+  showAll?: boolean;
   children:
     | ReactElement<{ products: Product[] }>
     | ReactElement<{ products: Product[] }>[];
@@ -92,8 +95,8 @@ const ProductGridWrapper = ({
   );
 
   useEffect(() => {
-    getSearchedProducts(searchQuery || "", sortCriteria || "", page || 1);
-  }, [searchQuery, sortCriteria, page]);
+    getSearchedProducts(searchQuery || "", sortCriteria || "", showAll ? 0 : page || 1);
+  }, [searchQuery, sortCriteria, page, showAll]);
 
   // Clone the children and pass the products as props to the children
   // This will cause the children to re-render with the new products

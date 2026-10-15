@@ -16,7 +16,7 @@ const ShopPageContent = ({ category, page} : { category: string; page: number; }
   return (
     <>
       <ShopFilterAndSort sortCriteria={sortCriteria} setSortCriteria={setSortCriteria} />
-      <ProductGridWrapper sortCriteria={sortCriteria} category={category} page={currentPage} >
+      <ProductGridWrapper sortCriteria={sortCriteria} category={category} page={currentPage} showAll={!category} >
         <ProductGrid />
       </ProductGridWrapper>
       <ShowingPagination page={currentPage} category={category} setCurrentPage={setCurrentPage} />
