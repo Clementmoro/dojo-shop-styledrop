@@ -19,7 +19,7 @@ const HomeCollectionSection = () => {
         </Link>
       </div>
       <ProductGridWrapper limit={8}>
-        <ProductGrid />
+        <ProductGrid showQuickAdd />
       </ProductGridWrapper>
     </section>
   );
