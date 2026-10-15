@@ -108,7 +108,7 @@ const SingleProduct = () => {
               {formatCategoryName(singleProduct?.category || "")}
             </p>
             <h1 className="font-display text-4xl font-bold text-exaltNavy">{singleProduct?.title}</h1>
-            <p className="text-2xl font-bold text-exaltNavy">{singleProduct?.price} €</p>
+            <p className="text-2xl font-bold text-exaltNavy">{singleProduct?.price} € <span className="text-sm font-medium text-gray-500">TTC</span></p>
             {singleProduct?.description && (
               <p className="text-gray-600 leading-relaxed mt-2">{singleProduct.description}</p>
             )}

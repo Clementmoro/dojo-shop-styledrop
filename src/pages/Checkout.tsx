@@ -716,17 +716,15 @@ const Checkout = () => {
                     {formatPrice(subtotal ? 5 : 0)}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm">TVA (20 %)</dt>
-                  <dd className="text-sm font-medium text-gray-900">
-                    {formatPrice(subtotal ? taxableAmount / 5 : 0)}
+                <div className="flex items-center justify-between border-t border-gray-200 pt-6">
+                  <dt className="text-base font-medium">Total TTC</dt>
+                  <dd className="text-base font-medium text-gray-900">
+                    {formatPrice(subtotal ? taxableAmount + 5 : 0)}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-6">
-                  <dt className="text-base font-medium">Total</dt>
-                  <dd className="text-base font-medium text-gray-900">
-                    {formatPrice(subtotal ? taxableAmount + 5 + taxableAmount / 5 : 0)}
-                  </dd>
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <dt>dont TVA (20 %)</dt>
+                  <dd>{formatPrice(subtotal ? taxableAmount - taxableAmount / 1.2 : 0)}</dd>
                 </div>
               </dl>
 

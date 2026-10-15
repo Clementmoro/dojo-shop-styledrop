@@ -49,7 +49,7 @@ const ProductItem = ({
           </h2>
           <p className="text-sm text-gray-500">{formatCategoryName(category)}</p>
         </div>
-        <p className="text-base font-bold text-exaltNavy whitespace-nowrap">{price} €</p>
+        <p className="text-base font-bold text-exaltNavy whitespace-nowrap">{price} € <span className="text-xs font-medium text-gray-500">TTC</span></p>
       </div>
     </Link>
   );

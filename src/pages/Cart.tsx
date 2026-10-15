@@ -28,9 +28,10 @@ const Cart = () => {
 
   const discount = subtotal * discountRate;
   const taxableAmount = subtotal - discount;
-  const tax = taxableAmount * TAX_RATE;
+  // Les prix du catalogue sont TTC : la TVA est incluse, affichée pour information
+  const tax = taxableAmount - taxableAmount / (1 + TAX_RATE);
   const shipping = subtotal === 0 ? 0 : SHIPPING_FEE;
-  const total = subtotal === 0 ? 0 : taxableAmount + tax + shipping;
+  const total = subtotal === 0 ? 0 : taxableAmount + shipping;
 
   const handleApplyPromo = () => {
     if (!promoInput.trim()) return;
@@ -178,12 +179,12 @@ const Cart = () => {
                   <dd className="font-medium text-exaltNavy">{formatPrice(shipping)}</dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="text-gray-600">TVA (20 %)</dt>
-                  <dd className="font-medium text-exaltNavy">{formatPrice(tax)}</dd>
-                </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="text-base font-semibold text-exaltNavy">Total</dt>
+                  <dt className="text-base font-semibold text-exaltNavy">Total TTC</dt>
                   <dd className="text-base font-bold text-exaltNavy">{formatPrice(total)}</dd>
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <dt>dont TVA (20 %)</dt>
+                  <dd>{formatPrice(tax)}</dd>
                 </div>
               </dl>
 

@@ -37,11 +37,11 @@ const SingleOrderHistory = () => {
         <p className="mb-2">Date: {formatDate(singleOrder.orderDate)}</p>
         <p className="mb-2">Subtotal: ${ singleOrder.subtotal }</p>
         <p className="mb-2">Shipping: $5</p>
-        <p className="mb-2">Tax: ${ singleOrder.subtotal / 5 }</p>
         <p className="mb-2">
           Total: $
-          {(singleOrder.subtotal + 5 + singleOrder.subtotal / 5).toFixed(2)}
+          {(singleOrder.subtotal + 5).toFixed(2)}
         </p>
+        <p className="mb-2">VAT included: ${ (singleOrder.subtotal - singleOrder.subtotal / 1.2).toFixed(2) }</p>
         <p className="mb-2">Status: {singleOrder.orderStatus}</p>
         <h3 className="text-xl font-semibold mt-6 mb-4">Items</h3>
         <table className="singleOrder-table min-w-full bg-white border border-gray-200">
