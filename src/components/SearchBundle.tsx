@@ -1,9 +1,9 @@
 import { Fragment, ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAppDispatch } from "../hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import { addProductToTheCart, applyPromoCode } from "../features/cart/cartSlice";
-import { formatPrice, getPromoDiscountRate } from "../utils/promoCodes";
+import { WELCOME_CODE, formatPrice, getPromoDiscountRate } from "../utils/promoCodes";
 
 // Catégories qui complètent le meilleur résultat de la recherche.
 const COMPLEMENTS: Record<string, string[]> = {
@@ -44,15 +44,17 @@ const Sign = ({ children }: { children: ReactNode }) => (
   </span>
 );
 
-// 3 articles : le pack donne droit au code multi-articles
-const BUNDLE_PROMO_CODE = "BIENVENUE15";
+
 
 const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const total = bundle.reduce((sum, p) => sum + p.price, 0);
-  // Le code affiché est celui que le site accepte réellement
-  const promoRate = getPromoDiscountRate(BUNDLE_PROMO_CODE);
+  // Remise de bienvenue progressive, calculée sur le panier actuel + les 3 produits du pack
+  const cartItemCount = useAppSelector((state) =>
+    state.cart.productsInCart.reduce((acc, product) => acc + product.quantity, 0)
+  );
+  const promoRate = getPromoDiscountRate(WELCOME_CODE, cartItemCount + bundle.length);
   const totalWithPromo = promoRate ? total * (1 - promoRate) : total;
 
   const addBundleToCart = () =>
@@ -75,7 +77,7 @@ const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
 
   const handleBuyNow = () => {
     addBundleToCart();
-    if (promoRate) dispatch(applyPromoCode({ code: BUNDLE_PROMO_CODE, rate: promoRate }));
+    if (promoRate) dispatch(applyPromoCode({ code: WELCOME_CODE, rate: promoRate }));
     toast.success("Pack ajouté, code appliqué : direction le paiement");
     navigate("/checkout");
   };
@@ -87,9 +89,9 @@ const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
 
   const handleCopy = () => {
     navigator.clipboard
-      ?.writeText(BUNDLE_PROMO_CODE)
+      ?.writeText(WELCOME_CODE)
       .then(() => toast.success("Code copié"))
-      .catch(() => toast(`Ton code : ${BUNDLE_PROMO_CODE}`));
+      .catch(() => toast(`Ton code : ${WELCOME_CODE}`));
   };
 
   return (
@@ -127,8 +129,8 @@ const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
           {promoRate && (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-dashed border-exaltPink px-4 py-3">
               <div>
-                <p className="text-xs text-gray-500">Ton code de bienvenue, -{Math.round(promoRate * 100)} %</p>
-                <p className="font-mono text-lg font-bold tracking-wider text-exaltNavy">{BUNDLE_PROMO_CODE}</p>
+                <p className="text-xs text-gray-500">Ton code de bienvenue : -{Math.round(promoRate * 100)} % avec ce pack</p>
+                <p className="font-mono text-lg font-bold tracking-wider text-exaltNavy">{WELCOME_CODE}</p>
               </div>
               <button
                 type="button"

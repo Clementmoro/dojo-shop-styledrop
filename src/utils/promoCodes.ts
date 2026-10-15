@@ -1,14 +1,14 @@
 // Codes promo actifs, mis à jour par l'équipe marketing.
-// Clé : le nom officiel du code. Valeur : taux de remise.
-export const ACTIVE_PROMO_CODES: Record<string, number> = {
-  "BIENVENUE-10": 0.1,
-  BIENVENUE15: 0.15,
+// Clé : le nom officiel du code.
+// Une remise progressive grimpe de `step` à chaque article en plus, jusqu'à `max`.
+type PromoRule = { base: number; step?: number; max?: number };
+
+export const ACTIVE_PROMO_CODES: Record<string, PromoRule> = {
+  // Offre de bienvenue : -10 % pour 1 article, +5 % par article en plus, plafond -30 %
+  "BIENVENUE-10": { base: 0.1, step: 0.05, max: 0.3 },
 };
 
-// Nombre minimum d'articles (quantités comprises) pour utiliser un code.
-export const PROMO_MIN_ITEMS: Record<string, number> = {
-  BIENVENUE15: 2,
-};
+export const WELCOME_CODE = "BIENVENUE-10";
 
 export const EXPIRED_PROMO_CODES = ["EXALT2025"];
 
@@ -25,14 +25,14 @@ export const findActivePromoCode = (input: string): string | null =>
 export const isExpiredPromoCode = (input: string) =>
   EXPIRED_PROMO_CODES.some((code) => normalizeCode(code) === normalizeCode(input));
 
-export const getPromoDiscountRate = (code: string): number | null => {
+// Taux de remise d'un code pour un panier de `itemCount` articles.
+export const getPromoDiscountRate = (code: string, itemCount = 1): number | null => {
   const official = findActivePromoCode(code);
-  return official ? ACTIVE_PROMO_CODES[official] : null;
-};
-
-export const getPromoMinItems = (code: string) => {
-  const official = findActivePromoCode(code);
-  return official ? PROMO_MIN_ITEMS[official] ?? 0 : 0;
+  if (!official) return null;
+  const { base, step = 0, max = base } = ACTIVE_PROMO_CODES[official];
+  const rate = base + step * Math.max(0, itemCount - 1);
+  // arrondi pour éviter 0.15000000000000002
+  return Math.round(Math.min(rate, max) * 100) / 100;
 };
 
 export const formatPrice = (amount: number) =>

@@ -10,14 +10,14 @@ import {
 } from "../features/cart/cartSlice";
 import toast from "react-hot-toast";
 import {
-  ACTIVE_PROMO_CODES,
+  WELCOME_CODE,
   findActivePromoCode,
   formatPrice,
-  getPromoMinItems,
+  getPromoDiscountRate,
   isExpiredPromoCode,
 } from "../utils/promoCodes";
 
-const MULTI_ITEM_CODE = "BIENVENUE15";
+const pct = (rate: number) => `-${Math.round(rate * 100)} %`;
 
 const SHIPPING_FEE = 5;
 const TAX_RATE = 0.2;
@@ -37,10 +37,11 @@ const Cart = () => {
   const total = subtotal === 0 ? 0 : taxableAmount + tax + shipping;
 
   const itemCount = productsInCart.reduce((acc, product) => acc + product.quantity, 0);
-  const multiItemRate = ACTIVE_PROMO_CODES[MULTI_ITEM_CODE] ?? 0;
-  const multiItemMin = getPromoMinItems(MULTI_ITEM_CODE);
-  // Bandeau BIENVENUE15 : seulement s'il fait mieux que le code déjà appliqué
-  const showMultiItemOffer = multiItemRate > discountRate && promoCode !== MULTI_ITEM_CODE;
+  // Offre de bienvenue progressive : taux actuel et taux avec 1 article de plus
+  const welcomeApplied = promoCode === WELCOME_CODE;
+  const welcomeNow = getPromoDiscountRate(WELCOME_CODE, itemCount) ?? 0;
+  const welcomeNext = getPromoDiscountRate(WELCOME_CODE, itemCount + 1) ?? 0;
+  const showWelcomeOffer = itemCount > 0 && (!promoCode || welcomeApplied);
 
   const applyCode = (input: string) => {
     if (!input.trim()) return;
@@ -49,20 +50,15 @@ const Cart = () => {
       return;
     }
     const code = findActivePromoCode(input);
-    if (code === null) {
+    const rate = code ? getPromoDiscountRate(code, itemCount) : null;
+    if (code === null || rate === null) {
       setPromoError("Ce code n'existe pas. Vérifie l'orthographe.");
       return;
     }
-    const minItems = getPromoMinItems(code);
-    if (itemCount < minItems) {
-      setPromoError(`Ce code s'applique dès ${minItems} articles dans le panier.`);
-      return;
-    }
-    const rate = ACTIVE_PROMO_CODES[code];
     dispatch(applyPromoCode({ code, rate }));
     setPromoError(null);
     setPromoInput("");
-    toast.success(`Code ${code} : -${Math.round(rate * 100)} % appliqué`);
+    toast.success(`Code ${code} : ${pct(rate)} appliqué`);
   };
 
   const handleApplyPromo = () => applyCode(promoInput);
@@ -171,26 +167,40 @@ const Cart = () => {
                 Récapitulatif
               </h2>
 
-              {showMultiItemOffer && (
+              {showWelcomeOffer && (
                 <div className="mt-4 rounded-2xl border-2 border-dashed border-exaltPink bg-white px-4 py-3 text-sm text-exaltNavy">
-                  {itemCount < multiItemMin ? (
-                    <p>
-                      🎁 Ajoute un {multiItemMin === 2 ? "2e" : `${multiItemMin}e`} article et profite de{" "}
-                      <strong>-{Math.round(multiItemRate * 100)} %</strong> sur toute ta commande avec le code{" "}
-                      <strong className="font-mono">{MULTI_ITEM_CODE}</strong>.{" "}
-                      <Link to="/shop" className="font-semibold text-exaltPink underline underline-offset-2">
-                        Voir la boutique
-                      </Link>
-                    </p>
-                  ) : (
+                  {welcomeNext > welcomeNow ? (
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p>
-                        🎉 Tu as {itemCount} articles : passe à <strong>-{Math.round(multiItemRate * 100)} %</strong> avec{" "}
-                        <strong className="font-mono">{MULTI_ITEM_CODE}</strong>.
+                        🎁 {welcomeApplied ? (
+                          <>Tu profites de <strong>{pct(welcomeNow)}</strong>. </>
+                        ) : (
+                          <>Avec le code <strong className="font-mono">{WELCOME_CODE}</strong> : <strong>{pct(welcomeNow)}</strong> tout de suite. </>
+                        )}
+                        Ajoute <strong>1 article de plus</strong> et passe à <strong>{pct(welcomeNext)}</strong> sur toute ta commande.
                       </p>
+                      {welcomeApplied ? (
+                        <Link to="/shop" className="font-semibold text-exaltPink underline underline-offset-2">
+                          Voir la boutique
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => applyCode(WELCOME_CODE)}
+                          className="h-9 rounded-full bg-exaltPink px-4 text-xs font-semibold text-white transition-colors hover:bg-exaltNavy"
+                        >
+                          Appliquer
+                        </button>
+                      )}
+                    </div>
+                  ) : welcomeApplied ? (
+                    <p>🎉 Tu as atteint la remise maximale : <strong>{pct(welcomeNow)}</strong> sur toute ta commande.</p>
+                  ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p>🎁 Avec le code <strong className="font-mono">{WELCOME_CODE}</strong> : <strong>{pct(welcomeNow)}</strong> sur toute ta commande.</p>
                       <button
                         type="button"
-                        onClick={() => applyCode(MULTI_ITEM_CODE)}
+                        onClick={() => applyCode(WELCOME_CODE)}
                         className="h-9 rounded-full bg-exaltPink px-4 text-xs font-semibold text-white transition-colors hover:bg-exaltNavy"
                       >
                         Appliquer

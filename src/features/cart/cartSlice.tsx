@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getPromoMinItems } from "../../utils/promoCodes";
+import { getPromoDiscountRate } from "../../utils/promoCodes";
 
 type CartState = {
   productsInCart: ProductInCart[];
@@ -79,11 +79,10 @@ export const cartSlice = createSlice({
         (acc, product) => acc + product.price * product.quantity,
         0
       );
-      // Un code soumis à un minimum d'articles saute si le panier repasse en dessous
+      // Remise progressive : le taux suit le nombre d'articles du panier
       const itemCount = state.productsInCart.reduce((acc, product) => acc + product.quantity, 0);
-      if (state.promoCode && itemCount < getPromoMinItems(state.promoCode)) {
-        state.promoCode = null;
-        state.discountRate = 0;
+      if (state.promoCode) {
+        state.discountRate = getPromoDiscountRate(state.promoCode, Math.max(1, itemCount)) ?? 0;
       }
     },
   },
