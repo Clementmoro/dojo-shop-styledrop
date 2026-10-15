@@ -7,7 +7,7 @@ import {
 
 import { useState } from "react";
 
-const ShopPageContent = ({ category, page} : { category: string; page: number; }) => {
+const ShopPageContent = ({ category, subcategory, page} : { category: string; subcategory?: string; page: number; }) => {
   const [sortCriteria, setSortCriteria] = useState<string>("");
   const [ currentPage, setCurrentPage ] = useState(page);
   
@@ -16,7 +16,7 @@ const ShopPageContent = ({ category, page} : { category: string; page: number; }
   return (
     <>
       <ShopFilterAndSort sortCriteria={sortCriteria} setSortCriteria={setSortCriteria} />
-      <ProductGridWrapper sortCriteria={sortCriteria} category={category} page={currentPage} outOfStockLast>
+      <ProductGridWrapper sortCriteria={sortCriteria} category={category} subcategory={subcategory} page={currentPage} outOfStockLast>
         <ProductGrid showQuickAdd />
       </ProductGridWrapper>
       <ShowingPagination page={currentPage} category={category} setCurrentPage={setCurrentPage} />

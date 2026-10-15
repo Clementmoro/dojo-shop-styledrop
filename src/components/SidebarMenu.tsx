@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { HiXMark } from "react-icons/hi2";
-import { Link, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../hooks";
-import { setLoginStatus } from "../features/auth/authSlice";
-import { store } from "../store";
+import { HiChevronDown, HiXMark } from "react-icons/hi2";
+import { Link } from "react-router-dom";
+import { CLOTHING_SUBCATEGORIES } from "../utils/subcategories";
+
+const itemClass =
+  "py-3 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full text-left";
+const subItemClass = "py-2 text-sm text-gray-600 hover:text-exaltPink";
 
 const SidebarMenu = ({
   isSidebarOpen,
@@ -14,15 +15,8 @@ const SidebarMenu = ({
   setIsSidebarOpen: (prev: boolean) => void;
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
-  const { loginStatus } = useAppSelector((state) => state.auth);
-  const navigate = useNavigate();
-
-  const logout = () => {
-    toast.error("Tu es déconnecté");
-    localStorage.removeItem("user");
-    store.dispatch(setLoginStatus(false));
-    navigate("/login");
-  };
+  const [isClothingOpen, setIsClothingOpen] = useState(false);
+  const close = () => setIsSidebarOpen(false);
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -58,57 +52,57 @@ const SidebarMenu = ({
               />
             </Link>
           </div>
-          <div className="flex flex-col items-center gap-1 mt-7">
-            <Link
-              to="/"
-              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
-            >
+          <nav className="flex flex-col mt-7 px-4" aria-label="Menu principal">
+            <Link to="/" onClick={close} className={itemClass}>
               Accueil
             </Link>
-            <Link
-              to="/shop"
-              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
+            <button
+              type="button"
+              onClick={() => setIsClothingOpen((open) => !open)}
+              aria-expanded={isClothingOpen}
+              className={`${itemClass} flex items-center justify-between`}
             >
-              Boutique
-            </Link>
-            <Link
-              to="/search"
-              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
-            >
-              Recherche
-            </Link>
-            {loginStatus ? (
-              <>
-                <button
-                  onClick={logout}
-                  className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
-                >
-                  Se déconnecter
-                </button>
-              </>
-            ) : (
-              <>
+              Vêtements
+              <HiChevronDown
+                className={`text-lg transition-transform ${isClothingOpen ? "rotate-180" : ""}`}
+                aria-hidden="true"
+              />
+            </button>
+            {isClothingOpen && (
+              <div className="flex flex-col pl-4 border-b border-gray-100 pb-2">
                 <Link
-                  to="/login"
-                  className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
+                  to="/shop/clothing"
+                  onClick={close}
+                  className={subItemClass}
                 >
-                  Se connecter
+                  Tous les vêtements
                 </Link>
-                <Link
-                  to="/register"
-                  className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
-                >
-                  Créer un compte
-                </Link>
-              </>
+                {CLOTHING_SUBCATEGORIES.map((sub) => (
+                  <Link
+                    key={sub.slug}
+                    to={`/shop?type=${sub.slug}`}
+                    onClick={close}
+                    className={subItemClass}
+                  >
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
             )}
-            <Link
-              to="/cart"
-              className="py-2 border-b border-gray-100 text-exaltNavy font-medium hover:text-exaltPink w-full block flex justify-center"
-            >
-              Panier
+            <Link to="/shop/accessories" onClick={close} className={itemClass}>
+              Accessoires
             </Link>
-          </div>
+            <Link to="/shop/stationery" onClick={close} className={itemClass}>
+              Papeterie
+            </Link>
+            <Link
+              to="/shop/limited-edition"
+              onClick={close}
+              className="py-3 border-b border-gray-100 font-semibold text-exaltPink hover:text-exaltNavy w-full text-left"
+            >
+              Édition limitée
+            </Link>
+          </nav>
         </div>
       )}
     </>

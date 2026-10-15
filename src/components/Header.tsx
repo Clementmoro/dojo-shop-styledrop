@@ -1,4 +1,5 @@
 import {
+  HiBars3,
   HiOutlineUser,
   HiOutlineMagnifyingGlass,
   HiOutlineShoppingBag,
@@ -7,6 +8,7 @@ import {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import AnnouncementBar from "./AnnouncementBar";
+import SidebarMenu from "./SidebarMenu";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../hooks";
 import { setLoginStatus } from "../features/auth/authSlice";
@@ -20,10 +22,8 @@ const NAV_LINKS = [
   { to: "/shop/limited-edition", label: "Édition limitée" },
 ];
 
-// Menu mobile affiché sous le header : Accueil + les catégories
-const MOBILE_NAV_LINKS = [{ to: "/", label: "Accueil" }, ...NAV_LINKS];
-
 const Header = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -31,7 +31,10 @@ const Header = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { productsInCart } = useAppSelector((state) => state.cart);
   const { loginStatus } = useAppSelector((state) => state.auth);
-  const cartCount = productsInCart.reduce((sum, p) => sum + (p.quantity || 0), 0);
+  const cartCount = productsInCart.reduce(
+    (sum, p) => sum + (p.quantity || 0),
+    0,
+  );
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -45,7 +48,10 @@ const Header = () => {
   useEffect(() => {
     if (!isProfileOpen) return;
     const handleClick = (e: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(e.target as Node)
+      ) {
         setIsProfileOpen(false);
       }
     };
@@ -78,184 +84,191 @@ const Header = () => {
     "block w-full text-left px-4 py-3 text-sm font-medium text-exaltNavy hover:bg-exaltCream hover:text-exaltPink";
 
   return (
-    <div className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
-      <AnnouncementBar />
-      <header className="max-w-screen-2xl flex justify-between items-center py-4 px-5 mx-auto max-[400px]:px-3">
-        <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center">
-            <img
-              src="https://images.prismic.io/exalt/ZlTQKaWtHYXtT1CW_HEADER_Logo.png?auto=format%2Ccompress&fit=max&w=256"
-              alt="eXalt"
-              className="h-7 max-sm:h-6"
-            />
-          </Link>
-          <nav className="flex gap-6 max-lg:hidden">
-            {NAV_LINKS.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end
-                className={({ isActive }) =>
-                  `text-sm font-medium transition-colors hover:text-exaltPink ${
-                    isActive ? "text-exaltPink" : "text-exaltNavy"
-                  }`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-        <div className="flex gap-5 items-center text-exaltNavy max-sm:gap-3">
-          {/* Desktop : la loupe mène à la page Recherche */}
-          <Link
-            to="/search"
-            aria-label="Rechercher"
-            className="hover:text-exaltPink max-lg:hidden"
-          >
-            <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
-          </Link>
-          {/* Mobile : la loupe ouvre le champ de recherche dans le header */}
-          <button
-            type="button"
-            aria-label={isSearchOpen ? "Fermer la recherche" : "Rechercher"}
-            aria-expanded={isSearchOpen}
-            className="hover:text-exaltPink lg:hidden"
-            onClick={() => {
-              setIsSearchOpen((open) => !open);
-              setIsProfileOpen(false);
-            }}
-          >
-            {isSearchOpen ? (
-              <HiXMark className="text-2xl max-sm:text-xl" />
-            ) : (
-              <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
-            )}
-          </button>
-
-          {/* Desktop : l'icône profil mène à la connexion (inchangé) */}
-          <Link
-            to="/login"
-            aria-label="Mon compte"
-            className="hover:text-exaltPink max-lg:hidden"
-          >
-            <HiOutlineUser className="text-2xl max-sm:text-xl" />
-          </Link>
-          {/* Mobile : l'icône profil ouvre un menu déroulant */}
-          <div className="relative lg:hidden" ref={profileRef}>
+    <>
+      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
+        <AnnouncementBar />
+        <header className="max-w-screen-2xl flex justify-between items-center py-4 px-5 mx-auto max-[400px]:px-3">
+          <div className="flex items-center gap-8">
             <button
               type="button"
-              aria-label="Mon compte"
-              aria-haspopup="menu"
-              aria-expanded={isProfileOpen}
-              className="hover:text-exaltPink flex items-center"
+              aria-label="Ouvrir le menu"
+              className="lg:hidden text-exaltNavy"
+              onClick={() => setIsSidebarOpen(true)}
+            >
+              <HiBars3 className="text-2xl" />
+            </button>
+            <Link to="/" className="flex items-center">
+              <img
+                src="https://images.prismic.io/exalt/ZlTQKaWtHYXtT1CW_HEADER_Logo.png?auto=format%2Ccompress&fit=max&w=256"
+                alt="eXalt"
+                className="h-7 max-sm:h-6"
+              />
+            </Link>
+            <nav className="flex gap-6 max-lg:hidden">
+              {NAV_LINKS.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition-colors hover:text-exaltPink ${
+                      isActive ? "text-exaltPink" : "text-exaltNavy"
+                    }`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+          <div className="flex gap-5 items-center text-exaltNavy max-sm:gap-3">
+            {/* Desktop : la loupe mène à la page Recherche */}
+            <Link
+              to="/search"
+              aria-label="Rechercher"
+              className="hover:text-exaltPink max-lg:hidden"
+            >
+              <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
+            </Link>
+            {/* Mobile : la loupe ouvre le champ de recherche dans le header */}
+            <button
+              type="button"
+              aria-label={isSearchOpen ? "Fermer la recherche" : "Rechercher"}
+              aria-expanded={isSearchOpen}
+              className="hover:text-exaltPink lg:hidden"
               onClick={() => {
-                setIsProfileOpen((open) => !open);
-                setIsSearchOpen(false);
+                setIsSearchOpen((open) => !open);
+                setIsProfileOpen(false);
               }}
             >
-              <HiOutlineUser className="text-2xl max-sm:text-xl" />
+              {isSearchOpen ? (
+                <HiXMark className="text-2xl max-sm:text-xl" />
+              ) : (
+                <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
+              )}
             </button>
-            {isProfileOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 mt-3 w-52 rounded-2xl bg-white shadow-lg border border-gray-100 overflow-hidden"
+
+            {/* Desktop : l'icône profil mène à la connexion (inchangé) */}
+            <Link
+              to="/login"
+              aria-label="Mon compte"
+              className="hover:text-exaltPink max-lg:hidden"
+            >
+              <HiOutlineUser className="text-2xl max-sm:text-xl" />
+            </Link>
+            {/* Mobile : l'icône profil ouvre un menu déroulant */}
+            <div className="relative lg:hidden" ref={profileRef}>
+              <button
+                type="button"
+                aria-label="Mon compte"
+                aria-haspopup="menu"
+                aria-expanded={isProfileOpen}
+                className="hover:text-exaltPink flex items-center"
+                onClick={() => {
+                  setIsProfileOpen((open) => !open);
+                  setIsSearchOpen(false);
+                }}
               >
-                {loginStatus ? (
-                  <>
-                    <Link to="/user-profile" role="menuitem" className={dropdownItemClass}>
-                      Mon compte
-                    </Link>
-                    <Link to="/order-history" role="menuitem" className={dropdownItemClass}>
-                      Mes commandes
-                    </Link>
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={logout}
-                      className={`${dropdownItemClass} border-t border-gray-100`}
-                    >
-                      Se déconnecter
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/login" role="menuitem" className={dropdownItemClass}>
-                      Se connecter
-                    </Link>
-                    <Link
-                      to="/register"
-                      role="menuitem"
-                      className={`${dropdownItemClass} border-t border-gray-100`}
-                    >
-                      Créer un compte
-                    </Link>
-                  </>
-                )}
-              </div>
-            )}
+                <HiOutlineUser className="text-2xl max-sm:text-xl" />
+              </button>
+              {isProfileOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-3 w-52 rounded-2xl bg-white shadow-lg border border-gray-100 overflow-hidden"
+                >
+                  {loginStatus ? (
+                    <>
+                      <Link
+                        to="/user-profile"
+                        role="menuitem"
+                        className={dropdownItemClass}
+                      >
+                        Mon compte
+                      </Link>
+                      <Link
+                        to="/order-history"
+                        role="menuitem"
+                        className={dropdownItemClass}
+                      >
+                        Mes commandes
+                      </Link>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={logout}
+                        className={`${dropdownItemClass} border-t border-gray-100`}
+                      >
+                        Se déconnecter
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        role="menuitem"
+                        className={dropdownItemClass}
+                      >
+                        Se connecter
+                      </Link>
+                      <Link
+                        to="/register"
+                        role="menuitem"
+                        className={`${dropdownItemClass} border-t border-gray-100`}
+                      >
+                        Créer un compte
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <Link
+              to="/cart"
+              aria-label="Panier"
+              className="relative hover:text-exaltPink"
+            >
+              <HiOutlineShoppingBag className="text-2xl max-sm:text-xl" />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-exaltPink text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </div>
+        </header>
 
-          <Link to="/cart" aria-label="Panier" className="relative hover:text-exaltPink">
-            <HiOutlineShoppingBag className="text-2xl max-sm:text-xl" />
-            {cartCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-exaltPink text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-        </div>
-      </header>
-
-      {/* Mobile : champ de recherche ouvert depuis la loupe */}
-      {isSearchOpen && (
-        <form
-          onSubmit={handleSearch}
-          className="lg:hidden flex gap-2 px-5 pb-3 max-[400px]:px-3"
-          role="search"
-        >
-          <input
-            ref={searchInputRef}
-            type="search"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Rechercher un produit"
-            aria-label="Rechercher un produit"
-            enterKeyHint="search"
-            className="flex-1 min-w-0 h-11 rounded-full border border-gray-300 px-4 text-base outline-none focus:border-exaltNavy"
-          />
-          <button
-            type="submit"
-            className="h-11 px-5 rounded-full bg-exaltNavy text-white text-sm font-semibold hover:bg-exaltPink transition-colors"
+        {/* Mobile : champ de recherche ouvert depuis la loupe */}
+        {isSearchOpen && (
+          <form
+            onSubmit={handleSearch}
+            className="lg:hidden flex gap-2 px-5 pb-3 max-[400px]:px-3"
+            role="search"
           >
-            OK
-          </button>
-        </form>
-      )}
-
-      {/* Mobile : menu des catégories sous le header */}
-      <nav
-        aria-label="Catégories"
-        className="lg:hidden flex gap-2 overflow-x-auto px-5 pb-3 max-[400px]:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {MOBILE_NAV_LINKS.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end
-            className={({ isActive }) =>
-              `shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium border transition-colors ${
-                isActive
-                  ? "bg-exaltNavy border-exaltNavy text-white"
-                  : "border-gray-200 text-exaltNavy hover:border-exaltPink hover:text-exaltPink"
-              }`
-            }
-          >
-            {link.label}
-          </NavLink>
-        ))}
-      </nav>
-    </div>
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Rechercher un produit"
+              aria-label="Rechercher un produit"
+              enterKeyHint="search"
+              className="flex-1 min-w-0 h-11 rounded-full border border-gray-300 px-4 text-base outline-none focus:border-exaltNavy"
+            />
+            <button
+              type="submit"
+              className="h-11 px-5 rounded-full bg-exaltNavy text-white text-sm font-semibold hover:bg-exaltPink transition-colors"
+            >
+              OK
+            </button>
+          </form>
+        )}
+      </div>
+      <SidebarMenu
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
+    </>
   );
 };
 export default Header;

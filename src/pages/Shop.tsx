@@ -4,6 +4,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { ShopBanner, ShopPageContent } from "../components";
+import { getSubcategory } from "../utils/subcategories";
 
 export const shopCategoryLoader = async ({ params }: LoaderFunctionArgs) => {
   const { category } = params;
@@ -14,12 +15,14 @@ export const shopCategoryLoader = async ({ params }: LoaderFunctionArgs) => {
 const Shop = () => {
   const category = useLoaderData() as string;
   const [searchParams] = useSearchParams();
+  const subcategory = getSubcategory(searchParams.get("type"))?.slug;
   return (
     <div className="max-w-screen-2xl mx-auto pt-10">
-      <ShopBanner category={category} />
+      <ShopBanner category={category} subcategory={subcategory} />
       <ShopPageContent
-        key={category || "all"}
+        key={`${category || "all"}-${subcategory || ""}`}
         category={category}
+        subcategory={subcategory}
         page={parseInt(searchParams.get("page") || "1")}
       />
     </div>

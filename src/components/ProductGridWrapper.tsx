@@ -5,11 +5,13 @@ import {
   setShowingProducts,
   setTotalProducts,
 } from "../features/shop/shopSlice";
+import { matchesSubcategory } from "../utils/subcategories";
 
 const ProductGridWrapper = ({
   searchQuery,
   sortCriteria,
   category,
+  subcategory,
   page,
   limit,
   outOfStockLast,
@@ -18,6 +20,7 @@ const ProductGridWrapper = ({
   searchQuery?: string;
   sortCriteria?: string;
   category?: string;
+  subcategory?: string;
   page?: number;
   limit?: number;
   outOfStockLast?: boolean;
@@ -48,6 +51,12 @@ const ProductGridWrapper = ({
         searchedProducts = searchedProducts.filter((product: Product) => {
           return product.category === category;
         });
+      }
+
+      if (subcategory) {
+        searchedProducts = searchedProducts.filter((product: Product) =>
+          matchesSubcategory(product.title, subcategory)
+        );
       }
 
       if (totalProducts !== searchedProducts.length) {
@@ -98,7 +107,7 @@ const ProductGridWrapper = ({
         dispatch(setShowingProducts(searchedProducts.length));
       }
     },
-    [category, limit, outOfStockLast]
+    [category, subcategory, limit, outOfStockLast]
   );
 
   useEffect(() => {
