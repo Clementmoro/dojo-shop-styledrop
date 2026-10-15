@@ -130,23 +130,56 @@ const Header = () => {
             >
               <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
             </Link>
-            {/* Mobile : la loupe ouvre le champ de recherche dans le header */}
-            <button
-              type="button"
-              aria-label={isSearchOpen ? "Fermer la recherche" : "Rechercher"}
-              aria-expanded={isSearchOpen}
-              className="hover:text-exaltPink lg:hidden"
-              onClick={() => {
-                setIsSearchOpen((open) => !open);
-                setIsProfileOpen(false);
-              }}
-            >
-              {isSearchOpen ? (
-                <HiXMark className="text-2xl max-sm:text-xl" />
-              ) : (
-                <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
-              )}
-            </button>
+            {/* Mobile : la loupe déplie le champ de recherche vers la gauche */}
+            <div className="relative flex items-center lg:hidden">
+              <form
+                onSubmit={handleSearch}
+                role="search"
+                aria-hidden={!isSearchOpen}
+                className={`absolute right-full mr-2 top-1/2 -translate-y-1/2 origin-right overflow-hidden transition-[width,opacity] duration-300 ease-out motion-reduce:transition-none ${
+                  isSearchOpen
+                    ? "w-[min(16rem,calc(100vw-10.5rem))] opacity-100"
+                    : "w-0 opacity-0 pointer-events-none"
+                }`}
+              >
+                <div className="relative">
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder="Rechercher"
+                    aria-label="Rechercher un produit"
+                    enterKeyHint="search"
+                    tabIndex={isSearchOpen ? 0 : -1}
+                    className="w-full h-10 rounded-full border border-gray-300 bg-white pl-4 pr-14 text-base outline-none focus:border-exaltNavy [&::-webkit-search-cancel-button]:hidden"
+                  />
+                  <button
+                    type="submit"
+                    tabIndex={isSearchOpen ? 0 : -1}
+                    className="absolute right-1 top-1 bottom-1 px-3 rounded-full bg-exaltNavy text-white text-xs font-semibold hover:bg-exaltPink transition-colors"
+                  >
+                    OK
+                  </button>
+                </div>
+              </form>
+              <button
+                type="button"
+                aria-label={isSearchOpen ? "Fermer la recherche" : "Rechercher"}
+                aria-expanded={isSearchOpen}
+                className="hover:text-exaltPink"
+                onClick={() => {
+                  setIsSearchOpen((open) => !open);
+                  setIsProfileOpen(false);
+                }}
+              >
+                {isSearchOpen ? (
+                  <HiXMark className="text-2xl max-sm:text-xl" />
+                ) : (
+                  <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
+                )}
+              </button>
+            </div>
 
             {/* Desktop : l'icône profil mène à la connexion (inchangé) */}
             <Link
@@ -237,32 +270,6 @@ const Header = () => {
             </Link>
           </div>
         </header>
-
-        {/* Mobile : champ de recherche ouvert depuis la loupe */}
-        {isSearchOpen && (
-          <form
-            onSubmit={handleSearch}
-            className="lg:hidden flex gap-2 px-5 pb-3 max-[400px]:px-3"
-            role="search"
-          >
-            <input
-              ref={searchInputRef}
-              type="search"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Rechercher un produit"
-              aria-label="Rechercher un produit"
-              enterKeyHint="search"
-              className="flex-1 min-w-0 h-11 rounded-full border border-gray-300 px-4 text-base outline-none focus:border-exaltNavy"
-            />
-            <button
-              type="submit"
-              className="h-11 px-5 rounded-full bg-exaltNavy text-white text-sm font-semibold hover:bg-exaltPink transition-colors"
-            >
-              OK
-            </button>
-          </form>
-        )}
       </div>
       <SidebarMenu
         isSidebarOpen={isSidebarOpen}
