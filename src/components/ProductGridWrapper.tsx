@@ -12,7 +12,7 @@ const ProductGridWrapper = ({
   category,
   page,
   limit,
-  showAll,
+  pageSize = 9,
   children,
 }: {
   searchQuery?: string;
@@ -20,8 +20,8 @@ const ProductGridWrapper = ({
   category?: string;
   page?: number;
   limit?: number;
-  // Affiche tous les produits, sans pagination (page « Tout voir »)
-  showAll?: boolean;
+  // Nombre de produits ajoutés à chaque page (« Afficher plus »)
+  pageSize?: number;
   children:
     | ReactElement<{ products: Product[] }>
     | ReactElement<{ products: Product[] }>[];
@@ -78,11 +78,11 @@ const ProductGridWrapper = ({
         // If page is provided, slice the products based on the page number
         // this will be used for pagination
       } else if (page) {
-        setProducts(searchedProducts.slice(0, page * 9));
+        setProducts(searchedProducts.slice(0, page * pageSize));
         // Set the number of products being displayed
         // This will be displayed in the ShowingPagination component
         dispatch(
-          setShowingProducts(searchedProducts.slice(0, page * 9).length)
+          setShowingProducts(searchedProducts.slice(0, page * pageSize).length)
         );
         // If no limit or page is provided, display all the products
       } else {
@@ -95,8 +95,8 @@ const ProductGridWrapper = ({
   );
 
   useEffect(() => {
-    getSearchedProducts(searchQuery || "", sortCriteria || "", showAll ? 0 : page || 1);
-  }, [searchQuery, sortCriteria, page, showAll]);
+    getSearchedProducts(searchQuery || "", sortCriteria || "", page || 1);
+  }, [searchQuery, sortCriteria, page]);
 
   // Clone the children and pass the products as props to the children
   // This will cause the children to re-render with the new products

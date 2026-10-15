@@ -20,7 +20,7 @@ const ShowingPagination = ({
         <p className="text-sm text-gray-600">{ showingProducts } sur { totalProducts }</p>
         {showingProducts < totalProducts && (
         <Button
-          text="Voir plus"
+          text="Afficher plus"
           mode="white"
           onClick={() => {
             setCurrentPage(page + 1);
