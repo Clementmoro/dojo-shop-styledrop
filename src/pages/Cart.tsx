@@ -232,6 +232,15 @@ const Cart = () => {
                     <dd className="font-medium">-{formatPrice(discount)}</dd>
                   </div>
                 )}
+                {productsInCart.length > 0 && (
+                  <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                    <dt className="text-gray-600">
+                      🎁 Produit surprise
+                      <span className="block text-xs text-gray-400">À découvrir après ta commande</span>
+                    </dt>
+                    <dd className="font-semibold text-green-700">Offert</dd>
+                  </div>
+                )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-gray-600">Livraison</dt>
                   <dd className="font-medium text-exaltNavy">{formatPrice(shipping)}</dd>
