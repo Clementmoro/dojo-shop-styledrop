@@ -3,6 +3,7 @@ import {
   HiOutlineUser,
   HiOutlineMagnifyingGlass,
   HiOutlineShoppingBag,
+  HiXMark,
 } from "react-icons/hi2";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -195,9 +196,11 @@ const Header = () => {
                   setIsProfileOpen(false);
                 }}
               >
-                <HiOutlineMagnifyingGlass
-                  className={`text-2xl max-sm:text-xl ${isSearchOpen ? "text-exaltPink" : ""}`}
-                />
+                {isSearchOpen ? (
+                  <HiXMark className="text-2xl max-sm:text-xl" />
+                ) : (
+                  <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
+                )}
               </button>
             </div>
 
