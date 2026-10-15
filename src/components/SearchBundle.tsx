@@ -1,9 +1,9 @@
 import { Fragment, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "../hooks";
-import { addProductToTheCart } from "../features/cart/cartSlice";
-import { formatPrice } from "../utils/promoCodes";
+import { addProductToTheCart, applyPromoCode } from "../features/cart/cartSlice";
+import { formatPrice, getPromoDiscountRate } from "../utils/promoCodes";
 
 // Catégories qui complètent le meilleur résultat de la recherche.
 const COMPLEMENTS: Record<string, string[]> = {
@@ -44,11 +44,17 @@ const Sign = ({ children }: { children: ReactNode }) => (
   </span>
 );
 
+const BUNDLE_PROMO_CODE = "BIENVENUE-10";
+
 const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const total = bundle.reduce((sum, p) => sum + p.price, 0);
+  // Le code affiché est celui que le site accepte réellement
+  const promoRate = getPromoDiscountRate(BUNDLE_PROMO_CODE);
+  const totalWithPromo = promoRate ? total * (1 - promoRate) : total;
 
-  const handleAddBundle = () => {
+  const addBundleToCart = () =>
     bundle.forEach((p) =>
       dispatch(
         addProductToTheCart({
@@ -65,7 +71,24 @@ const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
         })
       )
     );
+
+  const handleBuyNow = () => {
+    addBundleToCart();
+    if (promoRate) dispatch(applyPromoCode({ code: BUNDLE_PROMO_CODE, rate: promoRate }));
+    toast.success("Pack ajouté, code appliqué : direction le paiement");
+    navigate("/checkout");
+  };
+
+  const handleAddOnly = () => {
+    addBundleToCart();
     toast.success("Le pack de 3 produits est dans ton panier");
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard
+      ?.writeText(BUNDLE_PROMO_CODE)
+      .then(() => toast.success("Code copié"))
+      .catch(() => toast(`Ton code : ${BUNDLE_PROMO_CODE}`));
   };
 
   return (
@@ -75,38 +98,68 @@ const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
         Complète ton {bundle[0].title.replace(/^eXalt /, "")}
       </h2>
 
-      <div className="mt-6 flex items-stretch gap-3 max-md:flex-col">
-        {bundle.map((p, i) => (
-          <Fragment key={p.id}>
-            {i > 0 && <Sign>+</Sign>}
-            <Link
-              to={`/product/${p.id}`}
-              className="group flex min-w-0 flex-1 items-center gap-4 rounded-2xl bg-white p-3 md:flex-col md:items-stretch"
-            >
-              <div className="aspect-square w-20 flex-shrink-0 overflow-hidden rounded-xl bg-exaltCream md:w-full">
-                <img src={imageSrc(p.image)} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-1 md:px-1">
-                <p className="text-sm font-semibold text-exaltNavy group-hover:text-exaltPink">{p.title}</p>
-                <p className="text-sm font-bold text-exaltNavy">{formatPrice(p.price)}</p>
-              </div>
-            </Link>
-          </Fragment>
-        ))}
+      <div className="mt-6 grid gap-8 md:grid-cols-2 md:items-center">
+        {/* Moitié gauche : produit + produit + produit = total */}
+        <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr_auto_auto]">
+          {bundle.map((p, i) => (
+            <Fragment key={p.id}>
+              {i > 0 && <Sign>+</Sign>}
+              <Link to={`/product/${p.id}`} className="group flex min-w-0 flex-col gap-1">
+                <div className="aspect-square w-full overflow-hidden rounded-xl bg-white">
+                  <img src={imageSrc(p.image)} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </div>
+                <p className="line-clamp-2 text-xs font-semibold text-exaltNavy group-hover:text-exaltPink">
+                  {p.title.replace(/^eXalt /, "")}
+                </p>
+                <p className="text-xs font-bold text-exaltNavy">{formatPrice(p.price)}</p>
+              </Link>
+            </Fragment>
+          ))}
+          <div className="col-span-5 flex items-center justify-center gap-2 sm:col-span-2 sm:self-start sm:pt-[18%]">
+            <Sign>=</Sign>
+            <p className="whitespace-nowrap font-display text-2xl font-bold text-exaltNavy">{formatPrice(total)}</p>
+          </div>
+        </div>
 
-        <Sign>=</Sign>
+        {/* Moitié droite : code promo + passage direct au paiement */}
+        <div className="flex flex-col gap-4 rounded-2xl bg-white p-6">
+          {promoRate && (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-dashed border-exaltPink px-4 py-3">
+              <div>
+                <p className="text-xs text-gray-500">Ton code de bienvenue, -{Math.round(promoRate * 100)} %</p>
+                <p className="font-mono text-lg font-bold tracking-wider text-exaltNavy">{BUNDLE_PROMO_CODE}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="h-9 rounded-full border border-exaltNavy px-4 text-xs font-semibold text-exaltNavy transition-colors hover:bg-exaltNavy hover:text-white"
+              >
+                Copier
+              </button>
+            </div>
+          )}
 
-        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl bg-exaltNavy p-5 text-center text-white">
-          <p className="text-sm opacity-80">Les 3 produits</p>
-          <p className="font-display text-3xl font-bold">{formatPrice(total)}</p>
+          <div className="flex items-baseline gap-3">
+            {promoRate && <p className="text-base text-gray-400 line-through">{formatPrice(total)}</p>}
+            <p className="font-display text-3xl font-bold text-exaltNavy">{formatPrice(totalWithPromo)}</p>
+            <p className="text-xs text-gray-500">les 3 produits{promoRate ? ", code appliqué" : ""}</p>
+          </div>
+
           <button
             type="button"
-            onClick={handleAddBundle}
-            className="h-11 w-full rounded-full bg-white px-5 text-sm font-semibold text-exaltNavy transition-colors hover:bg-exaltPink hover:text-white"
+            onClick={handleBuyNow}
+            className="h-14 w-full rounded-full bg-exaltPink px-6 text-base font-bold text-white transition-colors hover:bg-exaltNavy"
           >
-            Ajouter le pack au panier
+            Je prends les 3 et je paie
           </button>
-          <p className="text-xs opacity-70">Ajoutés en taille M. Pour une autre taille, passe par la fiche du produit.</p>
+          <button
+            type="button"
+            onClick={handleAddOnly}
+            className="text-sm font-semibold text-exaltNavy underline underline-offset-4 hover:text-exaltPink"
+          >
+            Ajouter au panier et continuer mes achats
+          </button>
+          <p className="text-xs text-gray-500">Ajoutés en taille M. Pour une autre taille, passe par la fiche du produit.</p>
         </div>
       </div>
     </section>
