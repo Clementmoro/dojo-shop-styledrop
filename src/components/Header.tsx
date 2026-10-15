@@ -88,7 +88,7 @@ const Header = () => {
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
         <AnnouncementBar />
         <header className="max-w-screen-2xl flex justify-between items-center py-4 px-5 mx-auto max-[400px]:px-3">
-          <div className="flex items-center gap-8">
+          <div className="flex shrink-0 items-center gap-8 max-lg:gap-4">
             <button
               type="button"
               aria-label="Ouvrir le menu"
@@ -121,7 +121,7 @@ const Header = () => {
               ))}
             </nav>
           </div>
-          <div className="flex gap-5 items-center text-exaltNavy max-sm:gap-3">
+          <div className="flex gap-5 items-center text-exaltNavy max-sm:gap-3 max-lg:flex-1 max-lg:min-w-0 max-lg:justify-end max-lg:ml-3">
             {/* Desktop : la loupe mène à la page Recherche */}
             <Link
               to="/search"
@@ -131,15 +131,15 @@ const Header = () => {
               <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
             </Link>
             {/* Mobile : la loupe déplie le champ de recherche vers la gauche */}
-            <div className="relative flex items-center lg:hidden">
+            <div className="flex flex-1 min-w-0 items-center justify-end lg:hidden">
               <form
                 onSubmit={handleSearch}
                 role="search"
                 aria-hidden={!isSearchOpen}
-                className={`absolute right-full mr-2 top-1/2 -translate-y-1/2 origin-right overflow-hidden transition-[width,opacity] duration-300 ease-out motion-reduce:transition-none ${
+                className={`flex-1 min-w-0 overflow-hidden transition-[max-width,opacity,margin] duration-300 ease-out motion-reduce:transition-none ${
                   isSearchOpen
-                    ? "w-[min(16rem,calc(100vw-10.5rem))] opacity-100"
-                    : "w-0 opacity-0 pointer-events-none"
+                    ? "max-w-[13rem] opacity-100 mr-2"
+                    : "max-w-0 opacity-0 mr-0 pointer-events-none"
                 }`}
               >
                 <div className="relative">
@@ -152,12 +152,12 @@ const Header = () => {
                     aria-label="Rechercher un produit"
                     enterKeyHint="search"
                     tabIndex={isSearchOpen ? 0 : -1}
-                    className="w-full h-10 rounded-full border border-gray-300 bg-white pl-4 pr-14 text-base outline-none focus:border-exaltNavy [&::-webkit-search-cancel-button]:hidden"
+                    className="w-full h-9 rounded-full border border-gray-300 bg-white pl-3 pr-11 text-base placeholder:text-sm outline-none focus:border-exaltNavy [&::-webkit-search-cancel-button]:hidden"
                   />
                   <button
                     type="submit"
                     tabIndex={isSearchOpen ? 0 : -1}
-                    className="absolute right-1 top-1 bottom-1 px-3 rounded-full bg-exaltNavy text-white text-xs font-semibold hover:bg-exaltPink transition-colors"
+                    className="absolute right-1 top-1 bottom-1 px-2 rounded-full bg-exaltNavy text-white text-[11px] font-semibold hover:bg-exaltPink transition-colors"
                   >
                     OK
                   </button>
