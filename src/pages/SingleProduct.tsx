@@ -4,6 +4,7 @@ import {
   ProductItem,
   QuantityInput,
   StandardSelectInput,
+  WaitlistForm,
 } from "../components";
 import { useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -23,6 +24,38 @@ const getEstimatedDelivery = () => {
     if (date.getDay() !== 0 && date.getDay() !== 6) businessDays++;
   }
   return date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+};
+
+// Familles de produits pour proposer des alternatives à un produit en rupture
+const PRODUCT_TYPES = [
+  { keyword: "cap", noun: "casquettes" },
+  { keyword: "hoodie", noun: "hoodies" },
+  { keyword: "sweatshirt", noun: "sweatshirts" },
+  { keyword: "t-shirt", label: "Ces t-shirts sont disponibles" },
+  { keyword: "polo", noun: "polos" },
+  { keyword: "notebook", noun: "carnets" },
+  { keyword: "bag", noun: "sacs" },
+];
+
+const getAlternatives = (current: Product, products: Product[]) => {
+  const type = PRODUCT_TYPES.find((t) => current.title.toLowerCase().includes(t.keyword));
+  const available = products.filter(
+    (p) => p.id !== current.id && !p.hidden && (p.stock ?? 0) > 0
+  );
+  const sameType = type
+    ? available.filter((p) => p.title.toLowerCase().includes(type.keyword))
+    : [];
+  const sameCategory = available.filter(
+    (p) => p.category === current.category && !sameType.includes(p)
+  );
+  const items = [...sameType, ...sameCategory].slice(0, 3);
+  let label = "Alternatives disponibles";
+  if (type && sameType.length > 0) {
+    label = items.length === sameType.length
+      ? `Ces ${type.noun} sont disponibles`
+      : `D'autres ${type.noun} et idées en stock`;
+  }
+  return { label, items };
 };
 
 const SingleProduct = () => {
@@ -57,6 +90,9 @@ const SingleProduct = () => {
 
   const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
   const isSecret = Boolean(singleProduct?.hidden);
+  const alternatives = singleProduct
+    ? getAlternatives(singleProduct, products)
+    : { label: "", items: [] };
 
   useEffect(() => {
     if (isSecret) {
@@ -179,6 +215,9 @@ const SingleProduct = () => {
               onClick={handleAddToCart}
               disabled={isOutOfStock}
             />
+            {isOutOfStock && singleProduct && (
+              <WaitlistForm key={singleProduct.id} product={singleProduct} />
+            )}
             <p className="text-gray-500 text-sm text-right">
               Livraison estimée le {getEstimatedDelivery()}
             </p>
@@ -196,6 +235,32 @@ const SingleProduct = () => {
           </div>
         </div>
       </div>
+
+      {/* alternatives en stock pour un produit en rupture */}
+      {isOutOfStock && singleProduct && alternatives.items.length > 0 && (
+        <div>
+          <h2 className="font-display text-exaltNavy text-3xl font-bold mt-24 mb-2 max-sm:text-2xl">
+            {alternatives.label}
+          </h2>
+          <p className="text-gray-600">
+            « {singleProduct.title} » est en rupture, mais ces produits sont prêts à partir.
+          </p>
+          <div className="grid grid-cols-3 gap-6 mt-8 max-md:grid-cols-2 max-md:gap-4">
+            {alternatives.items.map((product: Product) => (
+              <ProductItem
+                key={product.id}
+                id={product.id}
+                image={product.image}
+                title={product.title}
+                category={product.category}
+                price={product.price}
+                popularity={product.popularity}
+                stock={product.stock}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* similar products */}
       <div>
