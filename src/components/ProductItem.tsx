@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { formatCategoryName } from "../utils/formatCategoryName";
@@ -24,11 +25,13 @@ const ProductItem = ({
   const isOutOfStock = stock === 0;
   const isLimited = category === "limited-edition";
   const dispatch = useAppDispatch();
+  // Choix de taille seulement pour les vêtements (mêmes tailles que la fiche produit)
+  const hasSize = category === "clothing" || /hoodie|t-shirt|polo|sweat/i.test(title);
+  const [size, setSize] = useState("xs");
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    // Taille et couleur par défaut, comme sur la fiche produit
-    const size = "xs";
+    // Couleur par défaut, comme sur la fiche produit
     const color = "black";
     dispatch(
       addProductToTheCart({
@@ -44,7 +47,7 @@ const ProductItem = ({
         stock,
       })
     );
-    toast.success("Produit ajouté au panier");
+    toast.success(hasSize ? `Ajouté au panier en taille ${size.toUpperCase()}` : "Produit ajouté au panier");
   };
 
   return (
@@ -79,14 +82,31 @@ const ProductItem = ({
         <p className="text-base font-bold text-exaltNavy whitespace-nowrap">{price} € <span className="text-xs font-medium text-gray-500">TTC</span></p>
       </div>
     </Link>
-      <button
-        type="button"
-        onClick={handleAddToCart}
-        disabled={isOutOfStock}
-        className="mx-1 mt-auto h-10 rounded-full bg-exaltNavy text-sm font-semibold text-white transition-colors hover:bg-exaltPink disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
-      >
-        {isOutOfStock ? "Rupture de stock" : "Ajouter au panier"}
-      </button>
+      <div className="mx-1 mt-auto flex items-center gap-2">
+        {hasSize && !isOutOfStock && (
+          <select
+            aria-label={`Taille pour ${title}`}
+            value={size}
+            onChange={(e) => setSize(e.target.value)}
+            className="h-8 w-20 flex-shrink-0 rounded-full border-gray-300 py-0 pl-3 pr-7 text-xs font-medium text-exaltNavy focus:border-exaltNavy focus:ring-exaltNavy"
+          >
+            <option value="xs">XS</option>
+            <option value="sm">SM</option>
+            <option value="m">M</option>
+            <option value="lg">LG</option>
+            <option value="xl">XL</option>
+            <option value="2xl">2XL</option>
+          </select>
+        )}
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
+          className="h-8 min-w-0 flex-1 rounded-full bg-exaltNavy px-3 text-xs font-semibold text-white transition-colors hover:bg-exaltPink disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-600"
+        >
+          {isOutOfStock ? "Rupture de stock" : "Ajouter"}
+        </button>
+      </div>
     </div>
   );
 };
