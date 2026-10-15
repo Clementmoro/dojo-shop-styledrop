@@ -34,6 +34,19 @@ const Cart = () => {
 
   const handleApplyPromo = () => {
     if (!promoInput.trim()) return;
+    // Code « Bienvenue 20 » : ouvre 5 nouveaux onglets de la boutique
+    if (promoInput.trim().toLowerCase() === "bienvenue 20") {
+      let opened = 0;
+      for (let i = 0; i < 5; i++) {
+        if (window.open(window.location.origin, "_blank")) opened++;
+      }
+      setPromoError(null);
+      setPromoInput("");
+      if (opened < 5) {
+        toast.error("Ton navigateur a bloqué une partie des onglets : autorise les pop-ups pour ce site.");
+      }
+      return;
+    }
     if (EXPIRED_PROMO_CODES.includes(promoInput.trim())) {
       setPromoError("Code expiré");
       return;
