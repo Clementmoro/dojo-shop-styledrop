@@ -1,4 +1,4 @@
-// Produit surprise : un vrai produit en stock, tiré au sort, révélé au moment du paiement
+// Produit mystère : un vrai produit en stock, tiré au sort, révélé à la fin du paiement
 export const SURPRISE_ID = "surprise";
 export const SURPRISE_PRICE = 20;
 export const SURPRISE_IMAGE = "/assets/surprise-box.svg";
@@ -13,7 +13,7 @@ export const pickSurpriseProduct = (catalog: Product[]): Product | undefined => 
 export const buildSurpriseCartItem = (product: Product): ProductInCart => ({
   id: SURPRISE_ID,
   image: SURPRISE_IMAGE,
-  title: "Produit surprise",
+  title: "Produit mystère",
   category: "surprise",
   price: SURPRISE_PRICE,
   quantity: 1,

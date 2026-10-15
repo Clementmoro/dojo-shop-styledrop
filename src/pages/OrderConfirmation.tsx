@@ -1,10 +1,16 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useCallback, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { UnicornReveal } from "../components";
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  // Produit mystère : dévoilé ici, une fois le paiement terminé
+  const location = useLocation();
+  const surprise = (location.state as { surprise?: { title: string; image: string } } | null)?.surprise;
+  const [showReveal, setShowReveal] = useState(Boolean(surprise));
+  const handleRevealDone = useCallback(() => setShowReveal(false), []);
 
   const handleRetrieve = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,10 +20,30 @@ const OrderConfirmation = () => {
 
   return (
     <div className="max-w-screen-sm mx-auto px-5 pt-20 pb-16 text-center">
+      {showReveal && surprise && (
+        <UnicornReveal title={surprise.title} image={surprise.image} onDone={handleRevealDone} />
+      )}
       <h1 className="text-3xl font-light mb-2">Merci pour votre commande !</h1>
       <p className="text-gray-500 mb-10">
         Votre commande a bien été enregistrée et sera expédiée prochainement.
       </p>
+
+      {surprise && (
+        <div className="mb-6 flex items-center gap-4 rounded-2xl border-2 border-exaltPink bg-white p-4 text-left">
+          <img
+            src={surprise.image.startsWith("http") || surprise.image.startsWith("/") ? surprise.image : `/assets/${surprise.image}`}
+            alt={surprise.title}
+            className="h-20 w-20 flex-shrink-0 rounded-xl bg-exaltCream object-cover"
+          />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-exaltPink">Ton produit mystère</p>
+            <p className="mt-1 text-lg font-bold text-exaltNavy">{surprise.title} 🦄</p>
+            <button type="button" onClick={() => setShowReveal(true)} className="mt-1 text-xs text-gray-500 underline">
+              Revoir les licornes
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Suivre ma commande */}
       <div className="border border-gray-200 p-6 mb-4 text-left">

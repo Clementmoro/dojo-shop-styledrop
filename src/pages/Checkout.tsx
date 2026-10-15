@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { HiTrash as TrashIcon, HiCheck } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -10,7 +10,6 @@ import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
 import { formatPrice } from "../utils/promoCodes";
 import { getShippingFee } from "../utils/shipping";
 import { SURPRISE_IMAGE } from "../utils/surprise";
-import { UnicornReveal } from "../components";
 
 const paymentMethods = [
   { id: "credit-card", title: "Carte bancaire" },
@@ -28,18 +27,8 @@ const Checkout = () => {
   const [isGift, setIsGift] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const paymentRef = useRef<HTMLDivElement>(null);
-  // Produit surprise : dévoilé avec les licornes quand le client arrive au paiement
+  // Produit mystère : reste caché ici, il est dévoilé sur la page de confirmation
   const surpriseItem = productsInCart.find((product) => product.surprise);
-  const [surpriseRevealed, setSurpriseRevealed] = useState(false);
-  const [showReveal, setShowReveal] = useState(false);
-  const handleRevealDone = useCallback(() => setShowReveal(false), []);
-
-  useEffect(() => {
-    if (currentStep === 2 && surpriseItem && !surpriseRevealed) {
-      setSurpriseRevealed(true);
-      setShowReveal(true);
-    }
-  }, [currentStep, surpriseItem, surpriseRevealed]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -104,7 +93,7 @@ const Checkout = () => {
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
-      navigate("/order-confirmation");
+      navigate("/order-confirmation", { state: { surprise: surpriseItem?.surprise } });
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
     }
@@ -114,9 +103,6 @@ const Checkout = () => {
 
   return (
     <div className="mx-auto max-w-screen-2xl">
-      {showReveal && surpriseItem?.surprise && (
-        <UnicornReveal title={surpriseItem.surprise.title} image={surpriseItem.surprise.image} onDone={handleRevealDone} />
-      )}
 
       {/* ── Sticky checkout stepper ── */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-5">
@@ -659,13 +645,11 @@ const Checkout = () => {
                       <img
                         src={
                           product?.surprise
-                            ? surpriseRevealed
-                              ? product.surprise.image.startsWith("http") || product.surprise.image.startsWith("/") ? product.surprise.image : `/assets/${product.surprise.image}`
-                              : SURPRISE_IMAGE
+                            ? SURPRISE_IMAGE
                             : product?.image?.startsWith("http") || product?.image?.startsWith("/") ? product.image : `/assets/${product?.image}`
                         }
-                        alt={product?.surprise && surpriseRevealed ? product.surprise.title : product?.title}
-                        className={`w-20 rounded-md ${product?.surprise && surpriseRevealed ? "ring-4 ring-exaltPink" : ""}`}
+                        alt={product?.title}
+                        className="w-20 rounded-md"
                       />
                     </div>
 
@@ -673,11 +657,7 @@ const Checkout = () => {
                       <div className="flex">
                         <div className="min-w-0 flex-1">
                           <h4 className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                            {product?.surprise
-                              ? surpriseRevealed
-                                ? `🦄 Surprise : ${product.surprise.title}`
-                                : "🎁 Produit surprise (dévoilé au paiement)"
-                              : product?.title}
+                            {product?.surprise ? "🎁 Produit mystère (dévoilé à la fin du paiement)" : product?.title}
                           </h4>
                           <p className="mt-1 text-sm text-gray-500">
                             {product?.color}
