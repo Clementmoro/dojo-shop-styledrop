@@ -43,6 +43,9 @@ const SingleOrderHistory = () => {
           {(singleOrder.subtotal + 5 + singleOrder.subtotal / 5).toFixed(2)}
         </p>
         <p className="mb-2">Status: {singleOrder.orderStatus}</p>
+        {singleOrder.surpriseProduct && (
+          <p className="mb-2">🎁 Produit surprise offert : {singleOrder.surpriseProduct.title}</p>
+        )}
         <h3 className="text-xl font-semibold mt-6 mb-4">Items</h3>
         <table className="singleOrder-table min-w-full bg-white border border-gray-200">
           <thead>

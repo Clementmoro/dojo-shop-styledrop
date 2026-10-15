@@ -39,6 +39,8 @@ interface Order {
   };
   products: ProductInCart[];
   subtotal: number;
+  // Goodie offert, tiré au sort à la commande, à glisser dans le colis
+  surpriseProduct?: { id: string; title: string };
   user: {
     email: string;
     id: number;

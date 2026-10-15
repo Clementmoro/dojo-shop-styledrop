@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import customFetch from "../axios/custom";
 import SurpriseCelebration from "../components/SurpriseCelebration";
-import {
-  getRevealedSurprise,
-  pickSurprise,
-  saveRevealedSurprise,
-  takeSurprisePending,
-} from "../utils/surprise";
+import { getRevealedSurprise, takeSurprisePending } from "../utils/surprise";
 
 const imageSrc = (image: string) =>
   image.startsWith("http") || image.startsWith("/") ? image : `/assets/${image}`;
@@ -19,16 +13,13 @@ const OrderConfirmation = () => {
   const [surprise, setSurprise] = useState<Product | null>(getRevealedSurprise);
   const [celebrating, setCelebrating] = useState(false);
 
-  // Juste après le paiement : tirage du produit surprise puis le spectacle
+  // Juste après le paiement : le spectacle révèle la surprise tirée à la commande
   useEffect(() => {
     if (!takeSurprisePending()) return;
-    customFetch("/products").then(({ data }) => {
-      const product = pickSurprise(data);
-      if (!product) return;
-      saveRevealedSurprise(product);
-      setSurprise(product);
-      setCelebrating(true);
-    });
+    const product = getRevealedSurprise();
+    if (!product) return;
+    setSurprise(product);
+    setCelebrating(true);
   }, []);
 
   const handleRetrieve = (e: React.FormEvent) => {

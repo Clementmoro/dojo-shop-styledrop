@@ -3,7 +3,7 @@ import { HiTrash as TrashIcon, HiCheck } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { clearCart, removeProductFromTheCart } from "../features/cart/cartSlice";
-import { markSurprisePending } from "../utils/surprise";
+import { markSurprisePending, pickSurprise, saveRevealedSurprise } from "../utils/surprise";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -74,10 +74,24 @@ const Checkout = () => {
       return;
     }
 
+    // Produit surprise tiré au sort maintenant, et enregistré avec la commande
+    // pour que la logistique sache quoi glisser dans le colis
+    let surprise: Product | null = null;
+    try {
+      const { data: catalog } = await customFetch("/products");
+      surprise = pickSurprise(catalog);
+    } catch {
+      // catalogue indisponible : la commande passe quand même, sans surprise
+    }
+    const orderData = {
+      ...checkoutData,
+      ...(surprise && { surpriseProduct: { id: surprise.id, title: surprise.title } }),
+    };
+
     let response;
     if (JSON.parse(localStorage.getItem("user") || "{}").email) {
       response = await customFetch.post("/orders", {
-        ...checkoutData,
+        ...orderData,
         user: {
           email: JSON.parse(localStorage.getItem("user") || "{}").email,
           id: JSON.parse(localStorage.getItem("user") || "{}").id,
@@ -87,7 +101,7 @@ const Checkout = () => {
       });
     } else {
       response = await customFetch.post("/orders", {
-        ...checkoutData,
+        ...orderData,
         orderStatus: "Processing",
         orderDate: new Date().toLocaleDateString(),
       });
@@ -96,7 +110,10 @@ const Checkout = () => {
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
       dispatch(clearCart());
-      markSurprisePending();
+      if (surprise) {
+        saveRevealedSurprise(surprise);
+        markSurprisePending();
+      }
       navigate("/order-confirmation");
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");

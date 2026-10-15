@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { MariachiPlayer, startMariachi } from "../utils/mariachiMusic";
 
 // Le spectacle après paiement, en 3 actes :
 // 1. des canards sortent le produit surprise d'une boîte
@@ -129,6 +130,21 @@ const SurpriseCelebration = ({ product, onClose }: { product: Product; onClose: 
     };
   }, [reduced]);
 
+  // Musique de mariachis pendant l'acte 3
+  const [muted, setMuted] = useState(false);
+  const music = useRef<MariachiPlayer | null>(null);
+  useEffect(() => {
+    if (scene !== "fiesta") return;
+    music.current = startMariachi();
+    return () => {
+      music.current?.stop();
+      music.current = null;
+    };
+  }, [scene]);
+  useEffect(() => {
+    music.current?.setMuted(muted);
+  }, [muted]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -146,6 +162,17 @@ const SurpriseCelebration = ({ product, onClose }: { product: Product; onClose: 
     >
       <style>{CSS}</style>
       <canvas ref={canvas} className="pointer-events-none absolute inset-0 z-20" />
+
+      {scene === "fiesta" && (
+        <button
+          type="button"
+          onClick={() => setMuted((m) => !m)}
+          aria-pressed={muted}
+          className="absolute left-4 top-4 z-40 rounded-full bg-white/15 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/25"
+        >
+          {muted ? "🔇 Remettre le son" : "🔊 Couper le son"}
+        </button>
+      )}
 
       <button
         type="button"
