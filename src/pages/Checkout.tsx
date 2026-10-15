@@ -96,6 +96,9 @@ const Checkout = () => {
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
+      if (productsInCart.some((p) => p.title === "Surprise")) {
+        sessionStorage.setItem("exalt-surprise", "1");
+      }
       navigate("/order-confirmation");
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");

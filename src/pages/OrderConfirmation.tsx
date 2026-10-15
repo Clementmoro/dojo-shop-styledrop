@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import SurpriseShow from "../components/SurpriseShow";
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  // Le produit Surprise déclenche le spectacle une seule fois, juste après le paiement
+  const [showSurprise, setShowSurprise] = useState(() => {
+    const on = sessionStorage.getItem("exalt-surprise") === "1";
+    sessionStorage.removeItem("exalt-surprise");
+    return on;
+  });
 
   const handleRetrieve = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,6 +21,7 @@ const OrderConfirmation = () => {
 
   return (
     <div className="max-w-screen-sm mx-auto px-5 pt-20 pb-16 text-center">
+      {showSurprise && <SurpriseShow onClose={() => setShowSurprise(false)} />}
       <h1 className="text-3xl font-light mb-2">Merci pour votre commande !</h1>
       <p className="text-gray-500 mb-10">
         Votre commande a bien été enregistrée et sera expédiée prochainement.

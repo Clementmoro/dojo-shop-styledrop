@@ -181,6 +181,16 @@
       "description": "Sac de conférence en toile robuste, bandoulière réglable, poches multiples. Le sac officiel des événements eXalt."
     },
     {
+      "id": "19",
+      "title": "Surprise",
+      "image": "/assets/products/exalt-surprise.svg",
+      "category": "limited-edition",
+      "price": 20,
+      "popularity": 15,
+      "stock": 100,
+      "description": "Produit mystère découvert une fois que t'as casqué avec ta CB."
+    },
+    {
       "id": "99",
       "title": "Hoodie Doré du Dojo",
       "image": "/assets/products/exalt-navy-hoodie.png",
