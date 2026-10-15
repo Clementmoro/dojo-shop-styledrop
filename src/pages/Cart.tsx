@@ -14,13 +14,14 @@ import {
   formatPrice,
   getPromoDiscountRate,
 } from "../utils/promoCodes";
+import { isFreeGift } from "../utils/surpriseGift";
 
 const SHIPPING_FEE = 5;
 const TAX_RATE = 0.2;
 
 const Cart = () => {
   const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector(
-    (state) => state.cart
+    (state) => state.cart,
   );
   const dispatch = useAppDispatch();
   const [promoInput, setPromoInput] = useState("");
@@ -52,11 +53,15 @@ const Cart = () => {
   return (
     <div className="mx-auto max-w-screen-2xl px-5 max-[400px]:px-3">
       <div className="pb-24 pt-12">
-        <h1 className="font-display text-4xl font-bold text-exaltNavy max-sm:text-3xl">Mon panier</h1>
+        <h1 className="font-display text-4xl font-bold text-exaltNavy max-sm:text-3xl">
+          Mon panier
+        </h1>
 
         {productsInCart.length === 0 ? (
           <div className="mt-12 rounded-3xl bg-exaltCream p-12 text-center">
-            <p className="text-lg text-exaltNavy">Ton panier est vide pour l'instant.</p>
+            <p className="text-lg text-exaltNavy">
+              Ton panier est vide pour l'instant.
+            </p>
             <Link
               to="/shop"
               className="inline-flex mt-6 bg-exaltNavy hover:bg-exaltPink transition-colors text-white font-semibold rounded-full h-12 px-8 items-center"
@@ -71,12 +76,20 @@ const Cart = () => {
                 Articles du panier
               </h2>
 
-              <ul role="list" className="divide-y divide-gray-100 border-b border-t border-gray-100">
+              <ul
+                role="list"
+                className="divide-y divide-gray-100 border-b border-t border-gray-100"
+              >
                 {productsInCart.map((product) => (
                   <li key={product.id} className="flex py-6 sm:py-8">
                     <div className="flex-shrink-0 rounded-2xl bg-exaltCream overflow-hidden">
                       <img
-                        src={product.image?.startsWith("http") || product.image?.startsWith("/") ? product.image : `/assets/${product.image}`}
+                        src={
+                          product.image?.startsWith("http") ||
+                          product.image?.startsWith("/")
+                            ? product.image
+                            : `/assets/${product.image}`
+                        }
                         alt={product.title}
                         className="h-24 w-24 object-cover object-center sm:h-36 sm:w-36"
                       />
@@ -85,58 +98,90 @@ const Cart = () => {
                     <div className="ml-4 flex flex-1 flex-col justify-between sm:ml-6">
                       <div className="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
                         <div>
-                          <h3 className="text-base font-semibold text-exaltNavy">{product.title}</h3>
+                          <h3 className="text-base font-semibold text-exaltNavy">
+                            {product.title}
+                          </h3>
                           <div className="mt-1 flex text-sm text-gray-500">
                             <p>{product.color}</p>
                             {product.size ? (
-                              <p className="ml-4 border-l border-gray-200 pl-4">{product.size}</p>
+                              <p className="ml-4 border-l border-gray-200 pl-4">
+                                {product.size}
+                              </p>
                             ) : null}
                           </div>
-                          <p className="mt-1 text-sm font-semibold text-exaltNavy">{product.price} €</p>
+                          <p className="mt-1 text-sm font-semibold text-exaltNavy">
+                            {isFreeGift(product)
+                              ? "Offert"
+                              : `${product.price} €`}
+                          </p>
                         </div>
 
-                        <div className="mt-4 sm:mt-0 sm:pr-9 text-sm">
-                          <label htmlFor={`quantity-${product.id}`} className="mr-2 text-gray-600">
-                            Quantité
-                          </label>
-                          <input
-                            type="number"
-                            id={`quantity-${product.id}`}
-                            className="w-16 h-9 rounded-lg border-gray-300 text-center"
-                            value={product?.quantity}
-                            onChange={(e) => {
-                              dispatch(
-                                updateProductQuantity({
-                                  id: product?.id,
-                                  quantity: parseInt(e.target.value),
-                                })
-                              );
-                            }}
-                          />
-
-                          <div className="absolute right-0 top-0">
-                            <button
-                              type="button"
-                              className="-m-2 inline-flex p-2 text-gray-400 hover:text-exaltPink"
-                              onClick={() => {
-                                dispatch(removeProductFromTheCart({ id: product?.id }));
-                                toast.error("Produit retiré du panier");
-                              }}
+                        {isFreeGift(product) ? (
+                          <p className="mt-4 sm:mt-0 text-sm text-exaltPink font-semibold">
+                            🎁 Cadeau offert
+                          </p>
+                        ) : (
+                          <div className="mt-4 sm:mt-0 sm:pr-9 text-sm">
+                            <label
+                              htmlFor={`quantity-${product.id}`}
+                              className="mr-2 text-gray-600"
                             >
-                              <span className="sr-only">Retirer</span>
-                              <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-                            </button>
+                              Quantité
+                            </label>
+                            <input
+                              type="number"
+                              id={`quantity-${product.id}`}
+                              className="w-16 h-9 rounded-lg border-gray-300 text-center"
+                              value={product?.quantity}
+                              onChange={(e) => {
+                                dispatch(
+                                  updateProductQuantity({
+                                    id: product?.id,
+                                    quantity: parseInt(e.target.value),
+                                  }),
+                                );
+                              }}
+                            />
+
+                            <div className="absolute right-0 top-0">
+                              <button
+                                type="button"
+                                className="-m-2 inline-flex p-2 text-gray-400 hover:text-exaltPink"
+                                onClick={() => {
+                                  dispatch(
+                                    removeProductFromTheCart({
+                                      id: product?.id,
+                                    }),
+                                  );
+                                  toast.error("Produit retiré du panier");
+                                }}
+                              >
+                                <span className="sr-only">Retirer</span>
+                                <XMarkIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </button>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       <p className="mt-4 flex space-x-2 text-sm text-gray-600">
                         {product?.stock ? (
-                          <CheckIcon className="h-5 w-5 flex-shrink-0 text-green-500" aria-hidden="true" />
+                          <CheckIcon
+                            className="h-5 w-5 flex-shrink-0 text-green-500"
+                            aria-hidden="true"
+                          />
                         ) : (
-                          <XMarkIcon className="h-5 w-5 flex-shrink-0 text-red-600" aria-hidden="true" />
+                          <XMarkIcon
+                            className="h-5 w-5 flex-shrink-0 text-red-600"
+                            aria-hidden="true"
+                          />
                         )}
-                        <span>{product?.stock ? "En stock" : "Rupture de stock"}</span>
+                        <span>
+                          {product?.stock ? "En stock" : "Rupture de stock"}
+                        </span>
                       </p>
                     </div>
                   </li>
@@ -149,14 +194,19 @@ const Cart = () => {
               aria-labelledby="summary-heading"
               className="mt-12 rounded-3xl bg-exaltCream px-6 py-8 lg:col-span-5 lg:mt-0 lg:p-8"
             >
-              <h2 id="summary-heading" className="text-lg font-semibold text-exaltNavy">
+              <h2
+                id="summary-heading"
+                className="text-lg font-semibold text-exaltNavy"
+              >
                 Récapitulatif
               </h2>
 
               <dl className="mt-6 space-y-4 text-sm">
                 <div className="flex items-center justify-between">
                   <dt className="text-gray-600">Sous-total</dt>
-                  <dd className="font-medium text-exaltNavy">{formatPrice(subtotal)}</dd>
+                  <dd className="font-medium text-exaltNavy">
+                    {formatPrice(subtotal)}
+                  </dd>
                 </div>
                 {promoCode && (
                   <div className="flex items-center justify-between text-green-700">
@@ -175,21 +225,32 @@ const Cart = () => {
                 )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-gray-600">Livraison</dt>
-                  <dd className="font-medium text-exaltNavy">{formatPrice(shipping)}</dd>
+                  <dd className="font-medium text-exaltNavy">
+                    {formatPrice(shipping)}
+                  </dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-gray-600">TVA (20 %)</dt>
-                  <dd className="font-medium text-exaltNavy">{formatPrice(tax)}</dd>
+                  <dd className="font-medium text-exaltNavy">
+                    {formatPrice(tax)}
+                  </dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="text-base font-semibold text-exaltNavy">Total</dt>
-                  <dd className="text-base font-bold text-exaltNavy">{formatPrice(total)}</dd>
+                  <dt className="text-base font-semibold text-exaltNavy">
+                    Total
+                  </dt>
+                  <dd className="text-base font-bold text-exaltNavy">
+                    {formatPrice(total)}
+                  </dd>
                 </div>
               </dl>
 
               {!promoCode && (
                 <div className="mt-6">
-                  <label htmlFor="promo" className="text-sm font-medium text-exaltNavy">
+                  <label
+                    htmlFor="promo"
+                    className="text-sm font-medium text-exaltNavy"
+                  >
                     Code promo
                   </label>
                   <div className="mt-2 flex gap-2">
@@ -212,7 +273,9 @@ const Cart = () => {
                       Appliquer
                     </button>
                   </div>
-                  {promoError && <p className="mt-2 text-sm text-red-600">{promoError}</p>}
+                  {promoError && (
+                    <p className="mt-2 text-sm text-red-600">{promoError}</p>
+                  )}
                 </div>
               )}
 

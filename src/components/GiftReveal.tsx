@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import customFetch from "../axios/custom";
 import { formatCategoryName } from "../utils/formatCategoryName";
+import { FREE_GIFT_PRODUCT_ID } from "../utils/surpriseGift";
 
 type Phase = "idle" | "spinning" | "open";
 
@@ -53,15 +54,13 @@ const GiftReveal = () => {
   const [prize, setPrize] = useState<Product | null>(null);
   const [round, setRound] = useState(0);
 
-  // Tire au sort un vrai produit disponible du catalogue
+  // Récupère le produit offert (la casquette rose) dans le catalogue
   useEffect(() => {
     customFetch("/products")
       .then((response) => {
-        const candidates = (response.data as Product[]).filter(
-          (product) => product.category !== "surprise" && product.stock > 0,
-        );
+        const products = response.data as Product[];
         setPrize(
-          candidates[Math.floor(Math.random() * candidates.length)] ?? null,
+          products.find((product) => product.id === FREE_GIFT_PRODUCT_ID) ?? null,
         );
       })
       .catch(() => setPrize(null));
@@ -107,7 +106,7 @@ const GiftReveal = () => {
     <section className="relative mb-10 rounded-3xl bg-exaltCream px-5 pt-8 pb-6 overflow-hidden">
       <style>{GIFT_STYLES}</style>
       <p className="text-exaltPink text-sm font-semibold uppercase tracking-[0.2em]">
-        Ton article surprise
+        Ton cadeau offert
       </p>
       <h2 className="font-display text-2xl font-bold text-exaltNavy mt-1">
         {phase === "open" ? "Et c'est…" : "Ton cadeau s'ouvre…"}

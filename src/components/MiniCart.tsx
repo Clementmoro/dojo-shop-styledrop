@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { HiOutlineShoppingBag, HiXMark } from "react-icons/hi2";
 import { useAppSelector } from "../hooks";
 import { formatPrice } from "../utils/promoCodes";
+import { isFreeGift } from "../utils/surpriseGift";
 
 // Panier en pop-up : s'ouvre au clic sur l'icône panier du header
 const MiniCart = ({ className = "" }: { className?: string }) => {
@@ -121,7 +122,9 @@ const MiniCart = ({ className = "" }: { className?: string }) => {
                       </p>
                     </div>
                     <p className="text-sm font-semibold whitespace-nowrap">
-                      {formatPrice(product.price * product.quantity)}
+                      {isFreeGift(product)
+                        ? "Offert"
+                        : formatPrice(product.price * product.quantity)}
                     </p>
                   </li>
                 ))}

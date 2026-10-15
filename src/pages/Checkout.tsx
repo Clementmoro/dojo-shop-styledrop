@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { HiTrash as TrashIcon, HiCheck } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { addProductToTheCart, removeProductFromTheCart } from "../features/cart/cartSlice";
-import { SURPRISE_GIFT, SURPRISE_GIFT_ID } from "../utils/surpriseGift";
+import { removeProductFromTheCart } from "../features/cart/cartSlice";
+import { isFreeGift } from "../utils/surpriseGift";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -18,7 +18,9 @@ const paymentMethods = [
 ];
 
 const Checkout = () => {
-  const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector((state) => state.cart);
+  const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector(
+    (state) => state.cart,
+  );
   const discount = subtotal * discountRate;
   const taxableAmount = subtotal - discount;
   const dispatch = useAppDispatch();
@@ -26,16 +28,6 @@ const Checkout = () => {
   const [isGift, setIsGift] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const paymentRef = useRef<HTMLDivElement>(null);
-  const hasSurpriseGift = productsInCart.some((product) => product.id === SURPRISE_GIFT_ID);
-
-  // Achat en cadeau : l'Article surprise offert s'ajoute au panier (et part si on décoche)
-  useEffect(() => {
-    if (isGift && !hasSurpriseGift) {
-      dispatch(addProductToTheCart(SURPRISE_GIFT));
-    } else if (!isGift && hasSurpriseGift) {
-      dispatch(removeProductFromTheCart({ id: SURPRISE_GIFT_ID }));
-    }
-  }, [isGift, hasSurpriseGift, dispatch]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -46,7 +38,7 @@ const Checkout = () => {
           setCurrentStep(1);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
     if (paymentRef.current) observer.observe(paymentRef.current);
     return () => observer.disconnect();
@@ -99,7 +91,7 @@ const Checkout = () => {
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
-      const hasSurprise = isGift && hasSurpriseGift;
+      const hasSurprise = productsInCart.some(isFreeGift);
       navigate("/order-confirmation", { state: { surprise: hasSurprise } });
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
@@ -110,7 +102,6 @@ const Checkout = () => {
 
   return (
     <div className="mx-auto max-w-screen-2xl">
-
       {/* ── Sticky checkout stepper ── */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-100 py-3 px-5">
         <div className="flex items-center justify-center gap-0 max-w-xs mx-auto">
@@ -124,7 +115,8 @@ const Checkout = () => {
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-colors duration-300"
                     style={{
-                      backgroundColor: isCompleted || isActive ? "#4B3F8A" : "#D1D5DB",
+                      backgroundColor:
+                        isCompleted || isActive ? "#4B3F8A" : "#D1D5DB",
                       color: isCompleted || isActive ? "#fff" : "#9CA3AF",
                     }}
                   >
@@ -132,7 +124,9 @@ const Checkout = () => {
                   </div>
                   <span
                     className="text-[10px] mt-1 font-medium transition-colors duration-300"
-                    style={{ color: isCompleted || isActive ? "#4B3F8A" : "#9CA3AF" }}
+                    style={{
+                      color: isCompleted || isActive ? "#4B3F8A" : "#9CA3AF",
+                    }}
                   >
                     {label}
                   </span>
@@ -140,7 +134,9 @@ const Checkout = () => {
                 {idx < STEPS.length - 1 && (
                   <div
                     className="w-12 h-0.5 mb-4 mx-1 transition-colors duration-300"
-                    style={{ backgroundColor: isCompleted ? "#4B3F8A" : "#D1D5DB" }}
+                    style={{
+                      backgroundColor: isCompleted ? "#4B3F8A" : "#D1D5DB",
+                    }}
                   />
                 )}
               </div>
@@ -158,9 +154,7 @@ const Checkout = () => {
         >
           <div>
             <div>
-              <h2 className="text-lg font-medium text-gray-900">
-                Coordonnées
-              </h2>
+              <h2 className="text-lg font-medium text-gray-900">Coordonnées</h2>
 
               <div className="mt-4">
                 <label
@@ -184,9 +178,7 @@ const Checkout = () => {
             </div>
 
             <div className="mt-10 border-t border-gray-200 pt-10">
-              <h2 className="text-lg font-medium text-gray-900">
-                Livraison
-              </h2>
+              <h2 className="text-lg font-medium text-gray-900">Livraison</h2>
 
               <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
                 <div>
@@ -234,7 +226,10 @@ const Checkout = () => {
                     htmlFor="company"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Entreprise <span className="text-gray-400 font-normal">(facultatif)</span>
+                    Entreprise{" "}
+                    <span className="text-gray-400 font-normal">
+                      (facultatif)
+                    </span>
                   </label>
                   <div className="mt-1">
                     <input
@@ -272,7 +267,10 @@ const Checkout = () => {
                     htmlFor="apartment"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Complément d'adresse <span className="text-gray-400 font-normal">(facultatif)</span>
+                    Complément d'adresse{" "}
+                    <span className="text-gray-400 font-normal">
+                      (facultatif)
+                    </span>
                   </label>
                   <div className="mt-1">
                     <input
@@ -418,11 +416,15 @@ const Checkout = () => {
                   />
                 </div>
                 <div className="ml-3">
-                  <label htmlFor="gift-mode" className="text-sm font-medium text-gray-900 cursor-pointer">
+                  <label
+                    htmlFor="gift-mode"
+                    className="text-sm font-medium text-gray-900 cursor-pointer"
+                  >
                     C'est un cadeau 🎁
                   </label>
                   <p className="text-sm text-gray-500">
-                    Le prix sera masqué sur le bon de livraison. Vous pouvez ajouter un message et une adresse de livraison différente.
+                    Le prix sera masqué sur le bon de livraison. Vous pouvez
+                    ajouter un message et une adresse de livraison différente.
                   </p>
                 </div>
               </div>
@@ -431,7 +433,10 @@ const Checkout = () => {
                 <div className="mt-6 space-y-6 rounded-md border border-pink-100 bg-pink-50 p-5">
                   {/* Message cadeau */}
                   <div>
-                    <label htmlFor="gift-message" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="gift-message"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Message cadeau
                     </label>
                     <div className="mt-1">
@@ -450,10 +455,15 @@ const Checkout = () => {
 
                   {/* Adresse destinataire */}
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Adresse de livraison du destinataire</h3>
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">
+                      Adresse de livraison du destinataire
+                    </h3>
                     <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-4">
                       <div className="sm:col-span-2">
-                        <label htmlFor="gift-recipient-name" className="block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="gift-recipient-name"
+                          className="block text-sm font-medium text-gray-700"
+                        >
                           Nom du destinataire
                         </label>
                         <div className="mt-1">
@@ -469,7 +479,10 @@ const Checkout = () => {
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label htmlFor="gift-address" className="block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="gift-address"
+                          className="block text-sm font-medium text-gray-700"
+                        >
                           Adresse
                         </label>
                         <div className="mt-1">
@@ -485,7 +498,10 @@ const Checkout = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="gift-city" className="block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="gift-city"
+                          className="block text-sm font-medium text-gray-700"
+                        >
                           Ville
                         </label>
                         <div className="mt-1">
@@ -501,7 +517,10 @@ const Checkout = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="gift-postal-code" className="block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="gift-postal-code"
+                          className="block text-sm font-medium text-gray-700"
+                        >
                           Code postal
                         </label>
                         <div className="mt-1">
@@ -517,7 +536,10 @@ const Checkout = () => {
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label htmlFor="gift-country" className="block text-sm font-medium text-gray-700">
+                        <label
+                          htmlFor="gift-country"
+                          className="block text-sm font-medium text-gray-700"
+                        >
                           Pays
                         </label>
                         <div className="mt-1">
@@ -538,7 +560,10 @@ const Checkout = () => {
             </div>
 
             {/* Payment */}
-            <div ref={paymentRef} className="mt-10 border-t border-gray-200 pt-10">
+            <div
+              ref={paymentRef}
+              className="mt-10 border-t border-gray-200 pt-10"
+            >
               <h2 className="text-lg font-medium text-gray-900">Paiement</h2>
 
               <fieldset className="mt-4">
@@ -669,7 +694,12 @@ const Checkout = () => {
                   <li key={product?.id} className="flex px-4 py-6 sm:px-6">
                     <div className="flex-shrink-0">
                       <img
-                        src={product?.image?.startsWith("http") || product?.image?.startsWith("/") ? product.image : `/assets/${product?.image}`}
+                        src={
+                          product?.image?.startsWith("http") ||
+                          product?.image?.startsWith("/")
+                            ? product.image
+                            : `/assets/${product?.image}`
+                        }
                         alt={product?.title}
                         className="w-20 rounded-md"
                       />
@@ -689,25 +719,32 @@ const Checkout = () => {
                           </p>
                         </div>
 
-                        <div className="ml-4 flow-root flex-shrink-0">
-                          <button
-                            type="button"
-                            className="-m-2.5 flex items-center justify-center bg-white p-2.5 text-gray-400 hover:text-gray-500"
-                            onClick={() =>
-                              dispatch(
-                                removeProductFromTheCart({ id: product?.id })
-                              )
-                            }
-                          >
-                            <span className="sr-only">Remove</span>
-                            <TrashIcon className="h-5 w-5" aria-hidden="true" />
-                          </button>
-                        </div>
+                        {!isFreeGift(product) && (
+                          <div className="ml-4 flow-root flex-shrink-0">
+                            <button
+                              type="button"
+                              className="-m-2.5 flex items-center justify-center bg-white p-2.5 text-gray-400 hover:text-gray-500"
+                              onClick={() =>
+                                dispatch(
+                                  removeProductFromTheCart({ id: product?.id }),
+                                )
+                              }
+                            >
+                              <span className="sr-only">Remove</span>
+                              <TrashIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </button>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex flex-1 items-end justify-between pt-2">
                         <p className="mt-1 text-sm font-medium text-gray-900">
-                          {product?.id === SURPRISE_GIFT_ID ? "Offert" : `${product?.price}€`}
+                          {isFreeGift(product)
+                            ? "Offert"
+                            : `${product?.price}€`}
                         </p>
 
                         <div className="ml-4">
@@ -724,7 +761,8 @@ const Checkout = () => {
               {isGift && (
                 <div className="flex items-center gap-2 bg-pink-500 px-4 py-3 sm:px-6">
                   <span className="text-sm font-medium text-white">
-                    🎁 Mode cadeau activé : les prix seront masqués sur le bon de livraison.
+                    🎁 Mode cadeau activé : les prix seront masqués sur le bon
+                    de livraison.
                   </span>
                 </div>
               )}
@@ -739,7 +777,9 @@ const Checkout = () => {
                 {promoCode && (
                   <div className="flex items-center justify-between text-green-700">
                     <dt className="text-sm">Code {promoCode}</dt>
-                    <dd className="text-sm font-medium">-{formatPrice(discount)}</dd>
+                    <dd className="text-sm font-medium">
+                      -{formatPrice(discount)}
+                    </dd>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
@@ -757,7 +797,9 @@ const Checkout = () => {
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                   <dt className="text-base font-medium">Total</dt>
                   <dd className="text-base font-medium text-gray-900">
-                    {formatPrice(subtotal ? taxableAmount + 5 + taxableAmount / 5 : 0)}
+                    {formatPrice(
+                      subtotal ? taxableAmount + 5 + taxableAmount / 5 : 0,
+                    )}
                   </dd>
                 </div>
               </dl>
