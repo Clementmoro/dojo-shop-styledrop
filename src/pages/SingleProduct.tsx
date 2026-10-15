@@ -14,6 +14,7 @@ import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import toast from "react-hot-toast";
 import StoreLocatorModal from "../components/StoreLocatorModal";
+import { applyMacPricing } from "../utils/macPricing";
 
 // Date de livraison estimée : aujourd'hui + 4 jours ouvrés
 const getEstimatedDelivery = () => {
@@ -45,13 +46,13 @@ const SingleProduct = () => {
     const fetchSingleProduct = async () => {
       const response = await fetch(`/api/products/${params.id}`);
       const data = await response.json();
-      setSingleProduct(data);
+      setSingleProduct(applyMacPricing(data));
     };
 
     const fetchProducts = async () => {
       const response = await fetch("/api/products");
       const data = await response.json();
-      setProducts(data);
+      setProducts(applyMacPricing(data));
     };
     fetchSingleProduct();
     fetchProducts();
