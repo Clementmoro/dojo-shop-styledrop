@@ -64,7 +64,14 @@ const Checkout = () => {
       gift,
     };
 
-    if (!checkCheckoutFormData(checkoutData)) return;
+    if (!checkCheckoutFormData(checkoutData)) {
+      // Amène le client au premier champ à compléter, au milieu de l'écran
+      // (en haut, il serait caché sous le menu)
+      const firstMissing = e.currentTarget.querySelector<HTMLElement>(":invalid:not(form)");
+      firstMissing?.scrollIntoView({ behavior: "smooth", block: "center" });
+      firstMissing?.focus({ preventScroll: true });
+      return;
+    }
 
     let response;
     if (JSON.parse(localStorage.getItem("user") || "{}").email) {
@@ -142,6 +149,8 @@ const Checkout = () => {
 
         <form
           onSubmit={handleCheckoutSubmit}
+          // Pas de bulle du navigateur : le site affiche ses propres messages
+          noValidate
           className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16"
         >
           <div>
