@@ -1,3 +1,4 @@
+import { Fragment, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "../hooks";
@@ -34,6 +35,15 @@ export const buildBundle = (results: Product[], allProducts: Product[]): Product
   return bundle.length === 3 ? bundle : null;
 };
 
+const Sign = ({ children }: { children: ReactNode }) => (
+  <span
+    aria-hidden="true"
+    className="flex h-9 w-9 flex-shrink-0 items-center justify-center self-center rounded-full bg-exaltNavy text-lg font-bold text-white"
+  >
+    {children}
+  </span>
+);
+
 const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
   const dispatch = useAppDispatch();
   const total = bundle.reduce((sum, p) => sum + p.price, 0);
@@ -65,42 +75,39 @@ const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
         Complète ton {bundle[0].title.replace(/^eXalt /, "")}
       </h2>
 
-      <div className="mt-6 grid grid-cols-3 gap-4 max-md:grid-cols-1">
+      <div className="mt-6 flex items-stretch gap-3 max-md:flex-col">
         {bundle.map((p, i) => (
-          <Link
-            key={p.id}
-            to={`/product/${p.id}`}
-            className="group relative flex items-center gap-4 rounded-2xl bg-white p-3 md:flex-col md:items-stretch"
-          >
-            {i > 0 && (
-              <span className="absolute -left-3 top-1/2 hidden h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-exaltNavy text-sm font-bold text-white md:flex">
-                +
-              </span>
-            )}
-            <div className="aspect-square w-20 flex-shrink-0 overflow-hidden rounded-xl bg-exaltCream md:w-full">
-              <img src={imageSrc(p.image)} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-            </div>
-            <div className="flex flex-1 items-start justify-between gap-2 md:px-1">
-              <p className="text-sm font-semibold text-exaltNavy group-hover:text-exaltPink">{p.title}</p>
-              <p className="whitespace-nowrap text-sm font-bold text-exaltNavy">{p.price} €</p>
-            </div>
-          </Link>
+          <Fragment key={p.id}>
+            {i > 0 && <Sign>+</Sign>}
+            <Link
+              to={`/product/${p.id}`}
+              className="group flex min-w-0 flex-1 items-center gap-4 rounded-2xl bg-white p-3 md:flex-col md:items-stretch"
+            >
+              <div className="aspect-square w-20 flex-shrink-0 overflow-hidden rounded-xl bg-exaltCream md:w-full">
+                <img src={imageSrc(p.image)} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-1 md:px-1">
+                <p className="text-sm font-semibold text-exaltNavy group-hover:text-exaltPink">{p.title}</p>
+                <p className="text-sm font-bold text-exaltNavy">{formatPrice(p.price)}</p>
+              </div>
+            </Link>
+          </Fragment>
         ))}
-      </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-sm text-gray-600">Les 3 produits</p>
-          <p className="text-2xl font-bold text-exaltNavy">{formatPrice(total)}</p>
-          <p className="text-xs text-gray-500">Ajoutés en taille M. Pour une autre taille, passe par la fiche du produit.</p>
+        <Sign>=</Sign>
+
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-2xl bg-exaltNavy p-5 text-center text-white">
+          <p className="text-sm opacity-80">Les 3 produits</p>
+          <p className="font-display text-3xl font-bold">{formatPrice(total)}</p>
+          <button
+            type="button"
+            onClick={handleAddBundle}
+            className="h-11 w-full rounded-full bg-white px-5 text-sm font-semibold text-exaltNavy transition-colors hover:bg-exaltPink hover:text-white"
+          >
+            Ajouter le pack au panier
+          </button>
+          <p className="text-xs opacity-70">Ajoutés en taille M. Pour une autre taille, passe par la fiche du produit.</p>
         </div>
-        <button
-          type="button"
-          onClick={handleAddBundle}
-          className="h-12 rounded-full bg-exaltNavy px-8 font-semibold text-white transition-colors hover:bg-exaltPink max-sm:w-full"
-        >
-          Ajouter le pack au panier
-        </button>
       </div>
     </section>
   );
