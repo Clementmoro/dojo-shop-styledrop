@@ -10,7 +10,6 @@ import React, { useEffect, useState } from "react";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
 import WithSelectInputWrapper from "../utils/withSelectInputWrapper";
-import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import toast from "react-hot-toast";
 
@@ -31,13 +30,13 @@ const SingleProduct = () => {
   // options réelles du produit : taille et couleur viennent de la fiche
   const [size, setSize] = useState<string>("");
   const [color, setColor] = useState<string>("");
-  const [quantity, setQuantity] = useState<number>(1);
+  // saisie libre pendant la frappe, ramenée entre 1 et le stock dès qu'on quitte le champ
+  const [quantityInput, setQuantityInput] = useState<string>("1");
   const params = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
 
   // defining HOC instances
   const SelectInputUpgrade = WithSelectInputWrapper(StandardSelectInput);
-  const QuantityInputUpgrade = WithNumberInputWrapper(QuantityInput);
 
   useEffect(() => {
     const fetchSingleProduct = async () => {
@@ -64,9 +63,15 @@ const SingleProduct = () => {
     const productColors = singleProduct?.colors ?? [];
     setSize(productSizes.includes("M") ? "M" : productSizes[0] ?? "");
     setColor(productColors[0] ?? "");
+    setQuantityInput("1");
   }, [singleProduct]);
 
   const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
+  const maxQuantity = Math.max(1, singleProduct?.stock ?? 1);
+  const parsedQuantity = parseInt(quantityInput, 10);
+  const quantity = Number.isNaN(parsedQuantity)
+    ? 1
+    : Math.min(Math.max(parsedQuantity, 1), maxQuantity);
 
   // alerte retour en stock (proto : gardée dans le navigateur, aucun e-mail envoyé)
   const STOCK_ALERTS_KEY = "stockAlerts";
@@ -229,12 +234,22 @@ const SingleProduct = () => {
               </p>
             )}
 
-            <QuantityInputUpgrade
-              value={quantity}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setQuantity(() => parseInt(e.target.value))
-              }
-            />
+            <div className="flex flex-col gap-1">
+              <label htmlFor="product-quantity" className="text-sm font-semibold text-exaltNavy">
+                Quantité
+              </label>
+              <QuantityInput
+                id="product-quantity"
+                min={1}
+                max={maxQuantity}
+                inputMode="numeric"
+                value={quantityInput}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setQuantityInput(e.target.value)
+                }
+                onBlur={() => setQuantityInput(String(quantity))}
+              />
+            </div>
           </div>
           {/* Stock indicator */}
           {singleProduct && (
