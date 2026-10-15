@@ -10,10 +10,14 @@ import {
 } from "../features/cart/cartSlice";
 import toast from "react-hot-toast";
 import {
-  EXPIRED_PROMO_CODES,
+  WELCOME_CODE,
+  findActivePromoCode,
   formatPrice,
   getPromoDiscountRate,
+  isExpiredPromoCode,
 } from "../utils/promoCodes";
+
+const pct = (rate: number) => `-${Math.round(rate * 100)} %`;
 
 const SHIPPING_FEE = 5;
 const TAX_RATE = 0.2;
@@ -31,23 +35,35 @@ const Cart = () => {
   const tax = taxableAmount * TAX_RATE;
   const shipping = subtotal === 0 ? 0 : SHIPPING_FEE;
   const total = subtotal === 0 ? 0 : taxableAmount + tax + shipping;
+  // Économie réelle sur le total payé : la remise plus la TVA qu'elle évite
+  const savings = discount * (1 + TAX_RATE);
 
-  const handleApplyPromo = () => {
-    if (!promoInput.trim()) return;
-    if (EXPIRED_PROMO_CODES.includes(promoInput.trim())) {
+  const itemCount = productsInCart.reduce((acc, product) => acc + product.quantity, 0);
+  // Offre de bienvenue progressive : taux actuel et taux avec 1 article de plus
+  const welcomeApplied = promoCode === WELCOME_CODE;
+  const welcomeNow = getPromoDiscountRate(WELCOME_CODE, itemCount) ?? 0;
+  const welcomeNext = getPromoDiscountRate(WELCOME_CODE, itemCount + 1) ?? 0;
+  const showWelcomeOffer = itemCount > 0 && (!promoCode || welcomeApplied);
+
+  const applyCode = (input: string) => {
+    if (!input.trim()) return;
+    if (isExpiredPromoCode(input)) {
       setPromoError("Code expiré");
       return;
     }
-    const rate = getPromoDiscountRate(promoInput);
-    if (rate === null) {
-      setPromoError("Code invalide");
+    const code = findActivePromoCode(input);
+    const rate = code ? getPromoDiscountRate(code, itemCount) : null;
+    if (code === null || rate === null) {
+      setPromoError("Ce code n'existe pas. Vérifie l'orthographe.");
       return;
     }
-    dispatch(applyPromoCode({ code: promoInput.trim(), rate }));
+    dispatch(applyPromoCode({ code, rate }));
     setPromoError(null);
     setPromoInput("");
-    toast.success(`-${rate * 100} % appliqué`);
+    toast.success(`Code ${code} : ${pct(rate)} appliqué`);
   };
+
+  const handleApplyPromo = () => applyCode(promoInput);
 
   return (
     <div className="mx-auto max-w-screen-2xl px-5 max-[400px]:px-3">
@@ -153,6 +169,49 @@ const Cart = () => {
                 Récapitulatif
               </h2>
 
+              {showWelcomeOffer && (
+                <div className="mt-4 rounded-2xl border-2 border-dashed border-exaltPink bg-white px-4 py-3 text-sm text-exaltNavy">
+                  {welcomeNext > welcomeNow ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p>
+                        🎁 {welcomeApplied ? (
+                          <>Tu profites de <strong>{pct(welcomeNow)}</strong>. </>
+                        ) : (
+                          <>Avec le code <strong className="font-mono">{WELCOME_CODE}</strong> : <strong>{pct(welcomeNow)}</strong> tout de suite. </>
+                        )}
+                        Ajoute <strong>1 article de plus</strong> et passe à <strong>{pct(welcomeNext)}</strong> sur toute ta commande.
+                      </p>
+                      {welcomeApplied ? (
+                        <Link to="/shop" className="font-semibold text-exaltPink underline underline-offset-2">
+                          Voir la boutique
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => applyCode(WELCOME_CODE)}
+                          className="h-9 rounded-full bg-exaltPink px-4 text-xs font-semibold text-white transition-colors hover:bg-exaltNavy"
+                        >
+                          Appliquer
+                        </button>
+                      )}
+                    </div>
+                  ) : welcomeApplied ? (
+                    <p>🎉 Tu as atteint la remise maximale : <strong>{pct(welcomeNow)}</strong> sur toute ta commande.</p>
+                  ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p>🎁 Avec le code <strong className="font-mono">{WELCOME_CODE}</strong> : <strong>{pct(welcomeNow)}</strong> sur toute ta commande.</p>
+                      <button
+                        type="button"
+                        onClick={() => applyCode(WELCOME_CODE)}
+                        className="h-9 rounded-full bg-exaltPink px-4 text-xs font-semibold text-white transition-colors hover:bg-exaltNavy"
+                      >
+                        Appliquer
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <dl className="mt-6 space-y-4 text-sm">
                 <div className="flex items-center justify-between">
                   <dt className="text-gray-600">Sous-total</dt>
@@ -161,7 +220,7 @@ const Cart = () => {
                 {promoCode && (
                   <div className="flex items-center justify-between text-green-700">
                     <dt className="flex items-center gap-2">
-                      Code {promoCode}
+                      Code {promoCode} ({pct(discountRate)})
                       <button
                         type="button"
                         className="text-xs underline text-gray-500"
@@ -171,6 +230,15 @@ const Cart = () => {
                       </button>
                     </dt>
                     <dd className="font-medium">-{formatPrice(discount)}</dd>
+                  </div>
+                )}
+                {productsInCart.length > 0 && (
+                  <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                    <dt className="text-gray-600">
+                      🎁 Produit surprise
+                      <span className="block text-xs text-gray-400">À découvrir après ta commande</span>
+                    </dt>
+                    <dd className="font-semibold text-green-700">Offert</dd>
                   </div>
                 )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
@@ -186,6 +254,17 @@ const Cart = () => {
                   <dd className="text-base font-bold text-exaltNavy">{formatPrice(total)}</dd>
                 </div>
               </dl>
+
+              {promoCode && savings > 0 && (
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-green-50 px-4 py-3 text-green-800">
+                  <p className="text-sm">
+                    💸 Tu économises <strong>{formatPrice(savings)}</strong> sur ton total
+                  </p>
+                  <span className="whitespace-nowrap rounded-full bg-green-700 px-3 py-1 text-xs font-bold text-white">
+                    {pct(discountRate)} sur tes articles
+                  </span>
+                </div>
+              )}
 
               {!promoCode && (
                 <div className="mt-6">

@@ -10,6 +10,7 @@ export const checkCheckoutFormData = (checkoutData: {
   };
   products: ProductInCart[];
   subtotal: number;
+  gift?: { isGift: boolean; [k: string]: unknown };
 }) => {
   const d = checkoutData.data;
 
@@ -20,12 +21,20 @@ export const checkCheckoutFormData = (checkoutData: {
   if (!d?.address)      { toast.error("L'adresse est obligatoire");       return false; }
   if (!d?.city)         { toast.error("La ville est obligatoire");          return false; }
   if (!d?.country)      { toast.error("Le pays est obligatoire");       return false; }
-  if (!d?.postalCode)   { toast.error("Le code postal est obligatoire");   return false; }
   if (!d?.region)       { toast.error("La région est obligatoire");        return false; }
+  if (!d?.postalCode)   { toast.error("Le code postal est obligatoire");   return false; }
   if (!d?.phone)        { toast.error("Le téléphone est obligatoire");         return false; }
 
+  // Mode cadeau : coordonnées du destinataire obligatoires
+  if (checkoutData.gift?.isGift) {
+    if (!d?.giftMessage)       { toast.error("Le message cadeau est obligatoire"); return false; }
+    if (!d?.giftRecipientName) { toast.error("Le nom du destinataire est obligatoire"); return false; }
+    if (!d?.giftAddress)       { toast.error("L'adresse du destinataire est obligatoire"); return false; }
+    if (!d?.giftCity)          { toast.error("La ville du destinataire est obligatoire"); return false; }
+    if (!d?.giftPostalCode)    { toast.error("Le code postal du destinataire est obligatoire"); return false; }
+  }
+
   // Payment : required
-  if (!d?.nameOnCard)   { toast.error("Le nom sur la carte est obligatoire");  return false; }
 
   // US1 : CB format validation
   const cardNum = (d?.cardNumber as string)?.replace(/\s/g, "");
@@ -37,6 +46,8 @@ export const checkCheckoutFormData = (checkoutData: {
     toast.error("Numéro de carte invalide : 16 chiffres requis");
     return false;
   }
+
+  if (!d?.nameOnCard)   { toast.error("Le nom sur la carte est obligatoire");  return false; }
 
   const cvc = d?.cvc as string;
   if (!cvc) {

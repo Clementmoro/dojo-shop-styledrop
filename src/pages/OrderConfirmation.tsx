@@ -1,10 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import SurpriseCelebration from "../components/SurpriseCelebration";
+import { getRevealedSurprise, takeSurprisePending } from "../utils/surprise";
+
+const imageSrc = (image: string) =>
+  image.startsWith("http") || image.startsWith("/") ? image : `/assets/${image}`;
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [surprise, setSurprise] = useState<Product | null>(getRevealedSurprise);
+  const [celebrating, setCelebrating] = useState(false);
+
+  // Juste après le paiement : le spectacle révèle la surprise tirée à la commande
+  useEffect(() => {
+    if (!takeSurprisePending()) return;
+    const product = getRevealedSurprise();
+    if (!product) return;
+    setSurprise(product);
+    setCelebrating(true);
+  }, []);
 
   const handleRetrieve = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +34,28 @@ const OrderConfirmation = () => {
       <p className="text-gray-500 mb-10">
         Votre commande a bien été enregistrée et sera expédiée prochainement.
       </p>
+
+      {celebrating && surprise && (
+        <SurpriseCelebration product={surprise} onClose={() => setCelebrating(false)} />
+      )}
+
+      {surprise && (
+        <div className="mb-4 flex items-center gap-4 rounded-2xl bg-exaltCream p-4 text-left">
+          <img src={imageSrc(surprise.image)} alt="" className="h-16 w-16 rounded-xl bg-white object-cover" />
+          <div className="flex-1">
+            <p className="text-xs uppercase tracking-wider text-exaltPink font-bold">Ton produit surprise</p>
+            <p className="font-semibold text-exaltNavy">{surprise.title}</p>
+            <p className="text-xs text-gray-500">Offert, livré avec ta commande</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCelebrating(true)}
+            className="text-xs font-semibold text-exaltNavy underline underline-offset-2 hover:text-exaltPink"
+          >
+            Revoir le spectacle
+          </button>
+        </div>
+      )}
 
       {/* Suivre ma commande */}
       <div className="border border-gray-200 p-6 mb-4 text-left">

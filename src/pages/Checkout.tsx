@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { HiTrash as TrashIcon, HiCheck } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { removeProductFromTheCart } from "../features/cart/cartSlice";
+import { clearCart, removeProductFromTheCart } from "../features/cart/cartSlice";
+import { markSurprisePending, pickSurprise, saveRevealedSurprise } from "../utils/surprise";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -64,12 +65,33 @@ const Checkout = () => {
       gift,
     };
 
-    if (!checkCheckoutFormData(checkoutData)) return;
+    if (!checkCheckoutFormData(checkoutData)) {
+      // Amène le client au premier champ à compléter, au milieu de l'écran
+      // (en haut, il serait caché sous le menu)
+      const firstMissing = e.currentTarget.querySelector<HTMLElement>(":invalid:not(form)");
+      firstMissing?.scrollIntoView({ behavior: "smooth", block: "center" });
+      firstMissing?.focus({ preventScroll: true });
+      return;
+    }
+
+    // Produit surprise tiré au sort maintenant, et enregistré avec la commande
+    // pour que la logistique sache quoi glisser dans le colis
+    let surprise: Product | null = null;
+    try {
+      const { data: catalog } = await customFetch("/products");
+      surprise = pickSurprise(catalog);
+    } catch {
+      // catalogue indisponible : la commande passe quand même, sans surprise
+    }
+    const orderData = {
+      ...checkoutData,
+      ...(surprise && { surpriseProduct: { id: surprise.id, title: surprise.title } }),
+    };
 
     let response;
     if (JSON.parse(localStorage.getItem("user") || "{}").email) {
       response = await customFetch.post("/orders", {
-        ...checkoutData,
+        ...orderData,
         user: {
           email: JSON.parse(localStorage.getItem("user") || "{}").email,
           id: JSON.parse(localStorage.getItem("user") || "{}").id,
@@ -79,7 +101,7 @@ const Checkout = () => {
       });
     } else {
       response = await customFetch.post("/orders", {
-        ...checkoutData,
+        ...orderData,
         orderStatus: "Processing",
         orderDate: new Date().toLocaleDateString(),
       });
@@ -87,6 +109,11 @@ const Checkout = () => {
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
+      dispatch(clearCart());
+      if (surprise) {
+        saveRevealedSurprise(surprise);
+        markSurprisePending();
+      }
       navigate("/order-confirmation");
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
@@ -141,6 +168,8 @@ const Checkout = () => {
 
         <form
           onSubmit={handleCheckoutSubmit}
+          // Pas de bulle du navigateur : le site affiche ses propres messages
+          noValidate
           className="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16"
         >
           <div>
@@ -708,6 +737,15 @@ const Checkout = () => {
                   <div className="flex items-center justify-between text-green-700">
                     <dt className="text-sm">Code {promoCode}</dt>
                     <dd className="text-sm font-medium">-{formatPrice(discount)}</dd>
+                  </div>
+                )}
+                {productsInCart.length > 0 && (
+                  <div className="flex items-center justify-between">
+                    <dt className="text-sm">
+                      🎁 Produit surprise
+                      <span className="block text-xs text-gray-400">À découvrir après ta commande</span>
+                    </dt>
+                    <dd className="text-sm font-semibold text-green-700">Offert</dd>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
