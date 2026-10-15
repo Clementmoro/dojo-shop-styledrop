@@ -22,3 +22,4 @@ export { default as ScrollToTop } from "./ScrollToTop";
 export { default as ShowingSearchPagination } from "./ShowingSearchPagination";
 export { default as QuizPopup } from "./QuizPopup";export { default as KonamiEgg } from "./KonamiEgg";
 export { default as AnnouncementBar } from "./AnnouncementBar";
+export { default as ProductAccordion } from "./ProductAccordion";

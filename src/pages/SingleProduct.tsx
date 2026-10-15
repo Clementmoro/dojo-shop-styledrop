@@ -1,18 +1,46 @@
-import {
-  Button,
-  Dropdown,
-  ProductItem,
-  QuantityInput,
-  StandardSelectInput,
-} from "../components";
+import { Button, ProductAccordion, ProductItem } from "../components";
 import { Link, useParams } from "react-router-dom";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
-import WithSelectInputWrapper from "../utils/withSelectInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import { formatPrice } from "../utils/promoCodes";
 import toast from "react-hot-toast";
+import { IconType } from "react-icons";
+import {
+  TbAdjustments,
+  TbArrowBackUp,
+  TbBook2,
+  TbBox,
+  TbBrush,
+  TbCalendarTime,
+  TbCertificate,
+  TbCup,
+  TbDeviceLaptop,
+  TbDroplet,
+  TbFileDescription,
+  TbGift,
+  TbHanger,
+  TbInfoCircle,
+  TbListDetails,
+  TbLock,
+  TbMinus,
+  TbMug,
+  TbNeedleThread,
+  TbNotebook,
+  TbPackage,
+  TbPalette,
+  TbPencil,
+  TbPlus,
+  TbRuler2,
+  TbRulerMeasure,
+  TbShirt,
+  TbShoppingBag,
+  TbSparkles,
+  TbStack2,
+  TbTruckDelivery,
+  TbWashMachine,
+} from "react-icons/tb";
 
 // Date de livraison estimée : aujourd'hui + 4 jours ouvrés
 const getEstimatedDelivery = () => {
@@ -39,6 +67,55 @@ const SIZE_GUIDE = [
   { size: "XXL", chest: "111 à 116", length: "78" },
 ];
 
+// pastilles de couleur des produits
+const COLOR_SWATCHES: Record<string, string> = {
+  Navy: "#0A0F5C",
+  Blanc: "#FFFFFF",
+  "Écru": "#EFE6D2",
+  Rose: "#F4A6C6",
+  "Rose fluo": "#FF2E93",
+  "Navy et blanc": "linear-gradient(135deg, #0A0F5C 50%, #FFFFFF 50%)",
+  "Navy et or": "linear-gradient(135deg, #0A0F5C 50%, #C9A227 50%)",
+};
+
+// une icône par thème des détails produit
+const DETAIL_ICONS: Record<string, IconType> = {
+  "Matière": TbNeedleThread,
+  Tissu: TbDroplet,
+  Coupe: TbHanger,
+  Col: TbShirt,
+  Marquage: TbBrush,
+  Entretien: TbWashMachine,
+  Taille: TbRuler2,
+  Couleur: TbPalette,
+  Anses: TbShoppingBag,
+  Usage: TbSparkles,
+  Ordinateur: TbDeviceLaptop,
+  "Compatibilité": TbDeviceLaptop,
+  "Sécurité": TbLock,
+  Fermeture: TbLock,
+  Format: TbNotebook,
+  Pages: TbBook2,
+  Couverture: TbNotebook,
+  Papier: TbFileDescription,
+  Tranche: TbSparkles,
+  Contenu: TbBox,
+  Encre: TbPencil,
+  Corps: TbStack2,
+  Contenance: TbMug,
+  Couvercle: TbCup,
+  "Édition": TbCertificate,
+  "Bandoulière": TbAdjustments,
+  Rangement: TbBox,
+};
+
+const SHIPPING_INFO = [
+  { icon: TbPackage, label: "Expédition", value: "Sous 48 h" },
+  { icon: TbCalendarTime, label: "Livraison", value: "En 3 à 5 jours ouvrés" },
+  { icon: TbGift, label: "Livraison offerte", value: "Dès 80 € d'achat" },
+  { icon: TbArrowBackUp, label: "Retours", value: "Gratuits sous 30 jours" },
+];
+
 const imageSrc = (image?: string) =>
   image?.startsWith("http") || image?.startsWith("/") ? image : `/assets/${image}`;
 
@@ -58,9 +135,6 @@ const SingleProduct = () => {
   const mainCtaRef = useRef<HTMLDivElement>(null);
   const params = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
-
-  // defining HOC instances
-  const SelectInputUpgrade = WithSelectInputWrapper(StandardSelectInput);
 
   useEffect(() => {
     const fetchSingleProduct = async () => {
@@ -311,73 +385,146 @@ const SingleProduct = () => {
               <p className="text-gray-600 leading-relaxed mt-2">{singleProduct.description}</p>
             )}
           </div>
-          <div className="flex flex-col gap-3">
-            {sizes.length > 1 && (
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="product-size" className="text-sm font-semibold text-exaltNavy">
+          <div className="flex flex-col gap-5">
+            {sizes.length > 0 && (
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-center justify-between gap-3">
+                  <p id="product-size-label" className="flex items-center gap-2 text-sm font-semibold text-exaltNavy">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-exaltCream">
+                      <TbRuler2 className="h-4 w-4" aria-hidden="true" />
+                    </span>
                     Taille
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setIsSizeGuideOpen(true)}
-                    className="text-sm text-exaltPink underline underline-offset-2 hover:text-exaltNavy"
-                  >
-                    Guide des tailles
-                  </button>
+                    {sizes.length > 1 && size && <span className="font-normal text-gray-500">· {size}</span>}
+                  </p>
+                  {sizes.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsSizeGuideOpen(true)}
+                      className="flex items-center gap-1 text-sm font-medium text-exaltPink hover:text-exaltNavy"
+                    >
+                      <TbRulerMeasure className="h-4 w-4" aria-hidden="true" />
+                      Guide des tailles
+                    </button>
+                  )}
                 </div>
-                <SelectInputUpgrade
-                  id="product-size"
-                  selectList={sizes.map((s) => ({ id: s, value: s }))}
-                  value={size}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setSize(() => e.target.value)
-                  }
-                />
+                <div role="radiogroup" aria-labelledby="product-size-label" className="flex flex-wrap gap-2">
+                  {sizes.map((s) => {
+                    const isSelected = s === size;
+                    return sizes.length > 1 ? (
+                      <button
+                        key={s}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() => setSize(s)}
+                        className={`h-11 min-w-[3rem] rounded-xl border px-3 text-sm font-semibold transition-colors ${
+                          isSelected
+                            ? "border-exaltNavy bg-exaltNavy text-white"
+                            : "border-gray-200 bg-white text-exaltNavy hover:border-exaltNavy"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ) : (
+                      <span
+                        key={s}
+                        className="inline-flex h-11 items-center rounded-xl border border-exaltNavy bg-exaltCream px-4 text-sm font-semibold text-exaltNavy"
+                      >
+                        {s}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             )}
-            {sizes.length === 1 && (
-              <p className="text-sm text-exaltNavy">
-                <span className="font-semibold">Taille :</span> {sizes[0]}
-              </p>
-            )}
 
-            {colors.length > 1 && (
-              <div className="flex flex-col gap-1">
-                <label htmlFor="product-color" className="text-sm font-semibold text-exaltNavy">
+            {colors.length > 0 && (
+              <div className="flex flex-col gap-2.5">
+                <p id="product-color-label" className="flex items-center gap-2 text-sm font-semibold text-exaltNavy">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-exaltCream">
+                    <TbPalette className="h-4 w-4" aria-hidden="true" />
+                  </span>
                   Couleur
-                </label>
-                <SelectInputUpgrade
-                  id="product-color"
-                  selectList={colors.map((c) => ({ id: c, value: c }))}
-                  value={color}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                    setColor(() => e.target.value)
-                  }
-                />
+                  {color && <span className="font-normal text-gray-500">· {color}</span>}
+                </p>
+                <div role="radiogroup" aria-labelledby="product-color-label" className="flex flex-wrap gap-2">
+                  {colors.map((c) => {
+                    const isSelected = c === color;
+                    const swatch = (
+                      <span
+                        className="h-5 w-5 rounded-full border border-black/10 shadow-inner"
+                        style={{ background: COLOR_SWATCHES[c] ?? "#D1D5DB" }}
+                        aria-hidden="true"
+                      />
+                    );
+                    return colors.length > 1 ? (
+                      <button
+                        key={c}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() => setColor(c)}
+                        className={`inline-flex h-11 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors ${
+                          isSelected
+                            ? "border-exaltNavy ring-2 ring-exaltNavy/20 text-exaltNavy"
+                            : "border-gray-200 bg-white text-exaltNavy hover:border-exaltNavy"
+                        }`}
+                      >
+                        {swatch}
+                        {c}
+                      </button>
+                    ) : (
+                      <span
+                        key={c}
+                        className="inline-flex h-11 items-center gap-2 rounded-xl border border-exaltNavy bg-exaltCream px-3 text-sm font-semibold text-exaltNavy"
+                      >
+                        {swatch}
+                        {c}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             )}
-            {colors.length === 1 && (
-              <p className="text-sm text-exaltNavy">
-                <span className="font-semibold">Couleur :</span> {colors[0]}
-              </p>
-            )}
 
-            <div className="flex flex-col gap-1">
-              <label htmlFor="product-quantity" className="text-sm font-semibold text-exaltNavy">
+            <div className="flex flex-col gap-2.5">
+              <label htmlFor="product-quantity" className="flex items-center gap-2 text-sm font-semibold text-exaltNavy">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-exaltCream">
+                  <TbShoppingBag className="h-4 w-4" aria-hidden="true" />
+                </span>
                 Quantité
               </label>
-              <QuantityInput
-                id="product-quantity"
-                min={1}
-                max={maxQuantity}
-                inputMode="numeric"
-                value={quantityInput}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setQuantityInput(e.target.value)
-                }
-                onBlur={() => setQuantityInput(String(quantity))}
-              />
+              <div className="inline-flex h-11 w-fit items-center rounded-xl border border-gray-200 bg-white">
+                <button
+                  type="button"
+                  onClick={() => setQuantityInput(String(Math.max(1, quantity - 1)))}
+                  disabled={quantity <= 1}
+                  className="flex h-full w-11 items-center justify-center text-exaltNavy hover:bg-exaltCream disabled:opacity-30 disabled:hover:bg-transparent rounded-l-xl"
+                  aria-label="Retirer un article"
+                >
+                  <TbMinus className="h-4 w-4" aria-hidden="true" />
+                </button>
+                <input
+                  id="product-quantity"
+                  type="number"
+                  min={1}
+                  max={maxQuantity}
+                  inputMode="numeric"
+                  value={quantityInput}
+                  onChange={(e) => setQuantityInput(e.target.value)}
+                  onBlur={() => setQuantityInput(String(quantity))}
+                  className="h-full w-14 border-x border-gray-200 text-center font-semibold tabular-nums text-exaltNavy focus:outline-none focus:ring-2 focus:ring-exaltNavy/30 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setQuantityInput(String(Math.min(maxQuantity, quantity + 1)))}
+                  disabled={quantity >= maxQuantity}
+                  className="flex h-full w-11 items-center justify-center text-exaltNavy hover:bg-exaltCream disabled:opacity-30 disabled:hover:bg-transparent rounded-r-xl"
+                  aria-label="Ajouter un article"
+                >
+                  <TbPlus className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </div>
           {/* Stock indicator */}
@@ -527,22 +674,60 @@ const SingleProduct = () => {
               </>
             )}
           </div>
-          <div>
-            <Dropdown dropdownTitle="Détails du produit">
-              {(singleProduct?.details ?? []).map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-              <span className="block mt-2">
+          <div className="flex flex-col gap-3">
+            <ProductAccordion
+              icon={TbListDetails}
+              title="Détails du produit"
+              subtitle="Matière, dimensions, entretien"
+              defaultOpen
+            >
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {(singleProduct?.details ?? []).map((line) => {
+                  const [label, ...rest] = line.split(" : ");
+                  const value = rest.join(" : ");
+                  const Icon = DETAIL_ICONS[label] ?? TbInfoCircle;
+                  return (
+                    <li key={line} className="flex items-start gap-3 rounded-xl bg-exaltCream p-3">
+                      <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white text-exaltNavy">
+                        <Icon className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-exaltPink">
+                          {value ? label : "Info"}
+                        </span>
+                        <span className="block text-sm text-exaltNavy">{value || label}</span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                <TbCertificate className="h-4 w-4 flex-shrink-0 text-exaltNavy" aria-hidden="true" />
                 Produit officiel eXalt, marquage réalisé en France par notre atelier partenaire.
-              </span>
-            </Dropdown>
+              </p>
+            </ProductAccordion>
 
-            <Dropdown dropdownTitle="Livraison et retours">
-              Expédition sous 48 h, livraison en 3 à 5 jours ouvrés. Livraison offerte dès 80 € d'achat.
-              Retours gratuits sous 30 jours.
-            </Dropdown>
+            <ProductAccordion
+              icon={TbTruckDelivery}
+              title="Livraison et retours"
+              subtitle="Expédition sous 48 h, retours gratuits"
+            >
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {SHIPPING_INFO.map(({ icon: Icon, label, value }) => (
+                  <li key={label} className="flex items-start gap-3 rounded-xl bg-exaltCream p-3">
+                    <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white text-exaltNavy">
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-exaltPink">
+                        {label}
+                      </span>
+                      <span className="block text-sm text-exaltNavy">{value}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </ProductAccordion>
           </div>
         </div>
       </div>
