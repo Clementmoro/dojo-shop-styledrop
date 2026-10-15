@@ -176,7 +176,7 @@ const DogRain = ({ play }: { play: number }) => {
 
       {/* Le grand final : un chien géant à lunettes */}
       <div
-        className="absolute left-1/2 top-1/2 z-10 flex flex-col items-center gap-3 rounded-[2rem] bg-exaltNavy px-8 py-6 text-center text-white shadow-2xl"
+        className="absolute left-1/2 top-1/2 z-10 flex flex-col items-center gap-3 rounded-[2rem] bg-exaltNavy px-8 pt-12 pb-6 text-center text-white shadow-2xl"
         style={{ animation: `dograin-pop 0.6s cubic-bezier(.3,1.6,.6,1) ${lastDelay + 0.6}s both` }}
       >
         <span className="relative leading-none" style={{ fontSize: 110 }}>
@@ -184,6 +184,18 @@ const DogRain = ({ play }: { play: number }) => {
           <span className="absolute left-1/2 -translate-x-1/2" style={{ top: "0.12em", fontSize: "0.62em" }}>
             🕶️
           </span>
+          <img
+            src="/assets/fun/exalt-cap.png"
+            alt=""
+            className="absolute max-w-none"
+            style={{
+              width: "1.05em",
+              left: "0.02em",
+              top: "-0.2em",
+              transform: "rotate(-8deg)",
+              filter: "drop-shadow(0 0 2px #fff) drop-shadow(0 0 1px #fff)",
+            }}
+          />
         </span>
         <span className="font-display text-3xl font-bold max-sm:text-2xl">WOUF !</span>
         <span className="text-lg text-exaltYellow font-semibold">Commande validée 🐾</span>
