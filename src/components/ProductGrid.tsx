@@ -1,7 +1,13 @@
 import React from "react";
 import ProductItem from "./ProductItem";
 
-const ProductGrid = ({ products }: { products?: Product[] }) => {
+const ProductGrid = ({
+  products,
+  showQuickAdd = false,
+}: {
+  products?: Product[];
+  showQuickAdd?: boolean;
+}) => {
   return (
     <div
       id="gridTop"
@@ -18,6 +24,7 @@ const ProductGrid = ({ products }: { products?: Product[] }) => {
             price={product.price}
             popularity={product.popularity}
             stock={product.stock}
+            showQuickAdd={showQuickAdd}
           />
         ))}
     </div>

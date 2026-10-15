@@ -12,6 +12,7 @@ const ProductGridWrapper = ({
   category,
   page,
   limit,
+  outOfStockLast,
   children,
 }: {
   searchQuery?: string;
@@ -19,6 +20,7 @@ const ProductGridWrapper = ({
   category?: string;
   page?: number;
   limit?: number;
+  outOfStockLast?: boolean;
   children:
     | ReactElement<{ products: Product[] }>
     | ReactElement<{ products: Product[] }>[];
@@ -66,6 +68,14 @@ const ProductGridWrapper = ({
           (a: Product, b: Product) => b.popularity - a.popularity
         );
       }
+      // Les produits en rupture de stock passent en fin de liste (tri stable)
+      if (outOfStockLast) {
+        searchedProducts = [
+          ...searchedProducts.filter((product: Product) => product.stock !== 0),
+          ...searchedProducts.filter((product: Product) => product.stock === 0),
+        ];
+      }
+
       // Limit the number of products to be displayed
       if (limit) {
         setProducts(searchedProducts.slice(0, limit));
@@ -88,12 +98,12 @@ const ProductGridWrapper = ({
         dispatch(setShowingProducts(searchedProducts.length));
       }
     },
-    []
+    [category, limit, outOfStockLast]
   );
 
   useEffect(() => {
     getSearchedProducts(searchQuery || "", sortCriteria || "", page || 1);
-  }, [searchQuery, sortCriteria, page]);
+  }, [searchQuery, sortCriteria, page, getSearchedProducts]);
 
   // Clone the children and pass the products as props to the children
   // This will cause the children to re-render with the new products
