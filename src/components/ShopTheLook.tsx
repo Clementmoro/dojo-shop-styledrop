@@ -69,96 +69,92 @@ const LookCard = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-gray-600">
-        <span className="font-semibold text-exaltNavy">{look.name}</span> · {look.tagline}
-      </p>
-      <div className="grid grid-cols-[1fr_17rem] gap-6 items-stretch max-lg:grid-cols-1 max-lg:gap-4">
-        {/* La ligne d'articles : défile au doigt sur petit écran */}
-        <ul className="flex items-stretch gap-6 overflow-x-auto snap-x snap-mandatory pb-2 -mx-1 px-1 min-w-0">
-          {items.map((p, i) => {
-            const available = isAvailable(p);
-            const checked = available && selected.includes(p.id);
-            return (
-              <li key={p.id} className="relative flex snap-start shrink-0 lg:shrink lg:flex-1 lg:basis-0 lg:min-w-0">
-                {i > 0 && (
-                  <span aria-hidden="true" className="absolute -left-[1.1rem] top-1/2 -translate-y-1/2 text-2xl font-light text-gray-400">
-                    +
-                  </span>
-                )}
-                <label
-                  htmlFor={`look-${look.id}-${p.id}`}
-                  className={`relative flex flex-col gap-2 w-36 sm:w-40 lg:w-full h-full rounded-2xl border-2 p-2 transition-colors ${
-                    checked ? "border-exaltNavy bg-white" : "border-gray-200 bg-gray-50"
-                  } ${available ? "cursor-pointer" : "cursor-not-allowed"}`}
+      {/* La ligne d'articles : défile au doigt si elle dépasse */}
+      <ul className="grid grid-flow-col auto-cols-[minmax(5.25rem,1fr)] gap-5 overflow-x-auto snap-x pb-1 -mx-1 px-1">
+        {items.map((p, i) => {
+          const available = isAvailable(p);
+          const checked = available && selected.includes(p.id);
+          return (
+            <li key={p.id} className="relative snap-start min-w-0">
+              {i > 0 && (
+                <span aria-hidden="true" className="absolute -left-[0.95rem] top-[2.6rem] text-xl font-light text-gray-400">
+                  +
+                </span>
+              )}
+              <label
+                htmlFor={`look-${look.id}-${p.id}`}
+                title={p.title}
+                className={`flex flex-col gap-1 ${available ? "cursor-pointer" : "cursor-not-allowed"}`}
+              >
+                <span
+                  className={`relative block aspect-square rounded-xl overflow-hidden bg-exaltCream border-2 transition-colors ${
+                    checked ? "border-exaltNavy" : "border-transparent"
+                  }`}
                 >
+                  <img
+                    src={imageSrc(p.image)}
+                    alt=""
+                    className={`w-full h-full object-cover ${available ? "" : "grayscale opacity-50"} ${
+                      available && !checked ? "opacity-50" : ""
+                    }`}
+                  />
                   <input
                     id={`look-${look.id}-${p.id}`}
                     type="checkbox"
                     checked={checked}
                     disabled={!available}
                     onChange={() => toggle(p.id)}
-                    className="absolute top-3 left-3 z-10 w-5 h-5 accent-exaltNavy cursor-pointer disabled:cursor-not-allowed"
+                    className="absolute top-1.5 left-1.5 w-[18px] h-[18px] accent-exaltNavy cursor-pointer disabled:cursor-not-allowed"
                   />
-                  <span className="aspect-square rounded-xl bg-exaltCream overflow-hidden">
-                    <img
-                      src={imageSrc(p.image)}
-                      alt=""
-                      className={`w-full h-full object-cover ${available ? "" : "opacity-50 grayscale"} ${
-                        available && !checked ? "opacity-60" : ""
-                      }`}
-                    />
-                  </span>
-                  <span className="flex flex-col gap-0.5 px-1 pb-1 min-w-0">
-                    <span className={`text-sm font-semibold leading-snug ${available ? "text-exaltNavy" : "text-gray-400"}`}>
-                      {p.title}
+                  {p.id === currentId && (
+                    <span className="absolute bottom-0 inset-x-0 bg-exaltPink text-white text-[10px] font-bold text-center py-0.5">
+                      Cet article
                     </span>
-                    <span className="text-sm">
-                      <span className={`font-bold ${available ? "text-exaltNavy" : "text-gray-400 line-through"}`}>
-                        {p.price} €
-                      </span>
-                      {p.id === currentId && <span className="text-exaltPink font-semibold"> · Cet article</span>}
-                    </span>
-                    {!available && <span className="text-xs text-red-600">Rupture, non inclus</span>}
-                  </span>
-                </label>
-              </li>
-            );
-          })}
-        </ul>
+                  )}
+                </span>
+                <span className={`text-xs font-semibold leading-tight line-clamp-2 ${available ? "text-exaltNavy" : "text-gray-400"}`}>
+                  {p.title.replace(/^eXalt /, "")}
+                </span>
+                <span className={`text-xs font-bold ${available ? "text-exaltNavy" : "text-gray-400 line-through"}`}>
+                  {p.price} €
+                </span>
+                {!available && <span className="text-[11px] leading-tight text-red-600">Rupture</span>}
+              </label>
+            </li>
+          );
+        })}
+      </ul>
 
-        {/* Récapitulatif et achat */}
-        <div className="flex flex-col justify-end gap-3 rounded-2xl bg-exaltCream p-4 max-lg:flex-row max-lg:flex-wrap max-lg:items-end">
-          <p className="max-lg:flex-1">
-            <span className="block text-sm text-gray-500">
-              {chosen.length} article{chosen.length > 1 ? "s" : ""}
-            </span>
-            <span className="font-display text-2xl font-bold text-exaltNavy">{total} €</span>
-          </p>
-          {needsSize && (
-            <label className="flex flex-col gap-1">
-              <span className="text-xs font-semibold text-exaltNavy">Taille des vêtements</span>
-              <select
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                className="min-h-[48px] min-w-[7rem] border border-gray-300 rounded-lg px-3 text-base bg-white outline-none focus:border-exaltNavy"
-              >
-                {SIZES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.value}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          <button
-            type="button"
-            onClick={addLook}
-            disabled={chosen.length === 0}
-            className="w-full min-h-[52px] px-4 rounded-full bg-exaltNavy text-white font-semibold hover:bg-exaltPink transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-exaltPink"
+      {/* Récapitulatif et achat */}
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-exaltCream p-3">
+        <p className="flex flex-col leading-tight">
+          <span className="text-xs text-gray-500">
+            {chosen.length} article{chosen.length > 1 ? "s" : ""}
+          </span>
+          <span className="font-display text-xl font-bold text-exaltNavy">{total} €</span>
+        </p>
+        {needsSize && (
+          <select
+            aria-label="Taille des vêtements du look"
+            value={size}
+            onChange={(e) => setSize(e.target.value)}
+            className="h-11 border border-gray-300 rounded-lg px-2 text-base bg-white outline-none focus:border-exaltNavy"
           >
-            {chosen.length === 0 ? "Sélectionnez un article" : "Ajouter le look au panier"}
-          </button>
-        </div>
+            {SIZES.map((s) => (
+              <option key={s.id} value={s.id}>
+                Taille {s.value}
+              </option>
+            ))}
+          </select>
+        )}
+        <button
+          type="button"
+          onClick={addLook}
+          disabled={chosen.length === 0}
+          className="flex-1 min-w-[11rem] min-h-[44px] px-4 rounded-full bg-exaltNavy text-white text-sm font-semibold hover:bg-exaltPink transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-exaltPink"
+        >
+          {chosen.length === 0 ? "Sélectionnez un article" : "Ajouter le look au panier"}
+        </button>
       </div>
     </div>
   );
@@ -177,22 +173,20 @@ const ShopTheLook = ({ product, products }: { product: Product; products: Produc
   if (items.length < 2) return null;
 
   return (
-    <section aria-labelledby="look-title" className="mt-12 max-md:mt-8 flex flex-col gap-4">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 id="look-title" className="font-display text-exaltNavy text-2xl font-bold max-sm:text-xl">
-            Complétez le look
-          </h2>
-        </div>
+    <section aria-labelledby="look-title" className="flex flex-col gap-3 rounded-2xl border border-gray-200 p-4 max-sm:p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="look-title" className="font-display text-exaltNavy text-lg font-bold">
+          ✨ Complétez le look <span className="text-exaltPink">{active.name}</span>
+        </h2>
         {looks.length > 1 && (
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Choisir un look">
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Choisir un look">
             {looks.map((l) => (
               <button
                 key={l.id}
                 type="button"
                 aria-pressed={l.id === active.id}
                 onClick={() => setActiveId(l.id)}
-                className={`min-h-[44px] px-4 rounded-full border text-sm font-semibold transition-colors ${
+                className={`min-h-[36px] px-3 rounded-full border text-xs font-semibold transition-colors ${
                   l.id === active.id
                     ? "bg-exaltNavy text-white border-exaltNavy"
                     : "border-gray-300 text-exaltNavy hover:border-exaltNavy"
@@ -204,6 +198,7 @@ const ShopTheLook = ({ product, products }: { product: Product; products: Produc
           </div>
         )}
       </div>
+      <p className="text-sm text-gray-600 -mt-1">{active.tagline}</p>
       <LookCard key={`${product.id}-${active.id}-${items.length}`} look={active} items={items} currentId={product.id} />
     </section>
   );

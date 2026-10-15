@@ -138,7 +138,7 @@ const SingleProduct = () => {
         className={
           isOutOfStock
             ? "grid grid-cols-2 gap-x-10 items-start max-md:grid-cols-1"
-            : "grid grid-cols-2 gap-x-12 max-lg:grid-cols-1"
+            : "grid grid-cols-2 gap-x-12 items-start max-md:grid-cols-1 max-lg:gap-x-8"
         }
       >
         <div
@@ -154,7 +154,7 @@ const SingleProduct = () => {
             }`}
           />
         </div>
-        <div className={`w-full flex flex-col mt-6 ${isOutOfStock ? "gap-5 max-md:mt-4" : "gap-6"}`}>
+        <div className={`w-full flex flex-col mt-6 ${isOutOfStock ? "gap-5 max-md:mt-4" : "gap-4 md:mt-2"}`}>
           <div className="flex flex-col gap-2">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-exaltPink">
               {formatCategoryName(singleProduct?.category || "")}
@@ -218,6 +218,7 @@ const SingleProduct = () => {
           {!isOutOfStock && (
           <>
           <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-[1fr_1fr_5.5rem] gap-3 max-sm:grid-cols-2">
             <SelectInputUpgrade
               selectList={[
                 { id: "xs", value: "XS" },
@@ -246,13 +247,15 @@ const SingleProduct = () => {
                 setColor(() => e.target.value)
               }
             />
-
+            <div className="max-sm:col-span-2">
             <QuantityInputUpgrade
               value={quantity}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setQuantity(() => parseInt(e.target.value))
               }
             />
+            </div>
+            </div>
           </div>
           {/* Stock indicator */}
           {singleProduct && (
@@ -289,6 +292,9 @@ const SingleProduct = () => {
           </div>
           </>
           )}
+          {singleProduct && !isSecret && (
+            <ShopTheLook product={singleProduct} products={products} />
+          )}
           <div>
             <Dropdown dropdownTitle="Détails du produit">
               Produit officiel eXalt. Marquage réalisé en France par notre atelier partenaire. Entretien
@@ -302,10 +308,6 @@ const SingleProduct = () => {
           </div>
         </div>
       </div>
-
-      {singleProduct && !isSecret && (
-        <ShopTheLook product={singleProduct} products={products} />
-      )}
 
       {/* similar products */}
       <div>
