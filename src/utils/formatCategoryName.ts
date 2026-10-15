@@ -3,6 +3,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   accessories: "Accessoires",
   stationery: "Papeterie",
   "limited-edition": "Édition limitée",
+  surprise: "Surprise",
 };
 
 export const formatCategoryName = (category: string) => {

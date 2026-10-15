@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
 import { formatPrice } from "../utils/promoCodes";
+import { DEMO_CUSTOMER } from "../utils/demoCustomer";
 
 const paymentMethods = [
   { id: "credit-card", title: "Carte bancaire" },
@@ -87,7 +88,8 @@ const Checkout = () => {
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
-      navigate("/order-confirmation");
+      const hasSurprise = productsInCart.some((product) => product.category === "surprise");
+      navigate("/order-confirmation", { state: { surprise: hasSurprise } });
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
     }
@@ -161,6 +163,7 @@ const Checkout = () => {
                     type="email"
                     id="email-address"
                     name="emailAddress"
+                    defaultValue={DEMO_CUSTOMER.emailAddress}
                     autoComplete="email"
                     className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                     required={true}
@@ -187,6 +190,7 @@ const Checkout = () => {
                       type="text"
                       id="first-name"
                       name="firstName"
+                      defaultValue={DEMO_CUSTOMER.firstName}
                       autoComplete="given-name"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                       required={true}
@@ -206,6 +210,7 @@ const Checkout = () => {
                       type="text"
                       id="last-name"
                       name="lastName"
+                      defaultValue={DEMO_CUSTOMER.lastName}
                       autoComplete="family-name"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                       required={true}
@@ -224,6 +229,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="company"
+                      defaultValue={DEMO_CUSTOMER.company}
                       id="company"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                     />
@@ -241,6 +247,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="address"
+                      defaultValue={DEMO_CUSTOMER.address}
                       id="address"
                       autoComplete="street-address"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
@@ -260,6 +267,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="apartment"
+                      defaultValue={DEMO_CUSTOMER.apartment}
                       id="apartment"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                     />
@@ -277,6 +285,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="city"
+                      defaultValue={DEMO_CUSTOMER.city}
                       id="city"
                       autoComplete="address-level2"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
@@ -333,6 +342,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="region"
+                      defaultValue={DEMO_CUSTOMER.region}
                       id="region"
                       autoComplete="address-level1"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
@@ -352,6 +362,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="postalCode"
+                      defaultValue={DEMO_CUSTOMER.postalCode}
                       id="postal-code"
                       autoComplete="postal-code"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
@@ -371,6 +382,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="phone"
+                      defaultValue={DEMO_CUSTOMER.phone}
                       id="phone"
                       autoComplete="tel"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
@@ -559,6 +571,7 @@ const Checkout = () => {
                       type="text"
                       id="card-number"
                       name="cardNumber"
+                      defaultValue={DEMO_CUSTOMER.cardNumber}
                       autoComplete="cc-number"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                       required={true}
@@ -578,6 +591,7 @@ const Checkout = () => {
                       type="text"
                       id="name-on-card"
                       name="nameOnCard"
+                      defaultValue={DEMO_CUSTOMER.nameOnCard}
                       autoComplete="cc-name"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
                       required={true}
@@ -596,6 +610,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="expirationDate"
+                      defaultValue={DEMO_CUSTOMER.expirationDate}
                       id="expiration-date"
                       autoComplete="cc-exp"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
@@ -615,6 +630,7 @@ const Checkout = () => {
                     <input
                       type="text"
                       name="cvc"
+                      defaultValue={DEMO_CUSTOMER.cvc}
                       id="cvc"
                       autoComplete="csc"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="800" height="800">
+  <rect width="400" height="400" fill="#F6F5FB"/>
+  <ellipse cx="200" cy="335" rx="120" ry="14" fill="#0A0F5C" opacity="0.08"/>
+  <!-- Boîte -->
+  <rect x="95" y="175" width="210" height="155" rx="10" fill="#FFFFFF" stroke="#E4DFD6" stroke-width="3"/>
+  <rect x="95" y="175" width="210" height="22" fill="#F1EDE6"/>
+  <!-- Couvercle -->
+  <rect x="80" y="140" width="240" height="45" rx="10" fill="#FFFFFF" stroke="#E4DFD6" stroke-width="3"/>
+  <!-- Ruban -->
+  <rect x="186" y="140" width="28" height="190" fill="#F0047F"/>
+  <!-- Noeud -->
+  <path d="M200 140 C 160 80, 105 95, 125 130 C 135 148, 175 145, 200 140 Z" fill="#F0047F"/>
+  <path d="M200 140 C 240 80, 295 95, 275 130 C 265 148, 225 145, 200 140 Z" fill="#F0047F"/>
+  <path d="M200 140 C 175 120, 150 112, 140 124" fill="none" stroke="#C00366" stroke-width="3" stroke-linecap="round"/>
+  <path d="M200 140 C 225 120, 250 112, 260 124" fill="none" stroke="#C00366" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="200" cy="140" r="14" fill="#C00366"/>
+</svg>

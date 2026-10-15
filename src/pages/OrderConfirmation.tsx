@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import GiftReveal from "../components/GiftReveal";
+import { DEMO_CUSTOMER } from "../utils/demoCustomer";
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const hasSurprise = Boolean(
+    (location.state as { surprise?: boolean } | null)?.surprise,
+  );
+  const [email, setEmail] = useState(DEMO_CUSTOMER.emailAddress);
   const [emailSent, setEmailSent] = useState(false);
 
   const handleRetrieve = (e: React.FormEvent) => {
@@ -14,6 +20,8 @@ const OrderConfirmation = () => {
 
   return (
     <div className="max-w-screen-sm mx-auto px-5 pt-20 pb-16 text-center">
+      {hasSurprise && <GiftReveal />}
+
       <h1 className="text-3xl font-light mb-2">Merci pour votre commande !</h1>
       <p className="text-gray-500 mb-10">
         Votre commande a bien été enregistrée et sera expédiée prochainement.
@@ -57,7 +65,8 @@ const OrderConfirmation = () => {
           Créer un compte
         </h2>
         <p className="text-xs text-gray-400 mb-3">
-          Gardez un historique de vos commandes et simplifiez vos prochains achats.
+          Gardez un historique de vos commandes et simplifiez vos prochains
+          achats.
         </p>
         <button
           onClick={() => navigate("/register")}
