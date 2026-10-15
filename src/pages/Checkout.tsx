@@ -13,11 +13,10 @@ import {
   TbMapPin,
   TbPencil,
   TbShieldLock,
-  TbTrash,
   TbUser,
 } from "react-icons/tb";
 import { IconType } from "react-icons";
-import { DeliveryMap } from "../components";
+import { DeliveryMap, LlamaGallop, LlamaIcon } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { clearCart, removeProductFromTheCart } from "../features/cart/cartSlice";
 import customFetch from "../axios/custom";
@@ -498,6 +497,25 @@ const Checkout = () => {
           <div className="rounded-3xl bg-exaltCream p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-exaltNavy">Récapitulatif</h2>
 
+            {/* cadeau surprise offert par eXalt */}
+            {productsInCart.length > 0 && (
+              <div className="mt-4 overflow-hidden rounded-2xl bg-white p-1 shadow-sm ring-2 ring-exaltPink/60">
+                <div className="flex gap-3 max-[420px]:flex-col">
+                  <div className="h-28 w-40 flex-shrink-0 overflow-hidden rounded-xl max-[420px]:h-36 max-[420px]:w-full">
+                    <LlamaGallop isGalloping={step === 1} />
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 py-2 pr-3 max-[420px]:px-3">
+                    <span className="w-fit rounded-full bg-exaltYellow px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-exaltNavy">
+                      🎁 Cadeau surprise
+                    </span>
+                    <p className="font-semibold leading-snug text-exaltNavy">1 an d'abonnement Claude</p>
+                    <p className="text-xs text-gray-500">Offert par eXalt avec ta commande</p>
+                    <p className="text-sm font-bold text-exaltPink">Offert</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <ul role="list" className="mt-4 divide-y divide-gray-200/70">
               {productsInCart.map((product) => (
                 <li key={product?.id} className="flex gap-4 py-4">
@@ -511,11 +529,12 @@ const Checkout = () => {
                       <h3 className="text-sm font-semibold text-exaltNavy">{product?.title}</h3>
                       <button
                         type="button"
-                        className="-m-1 p-1 text-gray-400 hover:text-exaltPink"
+                        className="-m-1 rounded-full p-1 text-exaltNavy/50 transition hover:-rotate-12 hover:scale-110 hover:text-exaltPink"
                         onClick={() => dispatch(removeProductFromTheCart({ id: product?.id }))}
+                        title="Retirer ce produit"
                       >
                         <span className="sr-only">Retirer</span>
-                        <TbTrash className="h-4 w-4" aria-hidden="true" />
+                        <LlamaIcon className="h-5 w-5" />
                       </button>
                     </div>
                     <p className="text-xs text-gray-500">
