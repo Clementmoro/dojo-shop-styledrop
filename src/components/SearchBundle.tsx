@@ -44,7 +44,8 @@ const Sign = ({ children }: { children: ReactNode }) => (
   </span>
 );
 
-const BUNDLE_PROMO_CODE = "BIENVENUE-10";
+// 3 articles : le pack donne droit au code multi-articles
+const BUNDLE_PROMO_CODE = "BIENVENUE15";
 
 const SearchBundle = ({ bundle }: { bundle: Product[] }) => {
   const dispatch = useAppDispatch();

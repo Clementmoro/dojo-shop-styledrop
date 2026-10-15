@@ -10,10 +10,14 @@ import {
 } from "../features/cart/cartSlice";
 import toast from "react-hot-toast";
 import {
-  EXPIRED_PROMO_CODES,
+  ACTIVE_PROMO_CODES,
+  findActivePromoCode,
   formatPrice,
-  getPromoDiscountRate,
+  getPromoMinItems,
+  isExpiredPromoCode,
 } from "../utils/promoCodes";
+
+const MULTI_ITEM_CODE = "BIENVENUE15";
 
 const SHIPPING_FEE = 5;
 const TAX_RATE = 0.2;
@@ -32,22 +36,36 @@ const Cart = () => {
   const shipping = subtotal === 0 ? 0 : SHIPPING_FEE;
   const total = subtotal === 0 ? 0 : taxableAmount + tax + shipping;
 
-  const handleApplyPromo = () => {
-    if (!promoInput.trim()) return;
-    if (EXPIRED_PROMO_CODES.includes(promoInput.trim())) {
+  const itemCount = productsInCart.reduce((acc, product) => acc + product.quantity, 0);
+  const multiItemRate = ACTIVE_PROMO_CODES[MULTI_ITEM_CODE] ?? 0;
+  const multiItemMin = getPromoMinItems(MULTI_ITEM_CODE);
+  // Bandeau BIENVENUE15 : seulement s'il fait mieux que le code déjà appliqué
+  const showMultiItemOffer = multiItemRate > discountRate && promoCode !== MULTI_ITEM_CODE;
+
+  const applyCode = (input: string) => {
+    if (!input.trim()) return;
+    if (isExpiredPromoCode(input)) {
       setPromoError("Code expiré");
       return;
     }
-    const rate = getPromoDiscountRate(promoInput);
-    if (rate === null) {
-      setPromoError("Code invalide");
+    const code = findActivePromoCode(input);
+    if (code === null) {
+      setPromoError("Ce code n'existe pas. Vérifie l'orthographe.");
       return;
     }
-    dispatch(applyPromoCode({ code: promoInput.trim(), rate }));
+    const minItems = getPromoMinItems(code);
+    if (itemCount < minItems) {
+      setPromoError(`Ce code s'applique dès ${minItems} articles dans le panier.`);
+      return;
+    }
+    const rate = ACTIVE_PROMO_CODES[code];
+    dispatch(applyPromoCode({ code, rate }));
     setPromoError(null);
     setPromoInput("");
-    toast.success(`-${rate * 100} % appliqué`);
+    toast.success(`Code ${code} : -${Math.round(rate * 100)} % appliqué`);
   };
+
+  const handleApplyPromo = () => applyCode(promoInput);
 
   return (
     <div className="mx-auto max-w-screen-2xl px-5 max-[400px]:px-3">
@@ -152,6 +170,35 @@ const Cart = () => {
               <h2 id="summary-heading" className="text-lg font-semibold text-exaltNavy">
                 Récapitulatif
               </h2>
+
+              {showMultiItemOffer && (
+                <div className="mt-4 rounded-2xl border-2 border-dashed border-exaltPink bg-white px-4 py-3 text-sm text-exaltNavy">
+                  {itemCount < multiItemMin ? (
+                    <p>
+                      🎁 Ajoute un {multiItemMin === 2 ? "2e" : `${multiItemMin}e`} article et profite de{" "}
+                      <strong>-{Math.round(multiItemRate * 100)} %</strong> sur toute ta commande avec le code{" "}
+                      <strong className="font-mono">{MULTI_ITEM_CODE}</strong>.{" "}
+                      <Link to="/shop" className="font-semibold text-exaltPink underline underline-offset-2">
+                        Voir la boutique
+                      </Link>
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p>
+                        🎉 Tu as {itemCount} articles : passe à <strong>-{Math.round(multiItemRate * 100)} %</strong> avec{" "}
+                        <strong className="font-mono">{MULTI_ITEM_CODE}</strong>.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => applyCode(MULTI_ITEM_CODE)}
+                        className="h-9 rounded-full bg-exaltPink px-4 text-xs font-semibold text-white transition-colors hover:bg-exaltNavy"
+                      >
+                        Appliquer
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <dl className="mt-6 space-y-4 text-sm">
                 <div className="flex items-center justify-between">
