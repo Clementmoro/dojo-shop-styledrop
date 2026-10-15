@@ -10,7 +10,7 @@ export const checkCheckoutFormData = (checkoutData: {
   };
   products: ProductInCart[];
   subtotal: number;
-}) => {
+}, options: { walletPayment?: boolean } = {}) => {
   const d = checkoutData.data;
 
   // Required fields
@@ -24,38 +24,41 @@ export const checkCheckoutFormData = (checkoutData: {
   if (!d?.region)       { toast.error("La région est obligatoire");        return false; }
   if (!d?.phone)        { toast.error("Le téléphone est obligatoire");         return false; }
 
-  // Payment : required
-  if (!d?.nameOnCard)   { toast.error("Le nom sur la carte est obligatoire");  return false; }
+  // Paiement par carte (inutile avec Apple Pay / Google Pay)
+  if (!options.walletPayment) {
+    // Payment : required
+    if (!d?.nameOnCard)   { toast.error("Le nom sur la carte est obligatoire");  return false; }
 
-  // US1 : CB format validation
-  const cardNum = (d?.cardNumber as string)?.replace(/\s/g, "");
-  if (!cardNum) {
-    toast.error("Le numéro de carte est obligatoire");
-    return false;
-  }
-  if (!CARD_NUMBER_RE.test(cardNum)) {
-    toast.error("Numéro de carte invalide : 16 chiffres requis");
-    return false;
-  }
+    // US1 : CB format validation
+    const cardNum = (d?.cardNumber as string)?.replace(/\s/g, "");
+    if (!cardNum) {
+      toast.error("Le numéro de carte est obligatoire");
+      return false;
+    }
+    if (!CARD_NUMBER_RE.test(cardNum)) {
+      toast.error("Numéro de carte invalide : 16 chiffres requis");
+      return false;
+    }
 
-  const cvc = d?.cvc as string;
-  if (!cvc) {
-    toast.error("Le cryptogramme est obligatoire");
-    return false;
-  }
-  if (!CVC_RE.test(cvc)) {
-    toast.error("CVC invalide : 3 ou 4 chiffres requis");
-    return false;
-  }
+    const cvc = d?.cvc as string;
+    if (!cvc) {
+      toast.error("Le cryptogramme est obligatoire");
+      return false;
+    }
+    if (!CVC_RE.test(cvc)) {
+      toast.error("CVC invalide : 3 ou 4 chiffres requis");
+      return false;
+    }
 
-  const expiry = d?.expirationDate as string;
-  if (!expiry) {
-    toast.error("La date d'expiration est obligatoire");
-    return false;
-  }
-  if (!EXPIRY_RE.test(expiry)) {
-    toast.error("Date d'expiration invalide : format MM/AA requis");
-    return false;
+    const expiry = d?.expirationDate as string;
+    if (!expiry) {
+      toast.error("La date d'expiration est obligatoire");
+      return false;
+    }
+    if (!EXPIRY_RE.test(expiry)) {
+      toast.error("Date d'expiration invalide : format MM/AA requis");
+      return false;
+    }
   }
 
   // Cart

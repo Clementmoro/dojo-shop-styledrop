@@ -8,12 +8,19 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
 import { formatPrice } from "../utils/promoCodes";
+import { FaApple, FaGoogle } from "react-icons/fa";
 
 const paymentMethods = [
   { id: "credit-card", title: "Carte bancaire" },
   { id: "paypal", title: "PayPal" },
   { id: "etransfer", title: "Virement" },
 ];
+
+type WalletMethod = "apple-pay" | "google-pay";
+const WALLET_LABELS: Record<WalletMethod, string> = {
+  "apple-pay": "Apple Pay",
+  "google-pay": "Google Pay",
+};
 
 const Checkout = () => {
   const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector((state) => state.cart);
@@ -23,6 +30,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [isGift, setIsGift] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [walletMethod, setWalletMethod] = useState<WalletMethod | null>(null);
   const paymentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,6 +52,7 @@ const Checkout = () => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
+    if (walletMethod) data.paymentType = walletMethod;
 
     const gift = isGift
       ? {
@@ -64,7 +73,7 @@ const Checkout = () => {
       gift,
     };
 
-    if (!checkCheckoutFormData(checkoutData)) return;
+    if (!checkCheckoutFormData(checkoutData, { walletPayment: !!walletMethod })) return;
 
     let response;
     if (JSON.parse(localStorage.getItem("user") || "{}").email) {
@@ -513,6 +522,59 @@ const Checkout = () => {
             <div ref={paymentRef} className="mt-10 border-t border-gray-200 pt-10">
               <h2 className="text-lg font-medium text-gray-900">Paiement</h2>
 
+              {/* Paiement express : Apple Pay / Google Pay */}
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700">Paiement express</p>
+                <div className="mt-3 grid grid-cols-2 gap-3 max-[400px]:grid-cols-1">
+                  <button
+                    type="button"
+                    onClick={() => setWalletMethod("apple-pay")}
+                    aria-pressed={walletMethod === "apple-pay"}
+                    aria-label="Payer avec Apple Pay"
+                    className={`h-12 rounded-xl bg-black text-white flex items-center justify-center gap-1 text-xl font-semibold transition-all hover:bg-gray-800 ${
+                      walletMethod === "apple-pay" ? "ring-2 ring-offset-2 ring-exaltPink" : ""
+                    }`}
+                  >
+                    <FaApple className="w-6 h-6 -mt-0.5" aria-hidden="true" />
+                    <span>Pay</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWalletMethod("google-pay")}
+                    aria-pressed={walletMethod === "google-pay"}
+                    aria-label="Payer avec Google Pay"
+                    className={`h-12 rounded-xl bg-white text-gray-800 border border-gray-300 flex items-center justify-center gap-1.5 text-xl font-medium transition-all hover:bg-gray-50 ${
+                      walletMethod === "google-pay" ? "ring-2 ring-offset-2 ring-exaltPink" : ""
+                    }`}
+                  >
+                    <FaGoogle className="w-5 h-5 text-[#4285F4]" aria-hidden="true" />
+                    <span>Pay</span>
+                  </button>
+                </div>
+                {walletMethod ? (
+                  <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-exaltCream px-4 py-3 text-sm text-exaltNavy">
+                    <span className="flex items-center gap-2">
+                      <HiCheck className="w-4 h-4 text-green-600 flex-none" aria-hidden="true" />
+                      Tu paieras avec <strong>{WALLET_LABELS[walletMethod]}</strong> en validant la commande.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setWalletMethod(null)}
+                      className="text-xs font-semibold underline underline-offset-2 hover:text-exaltPink flex-none"
+                    >
+                      Payer par carte
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mt-6 flex items-center gap-3 text-xs text-gray-400">
+                    <span className="h-px flex-1 bg-gray-200" />
+                    ou payer autrement
+                    <span className="h-px flex-1 bg-gray-200" />
+                  </div>
+                )}
+              </div>
+
+              <div hidden={!!walletMethod}>
               <fieldset className="mt-4">
                 <legend className="sr-only">Payment type</legend>
                 <div className="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
@@ -561,7 +623,7 @@ const Checkout = () => {
                       name="cardNumber"
                       autoComplete="cc-number"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
-                      required={true}
+                      required={!walletMethod}
                     />
                   </div>
                 </div>
@@ -580,7 +642,7 @@ const Checkout = () => {
                       name="nameOnCard"
                       autoComplete="cc-name"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
-                      required={true}
+                      required={!walletMethod}
                     />
                   </div>
                 </div>
@@ -599,7 +661,7 @@ const Checkout = () => {
                       id="expiration-date"
                       autoComplete="cc-exp"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
-                      required={true}
+                      required={!walletMethod}
                     />
                   </div>
                 </div>
@@ -618,11 +680,12 @@ const Checkout = () => {
                       id="cvc"
                       autoComplete="csc"
                       className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-gray-400 border border shadow-sm sm:text-sm"
-                      required={true}
+                      required={!walletMethod}
                     />
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           </div>
 
@@ -731,7 +794,7 @@ const Checkout = () => {
               </dl>
 
               <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
-                <Button text="Valider la commande" mode="primary" />
+                <Button text={walletMethod ? `Payer avec ${WALLET_LABELS[walletMethod]}` : "Valider la commande"} mode="primary" />
               </div>
             </div>
           </div>
