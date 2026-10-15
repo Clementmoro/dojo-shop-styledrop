@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import DogRain from "../components/DogRain";
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [dogRain, setDogRain] = useState(1);
 
   const handleRetrieve = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,10 +16,18 @@ const OrderConfirmation = () => {
 
   return (
     <div className="max-w-screen-sm mx-auto px-5 pt-20 pb-16 text-center">
+      <DogRain play={dogRain} />
       <h1 className="text-3xl font-light mb-2">Merci pour votre commande !</h1>
-      <p className="text-gray-500 mb-10">
+      <p className="text-gray-500 mb-4">
         Votre commande a bien été enregistrée et sera expédiée prochainement.
       </p>
+      <button
+        type="button"
+        onClick={() => setDogRain((n) => n + 1)}
+        className="mb-10 min-h-[40px] px-4 rounded-full border border-gray-200 text-sm text-exaltNavy hover:border-exaltNavy"
+      >
+        Encore des chiens 🐶
+      </button>
 
       {/* Suivre ma commande */}
       <div className="border border-gray-200 p-6 mb-4 text-left">
