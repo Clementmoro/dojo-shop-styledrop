@@ -2,13 +2,13 @@ import {
   HiBars3,
   HiOutlineUser,
   HiOutlineMagnifyingGlass,
-  HiOutlineShoppingBag,
   HiXMark,
 } from "react-icons/hi2";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import AnnouncementBar from "./AnnouncementBar";
 import SidebarMenu from "./SidebarMenu";
+import MiniCart from "./MiniCart";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../hooks";
 import { setLoginStatus } from "../features/auth/authSlice";
@@ -30,12 +30,7 @@ const Header = () => {
   const profileRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
-  const { productsInCart } = useAppSelector((state) => state.cart);
   const { loginStatus } = useAppSelector((state) => state.auth);
-  const cartCount = productsInCart.reduce(
-    (sum, p) => sum + (p.quantity || 0),
-    0,
-  );
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -282,18 +277,7 @@ const Header = () => {
               )}
             </div>
 
-            <Link
-              to="/cart"
-              aria-label="Panier"
-              className={`relative hover:text-exaltPink ${isSearchOpen ? "max-lg:hidden" : ""}`}
-            >
-              <HiOutlineShoppingBag className="text-2xl max-sm:text-xl" />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-exaltPink text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
+            <MiniCart className={isSearchOpen ? "max-lg:hidden" : ""} />
           </div>
         </header>
       </div>
