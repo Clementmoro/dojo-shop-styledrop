@@ -58,7 +58,8 @@
       "stock": 0,
       "description": "Casquette six panneaux en coton, logo eXalt brodé sur l'avant, réglable à l'arrière. Taille unique.",
       "sizes": ["Taille unique"],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "alternatives": ["14"]
     },
     {
       "id": "6",

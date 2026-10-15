@@ -10,6 +10,7 @@ interface Product {
   hidden?: boolean;
   sizes?: string[];
   colors?: string[];
+  alternatives?: string[];
 }
 
 interface ProductInCart extends Product {

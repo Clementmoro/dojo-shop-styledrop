@@ -5,7 +5,7 @@ import {
   QuantityInput,
   StandardSelectInput,
 } from "../components";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
@@ -67,6 +67,21 @@ const SingleProduct = () => {
   }, [singleProduct]);
 
   const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
+
+  // alternatives en stock : d'abord celles choisies pour ce produit, puis la même catégorie
+  const inStockAlternatives = (() => {
+    if (!singleProduct || !isOutOfStock) return [];
+    const available = products.filter(
+      (p) => p.id !== singleProduct.id && (p.stock ?? 0) > 0
+    );
+    const preferred = (singleProduct.alternatives ?? [])
+      .map((id) => available.find((p) => p.id === id))
+      .filter((p): p is Product => Boolean(p));
+    const sameCategory = available.filter(
+      (p) => p.category === singleProduct.category && !preferred.includes(p)
+    );
+    return [...preferred, ...sameCategory].slice(0, 3);
+  })();
   const isSecret = Boolean(singleProduct?.hidden);
 
   useEffect(() => {
@@ -193,6 +208,36 @@ const SingleProduct = () => {
                   En stock
                 </span>
               )}
+            </div>
+          )}
+
+          {inStockAlternatives.length > 0 && (
+            <div className="rounded-2xl bg-exaltCream p-4 flex flex-col gap-3">
+              <div>
+                <p className="font-semibold text-exaltNavy">Disponible tout de suite</p>
+                <p className="text-sm text-gray-600">
+                  Ce produit est épuisé, mais ceux-ci sont en stock et expédiés sous 48 h.
+                </p>
+              </div>
+              <ul className="flex flex-col gap-2">
+                {inStockAlternatives.map((alt) => (
+                  <li key={alt.id}>
+                    <Link
+                      to={`/product/${alt.id}`}
+                      className="flex items-center gap-3 rounded-xl bg-white p-2 pr-4 hover:ring-2 hover:ring-exaltNavy transition"
+                    >
+                      <img
+                        src={alt.image?.startsWith("http") || alt.image?.startsWith("/") ? alt.image : `/assets/${alt.image}`}
+                        alt={alt.title}
+                        className="h-14 w-14 rounded-lg object-cover bg-exaltCream flex-shrink-0"
+                      />
+                      <span className="flex-1 min-w-0 text-sm font-semibold text-exaltNavy">{alt.title}</span>
+                      <span className="text-sm font-bold text-exaltNavy whitespace-nowrap">{alt.price} €</span>
+                      <span className="text-sm font-semibold text-exaltPink whitespace-nowrap max-sm:hidden">Voir →</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
