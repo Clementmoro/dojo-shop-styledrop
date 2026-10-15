@@ -28,9 +28,9 @@ const getEstimatedDelivery = () => {
 const SingleProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [singleProduct, setSingleProduct] = useState<Product | null>(null);
-  // defining default values for input fields
-  const [size, setSize] = useState<string>("xs");
-  const [color, setColor] = useState<string>("black");
+  // options réelles du produit : taille et couleur viennent de la fiche
+  const [size, setSize] = useState<string>("");
+  const [color, setColor] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const params = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
@@ -54,6 +54,17 @@ const SingleProduct = () => {
     fetchSingleProduct();
     fetchProducts();
   }, [params.id]);
+
+  const sizes = singleProduct?.sizes ?? [];
+  const colors = singleProduct?.colors ?? [];
+
+  // présélection : M pour les vêtements, sinon la seule option disponible
+  useEffect(() => {
+    const productSizes = singleProduct?.sizes ?? [];
+    const productColors = singleProduct?.colors ?? [];
+    setSize(productSizes.includes("M") ? "M" : productSizes[0] ?? "");
+    setColor(productColors[0] ?? "");
+  }, [singleProduct]);
 
   const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
   const isSecret = Boolean(singleProduct?.hidden);
@@ -114,34 +125,47 @@ const SingleProduct = () => {
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <SelectInputUpgrade
-              selectList={[
-                { id: "xs", value: "XS" },
-                { id: "sm", value: "SM" },
-                { id: "m", value: "M" },
-                { id: "lg", value: "LG" },
-                { id: "xl", value: "XL" },
-                { id: "2xl", value: "2XL" },
-              ]}
-              value={size}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setSize(() => e.target.value)
-              }
-            />
-            <SelectInputUpgrade
-              selectList={[
-                { id: "black", value: "BLACK" },
-                { id: "red", value: "RED" },
-                { id: "blue", value: "BLUE" },
-                { id: "white", value: "WHITE" },
-                { id: "rose", value: "ROSE" },
-                { id: "green", value: "GREEN" },
-              ]}
-              value={color}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setColor(() => e.target.value)
-              }
-            />
+            {sizes.length > 1 && (
+              <div className="flex flex-col gap-1">
+                <label htmlFor="product-size" className="text-sm font-semibold text-exaltNavy">
+                  Taille
+                </label>
+                <SelectInputUpgrade
+                  id="product-size"
+                  selectList={sizes.map((s) => ({ id: s, value: s }))}
+                  value={size}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setSize(() => e.target.value)
+                  }
+                />
+              </div>
+            )}
+            {sizes.length === 1 && (
+              <p className="text-sm text-exaltNavy">
+                <span className="font-semibold">Taille :</span> {sizes[0]}
+              </p>
+            )}
+
+            {colors.length > 1 && (
+              <div className="flex flex-col gap-1">
+                <label htmlFor="product-color" className="text-sm font-semibold text-exaltNavy">
+                  Couleur
+                </label>
+                <SelectInputUpgrade
+                  id="product-color"
+                  selectList={colors.map((c) => ({ id: c, value: c }))}
+                  value={color}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setColor(() => e.target.value)
+                  }
+                />
+              </div>
+            )}
+            {colors.length === 1 && (
+              <p className="text-sm text-exaltNavy">
+                <span className="font-semibold">Couleur :</span> {colors[0]}
+              </p>
+            )}
 
             <QuantityInputUpgrade
               value={quantity}

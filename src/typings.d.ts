@@ -8,6 +8,8 @@ interface Product {
   stock: number;
   description?: string;
   hidden?: boolean;
+  sizes?: string[];
+  colors?: string[];
 }
 
 interface ProductInCart extends Product {
