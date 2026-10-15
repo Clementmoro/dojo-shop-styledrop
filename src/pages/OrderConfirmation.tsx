@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import DogRain from "../components/DogRain";
 
 const OrderConfirmation = () => {
@@ -7,6 +7,8 @@ const OrderConfirmation = () => {
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [dogRain, setDogRain] = useState(1);
+  const [searchParams] = useSearchParams();
+  const isMystery = searchParams.get("mystere") === "1";
 
   const handleRetrieve = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +23,12 @@ const OrderConfirmation = () => {
       <p className="text-gray-500 mb-4">
         Votre commande a bien été enregistrée et sera expédiée prochainement.
       </p>
+      {isMystery && (
+        <p className="mb-4 inline-block rounded-full bg-exaltCream px-4 py-2 text-sm font-semibold text-exaltNavy">
+          🎁 Commande mystère validée toute seule. Surprise à l'ouverture du colis !
+        </p>
+      )}
+      <br />
       <button
         type="button"
         onClick={() => setDogRain((n) => n + 1)}

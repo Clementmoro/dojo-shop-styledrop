@@ -73,6 +73,10 @@ export const cartSlice = createSlice({
       state.promoCode = null;
       state.discountRate = 0;
     },
+    clearCart: (state) => {
+      state.productsInCart = [];
+      state.subtotal = 0;
+    },
     calculateTotalPrice: (state) => {
       state.subtotal = state.productsInCart.reduce(
         (acc, product) => acc + product.price * product.quantity,
@@ -87,6 +91,7 @@ export const {
   removeProductFromTheCart,
   updateProductQuantity,
   calculateTotalPrice,
+  clearCart,
   applyPromoCode,
   removePromoCode,
 } = cartSlice.actions;
