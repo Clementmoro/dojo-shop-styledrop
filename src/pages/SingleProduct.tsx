@@ -201,10 +201,15 @@ const SingleProduct = () => {
     return [...sameCategory, ...others].slice(0, 3);
   })();
 
-  // prix final tel que le panier le calculera
-  const finalPrice = singleProduct
-    ? singleProduct.price * quantity * (1 + CART_TAX_RATE) + CART_SHIPPING_FEE
-    : 0;
+  // prix final tel que le panier le calculera : produit HT + TVA + livraison
+  const priceExclTax = (singleProduct?.price ?? 0) * quantity;
+  const taxAmount = priceExclTax * CART_TAX_RATE;
+  const finalPrice = priceExclTax + taxAmount + CART_SHIPPING_FEE;
+  const priceParts = [
+    { key: "product", label: "Produit (HT)", amount: priceExclTax, color: "bg-exaltNavy", sign: "" },
+    { key: "tax", label: "TVA 20 %", amount: taxAmount, color: "bg-exaltPink", sign: "+ " },
+    { key: "shipping", label: "Livraison", amount: CART_SHIPPING_FEE, color: "bg-exaltYellow", sign: "+ " },
+  ];
 
   const focusStockAlert = () => {
     const field = document.getElementById("stock-alert-email");
@@ -294,14 +299,14 @@ const SingleProduct = () => {
               {formatCategoryName(singleProduct?.category || "")}
             </p>
             <h1 className="font-display text-4xl font-bold text-exaltNavy">{singleProduct?.title}</h1>
-            <p className="text-2xl font-bold text-exaltNavy">{singleProduct?.price} €</p>
-            {singleProduct && (
-              <p className="text-sm text-gray-600">
-                Prix hors TVA. Au panier : + 20 % de TVA et {CART_SHIPPING_FEE} € de livraison, soit{" "}
-                <span className="font-semibold text-exaltNavy">{formatPrice(finalPrice)}</span> au
-                total pour {quantity} article{quantity > 1 ? "s" : ""}.
-              </p>
-            )}
+            <p className="flex items-baseline gap-2 text-2xl font-bold text-exaltNavy">
+              {singleProduct?.price} €
+              {singleProduct && (
+                <span className="rounded-full bg-exaltCream px-2 py-0.5 text-xs font-semibold tracking-wide text-exaltNavy/70">
+                  HT
+                </span>
+              )}
+            </p>
             {singleProduct?.description && (
               <p className="text-gray-600 leading-relaxed mt-2">{singleProduct.description}</p>
             )}
@@ -427,6 +432,51 @@ const SingleProduct = () => {
             </div>
           )}
 
+          {singleProduct && !isOutOfStock && (
+            <section
+              aria-labelledby="price-breakdown-title"
+              className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm flex flex-col gap-4"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 id="price-breakdown-title" className="text-sm font-semibold uppercase tracking-[0.15em] text-exaltNavy/70">
+                  Ce que tu paieras
+                </h2>
+                <span className="text-xs text-gray-500">
+                  pour {quantity} article{quantity > 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-exaltCream" aria-hidden="true">
+                {priceParts.map((part, idx) => (
+                  <div
+                    key={part.key}
+                    className={`${part.color} h-full transition-all duration-500 ${idx > 0 ? "border-l-2 border-white" : ""}`}
+                    style={{ width: `${(part.amount / finalPrice) * 100}%` }}
+                  />
+                ))}
+              </div>
+
+              <dl className="flex flex-col gap-2 text-sm">
+                {priceParts.map((part) => (
+                  <div key={part.key} className="flex items-center justify-between gap-3">
+                    <dt className="flex items-center gap-2 text-gray-600">
+                      <span className={`h-2.5 w-2.5 rounded-full ${part.color}`} aria-hidden="true" />
+                      {part.label}
+                    </dt>
+                    <dd className="font-medium tabular-nums text-exaltNavy">
+                      {part.sign}
+                      {formatPrice(part.amount)}
+                    </dd>
+                  </div>
+                ))}
+                <div className="mt-1 flex items-center justify-between gap-3 border-t border-gray-100 pt-3">
+                  <dt className="font-semibold text-exaltNavy">Total à payer</dt>
+                  <dd className="text-2xl font-bold tabular-nums text-exaltNavy">{formatPrice(finalPrice)}</dd>
+                </div>
+              </dl>
+            </section>
+          )}
+
           <div ref={mainCtaRef} className="flex flex-col gap-3">
             {isOutOfStock ? (
               isAlertSaved ? (
@@ -527,7 +577,8 @@ const SingleProduct = () => {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-exaltNavy truncate">{singleProduct.title}</p>
             <p className="text-sm font-bold text-exaltNavy">
-              {singleProduct.price} €{size ? ` · ${size}` : ""}
+              {isOutOfStock ? `${singleProduct.price} € HT` : `${formatPrice(finalPrice)} au total`}
+              {size ? ` · ${size}` : ""}
             </p>
           </div>
           {isOutOfStock ? (
