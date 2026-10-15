@@ -8,12 +8,37 @@ type CartState = {
   discountRate: number;
 };
 
-const initialState: CartState = {
+const emptyCart: CartState = {
   productsInCart: [],
   subtotal: 0,
   promoCode: null,
   discountRate: 0,
 };
+
+// Le panier est sauvegardé dans le navigateur pour survivre au rafraîchissement
+export const CART_STORAGE_KEY = "exalt-cart";
+
+const loadCart = (): CartState => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || "null");
+    if (saved && Array.isArray(saved.productsInCart)) {
+      return { ...emptyCart, ...saved };
+    }
+  } catch {
+    // stockage indisponible ou illisible : on repart d'un panier vide
+  }
+  return emptyCart;
+};
+
+export const saveCart = (cart: CartState) => {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  } catch {
+    // stockage plein ou bloqué : le panier reste en mémoire pour cette visite
+  }
+};
+
+const initialState: CartState = loadCart();
 
 export const cartSlice = createSlice({
   name: "cart",
@@ -74,6 +99,8 @@ export const cartSlice = createSlice({
       state.promoCode = null;
       state.discountRate = 0;
     },
+    // Après une commande validée
+    clearCart: () => emptyCart,
     calculateTotalPrice: (state) => {
       state.subtotal = state.productsInCart.reduce(
         (acc, product) => acc + product.price * product.quantity,
@@ -93,6 +120,7 @@ export const {
   removeProductFromTheCart,
   updateProductQuantity,
   calculateTotalPrice,
+  clearCart,
   applyPromoCode,
   removePromoCode,
 } = cartSlice.actions;

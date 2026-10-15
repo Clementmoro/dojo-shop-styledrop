@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { HiTrash as TrashIcon, HiCheck } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { removeProductFromTheCart } from "../features/cart/cartSlice";
+import { clearCart, removeProductFromTheCart } from "../features/cart/cartSlice";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -87,6 +87,7 @@ const Checkout = () => {
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
+      dispatch(clearCart());
       navigate("/order-confirmation");
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
