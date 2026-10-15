@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
@@ -69,85 +68,73 @@ const LookCard = ({
   };
 
   return (
-    <div className="grid grid-cols-[2fr_3fr] gap-8 rounded-3xl border border-gray-200 bg-white p-6 max-md:grid-cols-1 max-md:p-4 max-md:gap-4">
-      {/* Mosaïque du look (tablette et ordinateur) */}
-      <div className="grid grid-cols-2 gap-2 self-start max-md:hidden" aria-hidden="true">
-        {items.slice(0, 4).map((p) => (
-          <div key={p.id} className="aspect-square rounded-2xl bg-exaltCream overflow-hidden">
-            <img
-              src={imageSrc(p.image)}
-              alt=""
-              className={`w-full h-full object-cover ${isAvailable(p) ? "" : "opacity-50 grayscale"}`}
-            />
-          </div>
-        ))}
-      </div>
-
-      <div className="flex flex-col gap-4 min-w-0">
-        <div>
-          <h3 className="font-display text-2xl font-bold text-exaltNavy max-sm:text-xl">{look.name}</h3>
-          <p className="text-gray-600 mt-1">{look.tagline}</p>
-        </div>
-
-        <ul className="flex flex-col divide-y divide-gray-100 border-y border-gray-100">
-          {items.map((p) => {
+    <div className="flex flex-col gap-3">
+      <p className="text-gray-600">
+        <span className="font-semibold text-exaltNavy">{look.name}</span> · {look.tagline}
+      </p>
+      <div className="grid grid-cols-[1fr_17rem] gap-6 items-stretch max-lg:grid-cols-1 max-lg:gap-4">
+        {/* La ligne d'articles : défile au doigt sur petit écran */}
+        <ul className="flex items-stretch gap-6 overflow-x-auto snap-x snap-mandatory pb-2 -mx-1 px-1 min-w-0">
+          {items.map((p, i) => {
             const available = isAvailable(p);
             const checked = available && selected.includes(p.id);
             return (
-              <li key={p.id} className="flex items-center gap-3 py-2.5">
-                <input
-                  id={`look-${look.id}-${p.id}`}
-                  type="checkbox"
-                  checked={checked}
-                  disabled={!available}
-                  onChange={() => toggle(p.id)}
-                  className="w-5 h-5 shrink-0 accent-exaltNavy cursor-pointer disabled:cursor-not-allowed"
-                />
+              <li key={p.id} className="relative flex snap-start shrink-0 lg:shrink lg:flex-1 lg:basis-0 lg:min-w-0">
+                {i > 0 && (
+                  <span aria-hidden="true" className="absolute -left-[1.1rem] top-1/2 -translate-y-1/2 text-2xl font-light text-gray-400">
+                    +
+                  </span>
+                )}
                 <label
                   htmlFor={`look-${look.id}-${p.id}`}
-                  className={`flex flex-1 min-w-0 items-center gap-3 min-h-[56px] ${
-                    available ? "cursor-pointer" : "cursor-not-allowed"
-                  }`}
+                  className={`relative flex flex-col gap-2 w-36 sm:w-40 lg:w-full h-full rounded-2xl border-2 p-2 transition-colors ${
+                    checked ? "border-exaltNavy bg-white" : "border-gray-200 bg-gray-50"
+                  } ${available ? "cursor-pointer" : "cursor-not-allowed"}`}
                 >
-                  <img
-                    src={imageSrc(p.image)}
-                    alt=""
-                    className={`w-14 h-14 shrink-0 rounded-xl object-cover bg-exaltCream ${
-                      available ? "" : "opacity-50 grayscale"
-                    }`}
+                  <input
+                    id={`look-${look.id}-${p.id}`}
+                    type="checkbox"
+                    checked={checked}
+                    disabled={!available}
+                    onChange={() => toggle(p.id)}
+                    className="absolute top-3 left-3 z-10 w-5 h-5 accent-exaltNavy cursor-pointer disabled:cursor-not-allowed"
                   />
-                  <span className="flex-1 min-w-0 flex flex-col">
-                    <span className={`font-semibold leading-snug ${available ? "text-exaltNavy" : "text-gray-400"}`}>
+                  <span className="aspect-square rounded-xl bg-exaltCream overflow-hidden">
+                    <img
+                      src={imageSrc(p.image)}
+                      alt=""
+                      className={`w-full h-full object-cover ${available ? "" : "opacity-50 grayscale"} ${
+                        available && !checked ? "opacity-60" : ""
+                      }`}
+                    />
+                  </span>
+                  <span className="flex flex-col gap-0.5 px-1 pb-1 min-w-0">
+                    <span className={`text-sm font-semibold leading-snug ${available ? "text-exaltNavy" : "text-gray-400"}`}>
                       {p.title}
                     </span>
                     <span className="text-sm">
-                      {p.id === currentId && <span className="text-exaltPink font-semibold">Cet article · </span>}
-                      {available ? (
-                        <span className="text-gray-500">{hasSize(p) ? "Taille au choix" : "Taille unique"}</span>
-                      ) : (
-                        <span className="text-red-600">Rupture de stock, non inclus</span>
-                      )}
+                      <span className={`font-bold ${available ? "text-exaltNavy" : "text-gray-400 line-through"}`}>
+                        {p.price} €
+                      </span>
+                      {p.id === currentId && <span className="text-exaltPink font-semibold"> · Cet article</span>}
                     </span>
-                  </span>
-                  <span className={`font-bold whitespace-nowrap ${available ? "text-exaltNavy" : "text-gray-400 line-through"}`}>
-                    {p.price} €
+                    {!available && <span className="text-xs text-red-600">Rupture, non inclus</span>}
                   </span>
                 </label>
-                {p.id !== currentId && (
-                  <Link
-                    to={`/product/${p.id}`}
-                    className="text-sm text-exaltNavy underline underline-offset-2 hover:text-exaltPink shrink-0 max-sm:hidden"
-                  >
-                    Voir
-                  </Link>
-                )}
               </li>
             );
           })}
         </ul>
 
-        <div className="flex flex-wrap items-end gap-4 justify-between">
-          {needsSize ? (
+        {/* Récapitulatif et achat */}
+        <div className="flex flex-col justify-end gap-3 rounded-2xl bg-exaltCream p-4 max-lg:flex-row max-lg:flex-wrap max-lg:items-end">
+          <p className="max-lg:flex-1">
+            <span className="block text-sm text-gray-500">
+              {chosen.length} article{chosen.length > 1 ? "s" : ""}
+            </span>
+            <span className="font-display text-2xl font-bold text-exaltNavy">{total} €</span>
+          </p>
+          {needsSize && (
             <label className="flex flex-col gap-1">
               <span className="text-xs font-semibold text-exaltNavy">Taille des vêtements</span>
               <select
@@ -162,25 +149,16 @@ const LookCard = ({
                 ))}
               </select>
             </label>
-          ) : (
-            <span />
           )}
-          <p className="text-right">
-            <span className="block text-sm text-gray-500">
-              {chosen.length} article{chosen.length > 1 ? "s" : ""}
-            </span>
-            <span className="font-display text-2xl font-bold text-exaltNavy">{total} €</span>
-          </p>
+          <button
+            type="button"
+            onClick={addLook}
+            disabled={chosen.length === 0}
+            className="w-full min-h-[52px] px-4 rounded-full bg-exaltNavy text-white font-semibold hover:bg-exaltPink transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-exaltPink"
+          >
+            {chosen.length === 0 ? "Sélectionnez un article" : "Ajouter le look au panier"}
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={addLook}
-          disabled={chosen.length === 0}
-          className="w-full min-h-[52px] rounded-full bg-exaltNavy text-white font-semibold hover:bg-exaltPink transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-exaltPink"
-        >
-          {chosen.length === 0 ? "Sélectionnez au moins un article" : `Ajouter le look au panier · ${total} €`}
-        </button>
       </div>
     </div>
   );
@@ -199,13 +177,12 @@ const ShopTheLook = ({ product, products }: { product: Product; products: Produc
   if (items.length < 2) return null;
 
   return (
-    <section aria-labelledby="look-title" className="mt-24 max-md:mt-16 flex flex-col gap-6">
+    <section aria-labelledby="look-title" className="mt-12 max-md:mt-8 flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h2 id="look-title" className="font-display text-exaltNavy text-3xl font-bold max-sm:text-2xl">
+          <h2 id="look-title" className="font-display text-exaltNavy text-2xl font-bold max-sm:text-xl">
             Complétez le look
           </h2>
-          <p className="text-gray-600 mt-1">Les articles pensés pour aller ensemble, à ajouter en un clic.</p>
         </div>
         {looks.length > 1 && (
           <div className="flex flex-wrap gap-2" role="group" aria-label="Choisir un look">
