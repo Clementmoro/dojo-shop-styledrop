@@ -68,6 +68,53 @@ const SingleProduct = () => {
 
   const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
 
+  // alerte retour en stock (proto : gardée dans le navigateur, aucun e-mail envoyé)
+  const STOCK_ALERTS_KEY = "stockAlerts";
+  const readStockAlerts = (): Record<string, string> => {
+    try {
+      return JSON.parse(localStorage.getItem(STOCK_ALERTS_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  };
+  const [alertEmail, setAlertEmail] = useState<string>("");
+  const [alertError, setAlertError] = useState<string | null>(null);
+  const [isAlertSaved, setIsAlertSaved] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!singleProduct) return;
+    const savedEmail = readStockAlerts()[singleProduct.id];
+    let userEmail = "";
+    try {
+      userEmail = JSON.parse(localStorage.getItem("user") || "{}").email || "";
+    } catch {
+      userEmail = "";
+    }
+    setAlertEmail(savedEmail || userEmail);
+    setIsAlertSaved(Boolean(savedEmail));
+    setAlertError(null);
+  }, [singleProduct]);
+
+  const handleStockAlert = () => {
+    if (!singleProduct) return;
+    const email = alertEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAlertError("Indique une adresse e-mail valide, par exemple prenom@exalt.fr");
+      return;
+    }
+    try {
+      localStorage.setItem(
+        STOCK_ALERTS_KEY,
+        JSON.stringify({ ...readStockAlerts(), [singleProduct.id]: email })
+      );
+    } catch {
+      // stockage indisponible : on confirme quand même pour le proto
+    }
+    setAlertEmail(email);
+    setIsAlertSaved(true);
+    toast.success("Alerte retour en stock activée");
+  };
+
   // alternatives en stock : d'abord celles choisies pour ce produit, puis la même catégorie
   const inStockAlternatives = (() => {
     if (!singleProduct || !isOutOfStock) return [];
@@ -242,15 +289,54 @@ const SingleProduct = () => {
           )}
 
           <div className="flex flex-col gap-3">
-            <Button
-              mode="primary"
-              text={isOutOfStock ? "Rupture de stock" : "Ajouter au panier"}
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-            />
-            <p className="text-gray-500 text-sm text-right">
-              Livraison estimée le {getEstimatedDelivery()}
-            </p>
+            {isOutOfStock ? (
+              isAlertSaved ? (
+                <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+                  <p className="font-semibold">C'est noté !</p>
+                  <p>
+                    On t'écrit à <span className="font-semibold">{alertEmail}</span> dès que ce
+                    produit revient en stock.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="stock-alert-email" className="text-sm font-semibold text-exaltNavy">
+                    Prévenez-moi du retour en stock
+                  </label>
+                  <div className="flex gap-2 max-sm:flex-col">
+                    <input
+                      id="stock-alert-email"
+                      type="email"
+                      value={alertEmail}
+                      onChange={(e) => {
+                        setAlertEmail(e.target.value);
+                        setAlertError(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleStockAlert();
+                      }}
+                      placeholder="ton.email@exemple.com"
+                      autoComplete="email"
+                      className="flex-1 h-12 px-4 rounded-full border border-gray-300 text-exaltNavy focus:border-exaltNavy focus:ring-exaltNavy"
+                    />
+                    <Button
+                      mode="primary"
+                      text="Me prévenir"
+                      onClick={handleStockAlert}
+                      className="sm:w-auto sm:px-8"
+                    />
+                  </div>
+                  {alertError && <p className="text-sm text-red-600">{alertError}</p>}
+                </div>
+              )
+            ) : (
+              <>
+                <Button mode="primary" text="Ajouter au panier" onClick={handleAddToCart} />
+                <p className="text-gray-500 text-sm text-right">
+                  Livraison estimée le {getEstimatedDelivery()}
+                </p>
+              </>
+            )}
           </div>
           <div>
             <Dropdown dropdownTitle="Détails du produit">
