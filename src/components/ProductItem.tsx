@@ -107,6 +107,12 @@ const ProductItem = ({
           {isOutOfStock ? "Rupture de stock" : "Ajouter au panier"}
         </button>
       </div>
+      <Link
+        to={`/product/${id}`}
+        className="mx-1 -mt-1 flex h-8 items-center justify-center rounded-full border border-exaltNavy text-xs font-semibold text-exaltNavy transition-colors hover:bg-exaltNavy hover:text-white"
+      >
+        Plus d'infos
+      </Link>
     </div>
   );
 };
