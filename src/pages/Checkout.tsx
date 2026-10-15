@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
 import { formatPrice } from "../utils/promoCodes";
+import { getShippingFee } from "../utils/shipping";
 
 const paymentMethods = [
   { id: "credit-card", title: "Carte bancaire" },
@@ -19,6 +20,7 @@ const Checkout = () => {
   const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector((state) => state.cart);
   const discount = subtotal * discountRate;
   const taxableAmount = subtotal - discount;
+  const shipping = getShippingFee(taxableAmount);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [isGift, setIsGift] = useState(false);
@@ -61,6 +63,7 @@ const Checkout = () => {
       data,
       products: productsInCart,
       subtotal: subtotal,
+      shipping,
       gift,
     };
 
@@ -713,13 +716,13 @@ const Checkout = () => {
                 <div className="flex items-center justify-between">
                   <dt className="text-sm">Livraison</dt>
                   <dd className="text-sm font-medium text-gray-900">
-                    {formatPrice(subtotal ? 5 : 0)}
+                    {subtotal && shipping === 0 ? "Offerte" : formatPrice(shipping)}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-6">
                   <dt className="text-base font-medium">Total TTC</dt>
                   <dd className="text-base font-medium text-gray-900">
-                    {formatPrice(subtotal ? taxableAmount + 5 : 0)}
+                    {formatPrice(subtotal ? taxableAmount + shipping : 0)}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between text-xs text-gray-500">

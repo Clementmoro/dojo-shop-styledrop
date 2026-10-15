@@ -39,6 +39,7 @@ interface Order {
   };
   products: ProductInCart[];
   subtotal: number;
+  shipping?: number;
   user: {
     email: string;
     id: number;

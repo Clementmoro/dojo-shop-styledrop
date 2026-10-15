@@ -8,6 +8,7 @@ import {
 import customFetch from "../axios/custom";
 import { nanoid } from "nanoid";
 import { formatDate } from "../utils/formatDate";
+import { getShippingFee } from "../utils/shipping";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { id } = params;
@@ -27,6 +28,8 @@ const SingleOrderHistory = () => {
     }
   }, [user, navigate]);
 
+  const shippingFee = singleOrder.shipping ?? getShippingFee(singleOrder.subtotal);
+
   return (
     <div className="max-w-screen-2xl mx-auto pt-20 px-5">
       <h1 className="text-3xl font-bold mb-8">Order Details</h1>
@@ -36,10 +39,10 @@ const SingleOrderHistory = () => {
         </h2>
         <p className="mb-2">Date: {formatDate(singleOrder.orderDate)}</p>
         <p className="mb-2">Subtotal: ${ singleOrder.subtotal }</p>
-        <p className="mb-2">Shipping: $5</p>
+        <p className="mb-2">Shipping: {shippingFee === 0 ? "Free" : `$${shippingFee}`}</p>
         <p className="mb-2">
           Total: $
-          {(singleOrder.subtotal + 5).toFixed(2)}
+          {(singleOrder.subtotal + shippingFee).toFixed(2)}
         </p>
         <p className="mb-2">VAT included: ${ (singleOrder.subtotal - singleOrder.subtotal / 1.2).toFixed(2) }</p>
         <p className="mb-2">Status: {singleOrder.orderStatus}</p>

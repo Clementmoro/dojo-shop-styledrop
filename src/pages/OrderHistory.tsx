@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { Link, useLoaderData, useNavigate } from "react-router-dom";
 import customFetch from "../axios/custom";
 import { formatDate } from "../utils/formatDate";
+import { getShippingFee } from "../utils/shipping";
 
 export const loader = async () => {
   try {
@@ -51,7 +52,7 @@ const OrderHistory = () => {
                 <td className="py-3 px-4 border-b text-center">{order.id}</td>
                 <td className="py-3 px-4 border-b text-center">{ formatDate(order.orderDate) }</td>
                 <td className="py-3 px-4 border-b text-center">
-                  ${order.subtotal + 5}
+                  ${order.subtotal + (order.shipping ?? getShippingFee(order.subtotal))}
                 </td>
                 <td className="py-3 px-4 border-b text-center">
                   { order.orderStatus }

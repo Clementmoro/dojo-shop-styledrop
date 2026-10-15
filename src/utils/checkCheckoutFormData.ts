@@ -10,6 +10,7 @@ export const checkCheckoutFormData = (checkoutData: {
   };
   products: ProductInCart[];
   subtotal: number;
+  shipping?: number;
 }) => {
   const d = checkoutData.data;
 

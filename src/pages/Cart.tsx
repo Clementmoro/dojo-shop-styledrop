@@ -14,8 +14,8 @@ import {
   formatPrice,
   getPromoDiscountRate,
 } from "../utils/promoCodes";
+import { getShippingFee } from "../utils/shipping";
 
-const SHIPPING_FEE = 5;
 const TAX_RATE = 0.2;
 
 const Cart = () => {
@@ -30,7 +30,7 @@ const Cart = () => {
   const taxableAmount = subtotal - discount;
   // Les prix du catalogue sont TTC : la TVA est incluse, affichée pour information
   const tax = taxableAmount - taxableAmount / (1 + TAX_RATE);
-  const shipping = subtotal === 0 ? 0 : SHIPPING_FEE;
+  const shipping = getShippingFee(taxableAmount);
   const total = subtotal === 0 ? 0 : taxableAmount + shipping;
 
   const handleApplyPromo = () => {
@@ -176,7 +176,7 @@ const Cart = () => {
                 )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-gray-600">Livraison</dt>
-                  <dd className="font-medium text-exaltNavy">{formatPrice(shipping)}</dd>
+                  <dd className="font-medium text-exaltNavy">{shipping === 0 ? "Offerte" : formatPrice(shipping)}</dd>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-base font-semibold text-exaltNavy">Total TTC</dt>
