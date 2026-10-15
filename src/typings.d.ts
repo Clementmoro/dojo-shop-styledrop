@@ -16,6 +16,8 @@ interface ProductInCart extends Product {
   size: string;
   color: string;
   stock: number;
+  // Produit surprise : le vrai produit, caché jusqu'au paiement
+  surprise?: { productId: string; title: string; image: string };
 }
 
 interface User {

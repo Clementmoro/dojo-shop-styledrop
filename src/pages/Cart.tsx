@@ -16,6 +16,7 @@ import {
   getPromoDiscountRate,
 } from "../utils/promoCodes";
 import { FREE_SHIPPING_THRESHOLD, getShippingFee } from "../utils/shipping";
+import { SURPRISE_ID, SURPRISE_IMAGE, SURPRISE_PRICE, buildSurpriseCartItem, pickSurpriseProduct } from "../utils/surprise";
 
 const TAX_RATE = 0.2;
 
@@ -61,6 +62,17 @@ const Cart = () => {
           .sort((a, b) => a.price - b.price)
           .slice(0, 3)
       : [];
+
+  const hasSurprise = productsInCart.some((product) => product.id === SURPRISE_ID);
+  const handleAddSurprise = () => {
+    const surpriseProduct = pickSurpriseProduct(catalog);
+    if (!surpriseProduct) {
+      toast.error("Plus de surprise disponible pour le moment");
+      return;
+    }
+    dispatch(addProductToTheCart(buildSurpriseCartItem(surpriseProduct)));
+    toast.success("🎁 Produit surprise ajouté ! Il sera dévoilé au paiement");
+  };
 
   const handleAddSuggestion = (product: Product) => {
     // Taille et couleur par défaut, comme sur la fiche produit
@@ -265,6 +277,24 @@ const Cart = () => {
                   </div>
                 )}
               </div>
+
+              {/* Produit surprise */}
+              {!hasSurprise && catalog.length > 0 && (
+                <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-exaltPink to-exaltNavy p-3 text-white">
+                  <img src={SURPRISE_IMAGE} alt="" className="h-14 w-14 flex-shrink-0 rounded-xl" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold">🎁 Produit surprise · {formatPrice(SURPRISE_PRICE)}</p>
+                    <p className="text-xs text-white/80">Un goodie en stock, dévoilé au moment du paiement</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddSurprise}
+                    className="flex-shrink-0 rounded-full bg-white px-3 py-2 text-xs font-semibold text-exaltNavy hover:bg-exaltYellow transition-colors"
+                  >
+                    Ajouter
+                  </button>
+                </div>
+              )}
 
               <dl className="mt-6 space-y-4 text-sm">
                 <div className="flex items-center justify-between">
