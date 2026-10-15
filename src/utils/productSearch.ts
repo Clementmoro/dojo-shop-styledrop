@@ -85,7 +85,11 @@ const queryTerms = (query: string) => {
     .filter((word) => word && !STOPWORDS.has(word))
     .map((word) => {
       const base = singular(word);
-      return Array.from(new Set([word, base, ...(SYNONYMS[word] || []), ...(SYNONYMS[base] || [])]));
+      // Début d'un mot français connu (« casq » pour casquette), utile pendant la frappe
+      const started = word.length >= 3
+        ? Object.keys(SYNONYMS).filter((key) => key.startsWith(word)).flatMap((key) => SYNONYMS[key])
+        : [];
+      return Array.from(new Set([word, base, ...(SYNONYMS[word] || []), ...(SYNONYMS[base] || []), ...started]));
     });
 };
 
