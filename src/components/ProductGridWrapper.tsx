@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 import customFetch from "../axios/custom";
-import { useAppDispatch, useAppSelector } from "../hooks";
+import { useAppDispatch } from "../hooks";
 import {
   setShowingProducts,
   setTotalProducts,
@@ -24,7 +24,6 @@ const ProductGridWrapper = ({
     | ReactElement<{ products: Product[] }>[];
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const { totalProducts } = useAppSelector((state) => state.shop);
   const dispatch = useAppDispatch();
 
   // Memoize the function to prevent unnecessary re-renders
@@ -48,9 +47,7 @@ const ProductGridWrapper = ({
         });
       }
 
-      if (totalProducts !== searchedProducts.length) {
-        dispatch(setTotalProducts(searchedProducts.length));
-      }
+      dispatch(setTotalProducts(searchedProducts.length));
 
       // Sort the products based on the sortCriteria
       if (sort === "price-asc") {
@@ -88,12 +85,12 @@ const ProductGridWrapper = ({
         dispatch(setShowingProducts(searchedProducts.length));
       }
     },
-    []
+    [category, limit, dispatch]
   );
 
   useEffect(() => {
     getSearchedProducts(searchQuery || "", sortCriteria || "", page || 1);
-  }, [searchQuery, sortCriteria, page]);
+  }, [searchQuery, sortCriteria, page, getSearchedProducts]);
 
   // Clone the children and pass the products as props to the children
   // This will cause the children to re-render with the new products
