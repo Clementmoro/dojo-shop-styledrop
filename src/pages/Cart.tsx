@@ -35,6 +35,8 @@ const Cart = () => {
   const tax = taxableAmount * TAX_RATE;
   const shipping = subtotal === 0 ? 0 : SHIPPING_FEE;
   const total = subtotal === 0 ? 0 : taxableAmount + tax + shipping;
+  // Économie réelle sur le total payé : la remise plus la TVA qu'elle évite
+  const savings = discount * (1 + TAX_RATE);
 
   const itemCount = productsInCart.reduce((acc, product) => acc + product.quantity, 0);
   // Offre de bienvenue progressive : taux actuel et taux avec 1 article de plus
@@ -218,7 +220,7 @@ const Cart = () => {
                 {promoCode && (
                   <div className="flex items-center justify-between text-green-700">
                     <dt className="flex items-center gap-2">
-                      Code {promoCode}
+                      Code {promoCode} ({pct(discountRate)})
                       <button
                         type="button"
                         className="text-xs underline text-gray-500"
@@ -243,6 +245,17 @@ const Cart = () => {
                   <dd className="text-base font-bold text-exaltNavy">{formatPrice(total)}</dd>
                 </div>
               </dl>
+
+              {promoCode && savings > 0 && (
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-green-50 px-4 py-3 text-green-800">
+                  <p className="text-sm">
+                    💸 Tu économises <strong>{formatPrice(savings)}</strong> sur ton total
+                  </p>
+                  <span className="whitespace-nowrap rounded-full bg-green-700 px-3 py-1 text-xs font-bold text-white">
+                    {pct(discountRate)} sur tes articles
+                  </span>
+                </div>
+              )}
 
               {!promoCode && (
                 <div className="mt-6">
