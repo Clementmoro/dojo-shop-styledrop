@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   TbArrowLeft,
   TbArrowRight,
@@ -16,7 +16,7 @@ import {
   TbUser,
 } from "react-icons/tb";
 import { IconType } from "react-icons";
-import { DeliveryMap, LlamaGallop, LlamaIcon } from "../components";
+import { DeliveryMap, LlamaGallop, LlamaIcon, OrderCelebration } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { clearCart, removeProductFromTheCart } from "../features/cart/cartSlice";
 import customFetch from "../axios/custom";
@@ -95,6 +95,9 @@ const Checkout = () => {
   const tunnelRef = useRef<HTMLDivElement>(null);
   const [isGift, setIsGift] = useState(false);
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCelebrating, setIsCelebrating] = useState(false);
+  const goToConfirmation = useCallback(() => navigate("/order-confirmation"), [navigate]);
   const [values, setValues] = useState<Record<string, string>>({ country: "France", giftCountry: "France" });
 
   // lecture des champs à chaque saisie, pour la progression et la carte
@@ -166,30 +169,39 @@ const Checkout = () => {
     };
 
     if (!checkCheckoutFormData(checkoutData)) return;
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     let response;
-    if (JSON.parse(localStorage.getItem("user") || "{}").email) {
-      response = await customFetch.post("/orders", {
-        ...checkoutData,
-        user: {
-          email: JSON.parse(localStorage.getItem("user") || "{}").email,
-          id: JSON.parse(localStorage.getItem("user") || "{}").id,
-        },
-        orderStatus: "Processing",
-        orderDate: new Date().toISOString(),
-      });
-    } else {
-      response = await customFetch.post("/orders", {
-        ...checkoutData,
-        orderStatus: "Processing",
-        orderDate: new Date().toISOString(),
-      });
+    try {
+      if (JSON.parse(localStorage.getItem("user") || "{}").email) {
+        response = await customFetch.post("/orders", {
+          ...checkoutData,
+          user: {
+            email: JSON.parse(localStorage.getItem("user") || "{}").email,
+            id: JSON.parse(localStorage.getItem("user") || "{}").id,
+          },
+          orderStatus: "Processing",
+          orderDate: new Date().toISOString(),
+        });
+      } else {
+        response = await customFetch.post("/orders", {
+          ...checkoutData,
+          orderStatus: "Processing",
+          orderDate: new Date().toISOString(),
+        });
+      }
+    } catch {
+      setIsSubmitting(false);
+      toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
+      return;
     }
 
+    setIsSubmitting(false);
     if (response.status === 201) {
-      toast.success("Commande validée, merci !");
+      // célébration plein écran, puis page de confirmation
+      setIsCelebrating(true);
       dispatch(clearCart());
-      navigate("/order-confirmation");
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
     }
@@ -470,10 +482,11 @@ const Checkout = () => {
               </div>
               <button
                 type="submit"
-                className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-exaltYellow text-base font-bold text-exaltNavy transition-colors hover:bg-white"
+                disabled={isSubmitting}
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-exaltYellow text-base font-bold text-exaltNavy transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-80"
               >
-                <TbLock className="h-5 w-5" aria-hidden="true" />
-                Passer la commande
+                <TbLock className={`h-5 w-5 ${isSubmitting ? "animate-pulse" : ""}`} aria-hidden="true" />
+                {isSubmitting ? "Validation en cours…" : "Passer la commande"}
               </button>
               <p className="flex items-center justify-center gap-1.5 text-xs text-white/70">
                 <TbShieldLock className="h-4 w-4" aria-hidden="true" />
@@ -582,6 +595,8 @@ const Checkout = () => {
           </div>
         </aside>
       </form>
+
+      {isCelebrating && <OrderCelebration onDone={goToConfirmation} />}
     </div>
   );
 };

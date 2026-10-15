@@ -25,3 +25,4 @@ export { default as AnnouncementBar } from "./AnnouncementBar";
 export { default as ProductAccordion } from "./ProductAccordion";
 export { default as DeliveryMap } from "./DeliveryMap";
 export { default as LlamaGallop, LlamaIcon } from "./LlamaGallop";
+export { default as OrderCelebration } from "./OrderCelebration";
