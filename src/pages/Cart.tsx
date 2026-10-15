@@ -3,6 +3,7 @@ import { HiCheck as CheckIcon, HiXMark as XMarkIcon } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { Link } from "react-router-dom";
 import {
+  addProductToTheCart,
   applyPromoCode,
   removePromoCode,
   removeProductFromTheCart,
@@ -51,11 +52,35 @@ const Cart = () => {
       product.price < FREE_SHIPPING_THRESHOLD &&
       !cartTitles.includes(product.title)
   );
-  const suggestedProduct =
-    missingForFreeShipping > 0
-      ? [...candidates].sort((a, b) => a.price - b.price).find((product) => product.price >= missingForFreeShipping) ??
-        [...candidates].sort((a, b) => b.price - a.price)[0]
-      : undefined;
+  // 3 suggestions : d'abord les moins chers qui suffisent, puis les plus chers pour s'en rapprocher
+  const reachingProducts = candidates
+    .filter((product) => product.price >= missingForFreeShipping)
+    .sort((a, b) => a.price - b.price);
+  const closerProducts = candidates
+    .filter((product) => product.price < missingForFreeShipping)
+    .sort((a, b) => b.price - a.price);
+  const suggestedProducts = missingForFreeShipping > 0 ? [...reachingProducts, ...closerProducts].slice(0, 3) : [];
+
+  const handleAddSuggestion = (product: Product) => {
+    // Taille et couleur par défaut, comme sur la fiche produit
+    const size = "xs";
+    const color = "black";
+    dispatch(
+      addProductToTheCart({
+        id: product.id + size + color,
+        image: product.image,
+        title: product.title,
+        category: product.category,
+        price: product.price,
+        quantity: 1,
+        size,
+        color,
+        popularity: product.popularity,
+        stock: product.stock,
+      })
+    );
+    toast.success(`${product.title} ajouté au panier`);
+  };
 
   const handleApplyPromo = () => {
     if (!promoInput.trim()) return;
@@ -203,26 +228,39 @@ const Cart = () => {
                   />
                 </div>
 
-                {suggestedProduct && (
-                  <div className="mt-3 flex items-center gap-3 border-t border-gray-100 pt-3">
-                    <img
-                      src={suggestedProduct.image.startsWith("http") || suggestedProduct.image.startsWith("/") ? suggestedProduct.image : `/assets/${suggestedProduct.image}`}
-                      alt={suggestedProduct.title}
-                      className="h-14 w-14 flex-shrink-0 rounded-xl bg-exaltCream object-cover"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-gray-500">
-                        {suggestedProduct.price >= missingForFreeShipping ? "Ajoute-le et ta livraison est offerte" : "Pour t'en rapprocher"}
-                      </p>
-                      <p className="truncate text-sm font-semibold text-exaltNavy">{suggestedProduct.title}</p>
-                      <p className="text-sm font-bold text-exaltNavy">{formatPrice(suggestedProduct.price)}</p>
-                    </div>
-                    <Link
-                      to={`/product/${suggestedProduct.id}`}
-                      className="flex-shrink-0 rounded-full bg-exaltNavy px-4 py-2 text-xs font-semibold text-white hover:bg-exaltPink transition-colors"
-                    >
-                      Voir
-                    </Link>
+                {suggestedProducts.length > 0 && (
+                  <div className="mt-3 border-t border-gray-100 pt-3">
+                    <p className="text-xs font-medium text-gray-500">Complète ton panier</p>
+                    <ul className="-mx-1 mt-2 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2">
+                      {suggestedProducts.map((product) => (
+                        <li
+                          key={product.id}
+                          className="flex w-36 flex-shrink-0 snap-start flex-col rounded-2xl border border-gray-100 bg-white p-2"
+                        >
+                          <Link to={`/product/${product.id}`}>
+                            <img
+                              src={product.image.startsWith("http") || product.image.startsWith("/") ? product.image : `/assets/${product.image}`}
+                              alt={product.title}
+                              className="h-24 w-full rounded-xl bg-exaltCream object-cover"
+                            />
+                            <p className="mt-2 line-clamp-2 text-xs font-semibold text-exaltNavy">{product.title}</p>
+                          </Link>
+                          <p className="mt-1 text-sm font-bold text-exaltNavy">{formatPrice(product.price)}</p>
+                          {product.price >= missingForFreeShipping && (
+                            <p className="text-[11px] font-medium text-green-700">Livraison offerte</p>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleAddSuggestion(product)}
+                            className="mt-auto pt-2"
+                          >
+                            <span className="block w-full rounded-full bg-exaltNavy px-3 py-2 text-xs font-semibold text-white hover:bg-exaltPink transition-colors">
+                              + Ajouter
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
