@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import DancingUnicorn from "./DancingUnicorn";
+import Fireworks from "./Fireworks";
 
 const COLORS = ["#FF5FA2", "#B57BFF", "#5FC8FF", "#FFC93C", "#7CE38B", "#F0047F"];
 
@@ -33,13 +34,13 @@ const UnicornReveal = ({ title, image, onDone }: { title: string; image: string;
 
   const unicorns = useMemo(
     () =>
-      Array.from({ length: 7 }, (_, i) => ({
+      Array.from({ length: 14 }, (_, i) => ({
         id: i,
         fromLeft: i % 2 === 0,
-        top: 4 + ((i * 13) % 78),
-        size: 120 + Math.random() * 90,
-        delay: 0.3 + i * 0.35,
-        duration: 4.2 + Math.random() * 1.4,
+        top: 2 + ((i * 11) % 82),
+        size: 90 + Math.random() * 110,
+        delay: 0.2 + i * 0.32,
+        duration: 3.8 + Math.random() * 1.8,
       })),
     []
   );
@@ -48,7 +49,7 @@ const UnicornReveal = ({ title, image, onDone }: { title: string; image: string;
     const timer = setTimeout(() => {
       setVisible(false);
       onDone();
-    }, 7500);
+    }, 9000);
     return () => clearTimeout(timer);
   }, [onDone]);
 
@@ -56,6 +57,7 @@ const UnicornReveal = ({ title, image, onDone }: { title: string; image: string;
 
   return (
     <div className="fixed inset-0 z-[80] overflow-hidden pointer-events-none" aria-live="polite">
+      <Fireworks duration={7500} />
       {sparks.map((s) => (
         <span
           key={s.id}

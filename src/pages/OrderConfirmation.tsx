@@ -10,7 +10,11 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const surprise = (location.state as { surprise?: { title: string; image: string } } | null)?.surprise;
   const [showReveal, setShowReveal] = useState(Boolean(surprise));
-  const handleRevealDone = useCallback(() => setShowReveal(false), []);
+  const [revealDone, setRevealDone] = useState(false);
+  const handleRevealDone = useCallback(() => {
+    setShowReveal(false);
+    setRevealDone(true);
+  }, []);
 
   const handleRetrieve = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +32,12 @@ const OrderConfirmation = () => {
         Votre commande a bien été enregistrée et sera expédiée prochainement.
       </p>
 
+      {surprise && revealDone && (
+        <p className="queen-message mb-6 font-display text-4xl font-bold text-exaltPink max-sm:text-3xl">
+          Félicitations ma Queen 👑
+        </p>
+      )}
+
       {surprise && (
         <div className="mb-6 flex items-center gap-4 rounded-2xl border-2 border-exaltPink bg-white p-4 text-left">
           <img
@@ -38,7 +48,10 @@ const OrderConfirmation = () => {
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-exaltPink">Ton produit mystère</p>
             <p className="mt-1 text-lg font-bold text-exaltNavy">{surprise.title} 🦄</p>
-            <button type="button" onClick={() => setShowReveal(true)} className="mt-1 text-xs text-gray-500 underline">
+            <button type="button" onClick={() => {
+                setRevealDone(false);
+                setShowReveal(true);
+              }} className="mt-1 text-xs text-gray-500 underline">
               Revoir les licornes
             </button>
           </div>

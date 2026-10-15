@@ -118,3 +118,19 @@ body {
   .unicorn-burst, .unicorn-parade-ltr, .unicorn-parade-rtl { display: none; }
   .surprise-card { animation: none; }
 }
+
+/* Message final après la découverte du produit mystère */
+.queen-message {
+  animation: queen-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both, queen-glow 1.6s ease-in-out 0.8s infinite alternate;
+}
+@keyframes queen-pop {
+  0% { opacity: 0; transform: scale(0.2) rotate(-10deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes queen-glow {
+  0% { text-shadow: 0 0 0 rgba(240, 4, 127, 0); }
+  100% { text-shadow: 0 0 18px rgba(240, 4, 127, 0.45); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .queen-message { animation: none; }
+}
