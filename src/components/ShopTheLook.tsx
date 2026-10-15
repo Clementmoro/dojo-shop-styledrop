@@ -21,14 +21,28 @@ const hasSize = (product: Product) => /hoodie|t-shirt|polo|sweatshirt/i.test(pro
 
 const isAvailable = (product: Product) => (product.stock ?? 0) > 0;
 
+// Familles de produits, pour remplacer un article en rupture par un équivalent
+const TYPES = ["cap", "hoodie", "sweatshirt", "t-shirt", "polo", "notebook", "bag", "mug", "pen", "sticker", "sleeve"];
+
+const findSubstitute = (product: Product, products: Product[], excluded: string[]) => {
+  const candidates = products.filter((p) => !p.hidden && isAvailable(p) && !excluded.includes(p.id));
+  const type = TYPES.find((t) => product.title.toLowerCase().includes(t));
+  return (
+    (type && candidates.find((p) => p.title.toLowerCase().includes(type))) ||
+    candidates.find((p) => p.category === product.category)
+  );
+};
+
 const LookCard = ({
   look,
   items,
   currentId,
+  replaced,
 }: {
   look: Look;
   items: Product[];
   currentId: string;
+  replaced: Record<string, string>;
 }) => {
   const dispatch = useAppDispatch();
   const [selected, setSelected] = useState<string[]>(
@@ -119,6 +133,11 @@ const LookCard = ({
                   {p.price} €
                 </span>
                 {!available && <span className="text-[11px] leading-tight text-red-600">Rupture</span>}
+                {replaced[p.id] && (
+                  <span className="text-[11px] leading-tight text-gray-500">
+                    Remplace {replaced[p.id].replace(/^eXalt /, "")}, en rupture
+                  </span>
+                )}
               </label>
             </li>
           );
@@ -167,9 +186,17 @@ const ShopTheLook = ({ product, products }: { product: Product; products: Produc
   const active = looks.find((l) => l.id === activeId) || looks[0];
 
   if (!active || products.length === 0) return null;
-  const items = active.productIds
+  const original = active.productIds
     .map((id) => products.find((p) => p.id === id))
     .filter((p): p is Product => Boolean(p));
+  const replaced: Record<string, string> = {};
+  const items = original.map((p) => {
+    if (isAvailable(p)) return p;
+    const substitute = findSubstitute(p, products, active.productIds);
+    if (!substitute) return p;
+    replaced[substitute.id] = p.title;
+    return substitute;
+  });
   if (items.length < 2) return null;
 
   return (
@@ -199,7 +226,7 @@ const ShopTheLook = ({ product, products }: { product: Product; products: Produc
         )}
       </div>
       <p className="text-sm text-gray-600 -mt-1">{active.tagline}</p>
-      <LookCard key={`${product.id}-${active.id}-${items.length}`} look={active} items={items} currentId={product.id} />
+      <LookCard key={`${product.id}-${active.id}-${items.length}`} look={active} items={items} currentId={product.id} replaced={replaced} />
     </section>
   );
 };
