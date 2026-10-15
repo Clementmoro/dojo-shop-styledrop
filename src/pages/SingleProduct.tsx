@@ -1,6 +1,7 @@
 import {
   Button,
   Dropdown,
+  FavoriteButton,
   ProductItem,
   QuantityInput,
   ShopTheLook,
@@ -157,7 +158,7 @@ const SingleProduct = () => {
       >
         <div
           className={`rounded-3xl bg-exaltCream overflow-hidden ${
-            isOutOfStock ? "md:sticky md:top-28 max-md:h-[26vh]" : ""
+            isOutOfStock ? "relative md:sticky md:top-28 max-md:h-[26vh]" : "relative"
           }`}
         >
           <img
@@ -167,6 +168,13 @@ const SingleProduct = () => {
               isOutOfStock ? "grayscale-[40%]" : ""
             }`}
           />
+          {singleProduct && !isSecret && (
+            <FavoriteButton
+              id={singleProduct.id}
+              title={singleProduct.title}
+              className="absolute top-4 right-4 w-12 h-12 [&>svg]:text-2xl"
+            />
+          )}
         </div>
         <div className={`w-full flex flex-col mt-6 ${isOutOfStock ? "gap-5 max-md:mt-4" : "gap-4 md:mt-2"}`}>
           <div className="flex flex-col gap-2">

@@ -3,6 +3,7 @@ import {
   Cart,
   Checkout,
   Coulisses,
+  Favorites,
   HomeLayout,
   Landing,
   Login,
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
         path: "order-history",
         element: <OrderHistory />,
         loader: orderHistoryLoader,
+      },
+      {
+        path: "favoris",
+        element: <Favorites />,
       },
       {
         path: "coulisses",

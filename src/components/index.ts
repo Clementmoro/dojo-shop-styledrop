@@ -24,3 +24,4 @@ export { default as QuizPopup } from "./QuizPopup";export { default as KonamiEgg
 export { default as AnnouncementBar } from "./AnnouncementBar";
 export { default as WaitlistForm } from "./WaitlistForm";
 export { default as ShopTheLook } from "./ShopTheLook";
+export { default as FavoriteButton } from "./FavoriteButton";

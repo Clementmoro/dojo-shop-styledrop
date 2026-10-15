@@ -1,5 +1,6 @@
 import {
   HiBars3,
+  HiOutlineHeart,
   HiOutlineUser,
   HiOutlineMagnifyingGlass,
   HiOutlineShoppingBag,
@@ -9,6 +10,7 @@ import SidebarMenu from "./SidebarMenu";
 import AnnouncementBar from "./AnnouncementBar";
 import { useState } from "react";
 import { useAppSelector } from "../hooks";
+import { useFavorites } from "../utils/favorites";
 
 const NAV_LINKS = [
   { to: "/shop", label: "Tout voir" },
@@ -21,6 +23,7 @@ const NAV_LINKS = [
 const Header = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { productsInCart } = useAppSelector((state) => state.cart);
+  const favoritesCount = useFavorites().length;
   const cartCount = productsInCart.reduce((sum, p) => sum + (p.quantity || 0), 0);
 
   return (
@@ -60,6 +63,14 @@ const Header = () => {
           <div className="flex gap-5 items-center text-exaltNavy max-sm:gap-3">
             <Link to="/search" aria-label="Rechercher" className="hover:text-exaltPink">
               <HiOutlineMagnifyingGlass className="text-2xl max-sm:text-xl" />
+            </Link>
+            <Link to="/favoris" aria-label={`Mes favoris (${favoritesCount})`} className="relative hover:text-exaltPink">
+              <HiOutlineHeart className="text-2xl max-sm:text-xl" />
+              {favoritesCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-exaltPink text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {favoritesCount}
+                </span>
+              )}
             </Link>
             <Link to="/login" aria-label="Mon compte" className="hover:text-exaltPink">
               <HiOutlineUser className="text-2xl max-sm:text-xl" />

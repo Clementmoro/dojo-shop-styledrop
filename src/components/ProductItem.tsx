@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
+import FavoriteButton from "./FavoriteButton";
 
 // Les vêtements demandent une taille : ils passent par la fiche produit
 const hasSize = (title: string) => /hoodie|t-shirt|polo|sweatshirt/i.test(title);
@@ -69,6 +70,7 @@ const ProductItem = ({
             </span>
           )}
         </Link>
+        <FavoriteButton id={id} title={title} className="absolute top-3 right-3" />
         {canQuickAdd && (
           <button
             type="button"
