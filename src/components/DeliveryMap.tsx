@@ -153,7 +153,7 @@ const DeliveryMap = ({ destination }: { destination: Destination }) => {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div ref={boxRef} className="relative w-full bg-[#EEF0F5]" style={{ height }}>
+      <div ref={boxRef} className="relative w-full overflow-hidden bg-[#EEF0F5]" style={{ height }}>
         {view.tiles.map((t) => (
           <img
             key={t.key}
