@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { HiTrash as TrashIcon, HiCheck } from "react-icons/hi2";
 import { Button } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { removeProductFromTheCart } from "../features/cart/cartSlice";
+import { addProductToTheCart, removeProductFromTheCart } from "../features/cart/cartSlice";
+import { SURPRISE_GIFT, SURPRISE_GIFT_ID } from "../utils/surpriseGift";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -25,6 +26,16 @@ const Checkout = () => {
   const [isGift, setIsGift] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const paymentRef = useRef<HTMLDivElement>(null);
+  const hasSurpriseGift = productsInCart.some((product) => product.id === SURPRISE_GIFT_ID);
+
+  // Achat en cadeau : l'Article surprise offert s'ajoute au panier (et part si on décoche)
+  useEffect(() => {
+    if (isGift && !hasSurpriseGift) {
+      dispatch(addProductToTheCart(SURPRISE_GIFT));
+    } else if (!isGift && hasSurpriseGift) {
+      dispatch(removeProductFromTheCart({ id: SURPRISE_GIFT_ID }));
+    }
+  }, [isGift, hasSurpriseGift, dispatch]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -88,7 +99,7 @@ const Checkout = () => {
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
-      const hasSurprise = productsInCart.some((product) => product.category === "surprise");
+      const hasSurprise = isGift && hasSurpriseGift;
       navigate("/order-confirmation", { state: { surprise: hasSurprise } });
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
@@ -427,6 +438,7 @@ const Checkout = () => {
                       <textarea
                         id="gift-message"
                         name="giftMessage"
+                        defaultValue={DEMO_CUSTOMER.giftMessage}
                         rows={3}
                         maxLength={300}
                         placeholder="Joyeux anniversaire ! J'espère que ce cadeau te plaira..."
@@ -449,6 +461,7 @@ const Checkout = () => {
                             type="text"
                             id="gift-recipient-name"
                             name="giftRecipientName"
+                            defaultValue={DEMO_CUSTOMER.giftRecipientName}
                             className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
                             required={isGift}
                           />
@@ -464,6 +477,7 @@ const Checkout = () => {
                             type="text"
                             id="gift-address"
                             name="giftAddress"
+                            defaultValue={DEMO_CUSTOMER.giftAddress}
                             className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
                             required={isGift}
                           />
@@ -479,6 +493,7 @@ const Checkout = () => {
                             type="text"
                             id="gift-city"
                             name="giftCity"
+                            defaultValue={DEMO_CUSTOMER.giftCity}
                             className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
                             required={isGift}
                           />
@@ -494,6 +509,7 @@ const Checkout = () => {
                             type="text"
                             id="gift-postal-code"
                             name="giftPostalCode"
+                            defaultValue={DEMO_CUSTOMER.giftPostalCode}
                             className="block w-full py-2 indent-2 border-gray-300 outline-none focus:border-pink-400 border shadow-sm sm:text-sm"
                             required={isGift}
                           />
@@ -691,7 +707,7 @@ const Checkout = () => {
 
                       <div className="flex flex-1 items-end justify-between pt-2">
                         <p className="mt-1 text-sm font-medium text-gray-900">
-                          {product?.price}€
+                          {product?.id === SURPRISE_GIFT_ID ? "Offert" : `${product?.price}€`}
                         </p>
 
                         <div className="ml-4">

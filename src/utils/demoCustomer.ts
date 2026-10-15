@@ -14,4 +14,9 @@ export const DEMO_CUSTOMER = {
   nameOnCard: "Camille Martin",
   expirationDate: "12/28",
   cvc: "123",
+  giftMessage: "Joyeux anniversaire ! Profite bien de ce petit goodie eXalt.",
+  giftRecipientName: "Alex Bernard",
+  giftAddress: "8 avenue des Lilas",
+  giftCity: "Lyon",
+  giftPostalCode: "69003",
 };

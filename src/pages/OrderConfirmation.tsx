@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import GiftReveal from "../components/GiftReveal";
 import { DEMO_CUSTOMER } from "../utils/demoCustomer";
 
 const OrderConfirmation = () => {
@@ -20,12 +19,29 @@ const OrderConfirmation = () => {
 
   return (
     <div className="max-w-screen-sm mx-auto px-5 pt-20 pb-16 text-center">
-      {hasSurprise && <GiftReveal />}
-
       <h1 className="text-3xl font-light mb-2">Merci pour votre commande !</h1>
       <p className="text-gray-500 mb-10">
         Votre commande a bien été enregistrée et sera expédiée prochainement.
       </p>
+
+      {hasSurprise && (
+        <div className="-mt-4 mb-10 rounded-3xl bg-exaltCream px-6 py-6 flex flex-col items-center gap-3">
+          <img
+            src="/assets/products/article-surprise.svg"
+            alt=""
+            className="h-24 w-24 rounded-2xl"
+          />
+          <p className="text-exaltNavy font-semibold">
+            Un Article surprise est offert avec ton cadeau !
+          </p>
+          <Link
+            to="/surprise"
+            className="h-12 px-6 rounded-full bg-exaltPink hover:bg-exaltNavy transition-colors text-white font-semibold flex items-center justify-center"
+          >
+            🎁 Découvrir ma surprise
+          </Link>
+        </div>
+      )}
 
       {/* Suivre ma commande */}
       <div className="border border-gray-200 p-6 mb-4 text-left">

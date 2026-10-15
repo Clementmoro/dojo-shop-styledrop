@@ -3,6 +3,7 @@ import {
   Cart,
   Checkout,
   Coulisses,
+  Surprise,
   HomeLayout,
   Landing,
   Login,
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
       {
         path: "order-confirmation",
         element: <OrderConfirmation />,
+      },
+      {
+        path: "surprise",
+        element: <Surprise />,
       },
       {
         path: "user-profile",
