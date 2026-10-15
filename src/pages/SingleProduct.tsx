@@ -6,11 +6,12 @@ import {
   StandardSelectInput,
 } from "../components";
 import { Link, useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
 import WithSelectInputWrapper from "../utils/withSelectInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
+import { formatPrice } from "../utils/promoCodes";
 import toast from "react-hot-toast";
 
 // Date de livraison estimée : aujourd'hui + 4 jours ouvrés
@@ -24,6 +25,23 @@ const getEstimatedDelivery = () => {
   return date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 };
 
+// mêmes règles que le panier : TVA ajoutée au prix affiché + frais de livraison fixes
+const CART_TAX_RATE = 0.2;
+const CART_SHIPPING_FEE = 5;
+
+// guide des tailles : mesures indicatives (à valider avec le fournisseur)
+const SIZE_GUIDE = [
+  { size: "XS", chest: "86 à 91", length: "66" },
+  { size: "S", chest: "91 à 96", length: "69" },
+  { size: "M", chest: "96 à 101", length: "72" },
+  { size: "L", chest: "101 à 106", length: "74" },
+  { size: "XL", chest: "106 à 111", length: "76" },
+  { size: "XXL", chest: "111 à 116", length: "78" },
+];
+
+const imageSrc = (image?: string) =>
+  image?.startsWith("http") || image?.startsWith("/") ? image : `/assets/${image}`;
+
 const SingleProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [singleProduct, setSingleProduct] = useState<Product | null>(null);
@@ -32,6 +50,12 @@ const SingleProduct = () => {
   const [color, setColor] = useState<string>("");
   // saisie libre pendant la frappe, ramenée entre 1 et le stock dès qu'on quitte le champ
   const [quantityInput, setQuantityInput] = useState<string>("1");
+  const [activeImage, setActiveImage] = useState<number>(0);
+  const [isZoomOpen, setIsZoomOpen] = useState<boolean>(false);
+  const [zoomOrigin, setZoomOrigin] = useState<string | null>(null);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState<boolean>(false);
+  const [isMainCtaVisible, setIsMainCtaVisible] = useState<boolean>(true);
+  const mainCtaRef = useRef<HTMLDivElement>(null);
   const params = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
 
@@ -64,7 +88,39 @@ const SingleProduct = () => {
     setSize(productSizes.includes("M") ? "M" : productSizes[0] ?? "");
     setColor(productColors[0] ?? "");
     setQuantityInput("1");
+    setActiveImage(0);
   }, [singleProduct]);
+
+  // barre d'achat mobile : visible seulement quand le bouton principal est hors de l'écran
+  useEffect(() => {
+    const target = mainCtaRef.current;
+    if (!target) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setIsMainCtaVisible(entry.isIntersecting)
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [singleProduct]);
+
+  // fermeture des fenêtres (zoom, guide des tailles) avec Échap
+  useEffect(() => {
+    if (!isZoomOpen && !isSizeGuideOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsZoomOpen(false);
+        setIsSizeGuideOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isZoomOpen, isSizeGuideOpen]);
+
+  const images = singleProduct
+    ? singleProduct.images?.length
+      ? singleProduct.images
+      : [singleProduct.image]
+    : [];
+  const currentImage = images[activeImage] ?? images[0];
 
   const isOutOfStock = (singleProduct?.stock ?? 1) === 0;
   const maxQuantity = Math.max(1, singleProduct?.stock ?? 1);
@@ -134,6 +190,28 @@ const SingleProduct = () => {
     );
     return [...preferred, ...sameCategory].slice(0, 3);
   })();
+  // suggestions : produits en stock de la même catégorie, puis les plus populaires
+  const similarProducts = (() => {
+    if (!singleProduct) return [];
+    const candidates = products
+      .filter((p) => p.id !== singleProduct.id && (p.stock ?? 0) > 0)
+      .sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0));
+    const sameCategory = candidates.filter((p) => p.category === singleProduct.category);
+    const others = candidates.filter((p) => p.category !== singleProduct.category);
+    return [...sameCategory, ...others].slice(0, 3);
+  })();
+
+  // prix final tel que le panier le calculera
+  const finalPrice = singleProduct
+    ? singleProduct.price * quantity * (1 + CART_TAX_RATE) + CART_SHIPPING_FEE
+    : 0;
+
+  const focusStockAlert = () => {
+    const field = document.getElementById("stock-alert-email");
+    field?.scrollIntoView({ behavior: "smooth", block: "center" });
+    field?.focus({ preventScroll: true });
+  };
+
   const isSecret = Boolean(singleProduct?.hidden);
 
   useEffect(() => {
@@ -166,19 +244,49 @@ const SingleProduct = () => {
   };
 
   return (
-    <div className="max-w-screen-2xl mx-auto px-5 pt-8 max-[400px]:px-3">
+    <div className="max-w-screen-2xl mx-auto px-5 pt-8 max-[400px]:px-3 max-sm:pb-24">
       {isSecret && (
         <div className="mb-6 rounded-2xl bg-exaltYellow text-exaltNavy px-6 py-4 font-semibold">
           🥚 Tu as trouvé le produit fantôme. Il n'existe dans aucun menu : garde le secret jusqu'au débrief.
         </div>
       )}
       <div className="grid grid-cols-2 gap-x-12 max-lg:grid-cols-1">
-        <div className="rounded-3xl bg-exaltCream overflow-hidden">
-          <img
-            src={singleProduct?.image?.startsWith("http") || singleProduct?.image?.startsWith("/") ? singleProduct.image : `/assets/${singleProduct?.image}`}
-            alt={singleProduct?.title}
-            className={`w-full h-full object-cover ${isSecret ? "gold-product" : ""}`}
-          />
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setZoomOrigin(null);
+              setIsZoomOpen(true);
+            }}
+            className="relative rounded-3xl bg-exaltCream overflow-hidden cursor-zoom-in group"
+            aria-label="Agrandir la photo"
+          >
+            <img
+              src={imageSrc(currentImage)}
+              alt={singleProduct?.title}
+              className={`w-full h-full object-cover ${isSecret ? "gold-product" : ""}`}
+            />
+            <span className="absolute bottom-4 right-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-exaltNavy shadow group-hover:bg-white">
+              🔍 Agrandir
+            </span>
+          </button>
+          {images.length > 1 && (
+            <div className="flex gap-3">
+              {images.map((img, idx) => (
+                <button
+                  key={img}
+                  type="button"
+                  onClick={() => setActiveImage(idx)}
+                  className={`h-20 w-20 rounded-xl overflow-hidden bg-exaltCream border-2 ${
+                    idx === activeImage ? "border-exaltNavy" : "border-transparent"
+                  }`}
+                  aria-label={`Photo ${idx + 1}`}
+                >
+                  <img src={imageSrc(img)} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="w-full flex flex-col gap-6 mt-6">
           <div className="flex flex-col gap-2">
@@ -187,6 +295,13 @@ const SingleProduct = () => {
             </p>
             <h1 className="font-display text-4xl font-bold text-exaltNavy">{singleProduct?.title}</h1>
             <p className="text-2xl font-bold text-exaltNavy">{singleProduct?.price} €</p>
+            {singleProduct && (
+              <p className="text-sm text-gray-600">
+                Prix hors TVA. Au panier : + 20 % de TVA et {CART_SHIPPING_FEE} € de livraison, soit{" "}
+                <span className="font-semibold text-exaltNavy">{formatPrice(finalPrice)}</span> au
+                total pour {quantity} article{quantity > 1 ? "s" : ""}.
+              </p>
+            )}
             {singleProduct?.description && (
               <p className="text-gray-600 leading-relaxed mt-2">{singleProduct.description}</p>
             )}
@@ -194,9 +309,18 @@ const SingleProduct = () => {
           <div className="flex flex-col gap-3">
             {sizes.length > 1 && (
               <div className="flex flex-col gap-1">
-                <label htmlFor="product-size" className="text-sm font-semibold text-exaltNavy">
-                  Taille
-                </label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="product-size" className="text-sm font-semibold text-exaltNavy">
+                    Taille
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsSizeGuideOpen(true)}
+                    className="text-sm text-exaltPink underline underline-offset-2 hover:text-exaltNavy"
+                  >
+                    Guide des tailles
+                  </button>
+                </div>
                 <SelectInputUpgrade
                   id="product-size"
                   selectList={sizes.map((s) => ({ id: s, value: s }))}
@@ -303,7 +427,7 @@ const SingleProduct = () => {
             </div>
           )}
 
-          <div className="flex flex-col gap-3">
+          <div ref={mainCtaRef} className="flex flex-col gap-3">
             {isOutOfStock ? (
               isAlertSaved ? (
                 <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
@@ -355,8 +479,14 @@ const SingleProduct = () => {
           </div>
           <div>
             <Dropdown dropdownTitle="Détails du produit">
-              Produit officiel eXalt. Marquage réalisé en France par notre atelier partenaire. Entretien
-              : lavage à 30 °C sur l'envers, pas de sèche-linge.
+              {(singleProduct?.details ?? []).map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+              <span className="block mt-2">
+                Produit officiel eXalt, marquage réalisé en France par notre atelier partenaire.
+              </span>
             </Dropdown>
 
             <Dropdown dropdownTitle="Livraison et retours">
@@ -373,7 +503,7 @@ const SingleProduct = () => {
           Vous aimerez aussi
         </h2>
         <div className="grid grid-cols-3 gap-6 mt-8 max-md:grid-cols-2 max-md:gap-4">
-          {products.filter((product) => product.id !== singleProduct?.id).slice(0, 3).map((product: Product) => (
+          {similarProducts.map((product: Product) => (
             <ProductItem
               key={product?.id}
               id={product?.id}
@@ -387,6 +517,132 @@ const SingleProduct = () => {
           ))}
         </div>
       </div>
+
+      {/* barre d'achat mobile */}
+      {singleProduct && !isMainCtaVisible && (
+        <div
+          className="sm:hidden fixed inset-x-0 bottom-0 z-30 bg-white border-t border-gray-200 px-4 pt-3 flex items-center gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)]"
+          style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-exaltNavy truncate">{singleProduct.title}</p>
+            <p className="text-sm font-bold text-exaltNavy">
+              {singleProduct.price} €{size ? ` · ${size}` : ""}
+            </p>
+          </div>
+          {isOutOfStock ? (
+            isAlertSaved ? (
+              <span className="text-sm font-semibold text-green-700">Alerte activée ✓</span>
+            ) : (
+              <Button mode="primary" text="Me prévenir" onClick={focusStockAlert} className="!w-auto px-6" />
+            )
+          ) : (
+            <Button mode="primary" text="Ajouter au panier" onClick={handleAddToCart} className="!w-auto px-6" />
+          )}
+        </div>
+      )}
+
+      {/* photo agrandie */}
+      {isZoomOpen && currentImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Photo agrandie"
+          onClick={() => setIsZoomOpen(false)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 rounded-full bg-white/90 h-10 w-10 text-exaltNavy text-xl font-bold"
+            onClick={() => setIsZoomOpen(false)}
+            aria-label="Fermer"
+          >
+            ×
+          </button>
+          <div
+            className="max-h-full max-w-3xl w-full overflow-hidden rounded-2xl bg-white"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={imageSrc(currentImage)}
+              alt={singleProduct?.title}
+              onClick={(e) => {
+                if (zoomOrigin) {
+                  setZoomOrigin(null);
+                  return;
+                }
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                setZoomOrigin(`${x}% ${y}%`);
+              }}
+              className={`w-full h-auto transition-transform duration-200 ${
+                zoomOrigin ? "scale-[2.2] cursor-zoom-out" : "cursor-zoom-in"
+              }`}
+              style={{ transformOrigin: zoomOrigin ?? "center" }}
+            />
+          </div>
+          <p className="absolute bottom-6 inset-x-0 text-center text-sm text-white/80 pointer-events-none">
+            Touche la photo pour zoomer sur un détail
+          </p>
+        </div>
+      )}
+
+      {/* guide des tailles */}
+      {isSizeGuideOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="size-guide-title"
+          onClick={() => setIsSizeGuideOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-3xl bg-white p-6 flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <h2 id="size-guide-title" className="font-display text-2xl font-bold text-exaltNavy">
+                Guide des tailles
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsSizeGuideOpen(false)}
+                className="text-2xl leading-none text-gray-500 hover:text-exaltNavy"
+                aria-label="Fermer"
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-sm text-gray-600">
+              Coupe unisexe. Mesure le tour de poitrine sous les bras. Entre deux tailles, prends la
+              plus grande.
+            </p>
+            <table className="w-full text-sm text-exaltNavy">
+              <thead>
+                <tr className="border-b border-gray-200 text-left">
+                  <th className="py-2 font-semibold">Taille</th>
+                  <th className="py-2 font-semibold">Tour de poitrine (cm)</th>
+                  <th className="py-2 font-semibold">Longueur (cm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {SIZE_GUIDE.map((row) => (
+                  <tr
+                    key={row.size}
+                    className={`border-b border-gray-100 ${row.size === size ? "bg-exaltCream font-semibold" : ""}`}
+                  >
+                    <td className="py-2">{row.size}</td>
+                    <td className="py-2">{row.chest}</td>
+                    <td className="py-2">{row.length}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="text-xs text-gray-500">Mesures indicatives, à 2 cm près.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

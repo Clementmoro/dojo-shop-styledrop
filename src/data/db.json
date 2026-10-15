@@ -10,7 +10,8 @@
       "stock": 30,
       "description": "Le hoodie signature eXalt, coupe unisexe, molleton brossé 350 g. Logo brodé sur la poitrine. Le compagnon des afterworks et des matinées en mission.",
       "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Matière : molleton brossé 350 g", "Coupe : unisexe", "Marquage : logo brodé sur la poitrine", "Entretien : lavage à 30 °C sur l'envers, pas de sèche-linge"]
     },
     {
       "id": "2",
@@ -22,7 +23,8 @@
       "stock": 50,
       "description": "Un t-shirt blanc en coton bio, coupe droite, logo eXalt sérigraphié. Simple, propre, il va avec tout.",
       "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "colors": ["Blanc"]
+      "colors": ["Blanc"],
+      "details": ["Matière : coton bio", "Coupe : droite", "Marquage : logo eXalt sérigraphié", "Entretien : lavage à 30 °C sur l'envers, pas de sèche-linge"]
     },
     {
       "id": "3",
@@ -34,7 +36,8 @@
       "stock": 25,
       "description": "Polo piqué navy, col côtelé, logo brodé ton sur ton. Assez habillé pour un comité de pilotage, assez confortable pour la journée.",
       "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Matière : coton piqué", "Col : côtelé", "Marquage : logo brodé ton sur ton", "Entretien : lavage à 30 °C sur l'envers, pas de sèche-linge"]
     },
     {
       "id": "4",
@@ -46,7 +49,8 @@
       "stock": 20,
       "description": "Sweatshirt col rond en molleton, navy profond, logo eXalt brodé. Le basique chaud de l'hiver.",
       "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Matière : molleton", "Col : rond", "Marquage : logo eXalt brodé", "Entretien : lavage à 30 °C sur l'envers, pas de sèche-linge"]
     },
     {
       "id": "5",
@@ -59,7 +63,8 @@
       "description": "Casquette six panneaux en coton, logo eXalt brodé sur l'avant, réglable à l'arrière. Taille unique.",
       "sizes": ["Taille unique"],
       "colors": ["Navy"],
-      "alternatives": ["14"]
+      "alternatives": ["14"],
+      "details": ["Matière : coton, six panneaux", "Taille : unique, réglable à l'arrière", "Marquage : logo eXalt brodé sur l'avant", "Entretien : lavage à la main"]
     },
     {
       "id": "6",
@@ -71,7 +76,8 @@
       "stock": 40,
       "description": "Tote bag en coton épais, anses longues, logo eXalt. Pour le laptop, le déjeuner et tout le reste.",
       "sizes": [],
-      "colors": ["Écru"]
+      "colors": ["Écru"],
+      "details": ["Matière : coton épais", "Anses : longues, portées épaule", "Usage : laptop, déjeuner et le reste", "Entretien : lavage à la main"]
     },
     {
       "id": "7",
@@ -83,7 +89,8 @@
       "stock": 15,
       "description": "Sac à dos premium, compartiment ordinateur 16 pouces rembourré, poche anti-vol, tissu déperlant. Pensé pour les journées entre deux clients.",
       "sizes": [],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Ordinateur : compartiment rembourré jusqu'à 16 pouces", "Sécurité : poche anti-vol", "Tissu : déperlant", "Entretien : nettoyer avec un chiffon humide"]
     },
     {
       "id": "8",
@@ -95,7 +102,8 @@
       "stock": 20,
       "description": "Housse pour ordinateur 15 pouces en néoprène, fermeture zippée, logo eXalt. Protège le laptop dans le sac.",
       "sizes": [],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Compatibilité : ordinateurs 15 pouces", "Matière : néoprène", "Fermeture : zippée", "Entretien : nettoyer avec un chiffon humide"]
     },
     {
       "id": "9",
@@ -107,7 +115,8 @@
       "stock": 100,
       "description": "Carnet A5, 160 pages pointillées, couverture rigide navy, élastique de fermeture. Pour les ateliers, les rétros et les idées de 23 h.",
       "sizes": [],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Format : A5", "Pages : 160 pages pointillées", "Couverture : rigide navy, élastique de fermeture"]
     },
     {
       "id": "10",
@@ -119,7 +128,8 @@
       "stock": 80,
       "description": "Lot de trois stylos à bille eXalt, encre bleue, corps métal. Ils finissent toujours par disparaître, donc on en met trois.",
       "sizes": [],
-      "colors": ["Navy et blanc"]
+      "colors": ["Navy et blanc"],
+      "details": ["Contenu : lot de 3 stylos à bille", "Encre : bleue", "Corps : métal"]
     },
     {
       "id": "11",
@@ -131,7 +141,8 @@
       "stock": 35,
       "description": "Mug de voyage isotherme 350 ml, double paroi inox, couvercle étanche. Garde le café chaud pendant tout le daily.",
       "sizes": [],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Contenance : 350 ml", "Matière : double paroi inox, isotherme", "Couvercle : étanche", "Entretien : lavage à la main"]
     },
     {
       "id": "12",
@@ -143,7 +154,8 @@
       "stock": 200,
       "description": "Pack de 12 stickers eXalt en vinyle résistant à l'eau. Pour le laptop, la gourde ou le frigo de l'agence.",
       "sizes": [],
-      "colors": []
+      "colors": [],
+      "details": ["Contenu : 12 stickers", "Matière : vinyle résistant à l'eau"]
     },
     {
       "id": "13",
@@ -155,7 +167,8 @@
       "stock": 5,
       "description": "La collab eXalt x Flow : hoodie oversize, broderie exclusive dans le dos, série numérotée. Le best-seller de la boutique.",
       "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Coupe : oversize", "Marquage : broderie exclusive eXalt x Flow dans le dos", "Édition : série numérotée", "Entretien : lavage à 30 °C sur l'envers, pas de sèche-linge"]
     },
     {
       "id": "14",
@@ -167,7 +180,8 @@
       "stock": 10,
       "description": "Drop #1 : casquette rose fluo, brodée eXalt, série limitée. Ceux qui l'ont savent.",
       "sizes": ["Taille unique"],
-      "colors": ["Rose fluo"]
+      "colors": ["Rose fluo"],
+      "details": ["Couleur : rose fluo", "Taille : unique", "Édition : série limitée Drop #1", "Entretien : lavage à la main"]
     },
     {
       "id": "15",
@@ -179,7 +193,8 @@
       "stock": 8,
       "description": "Carnet premium à tranche dorée, papier 120 g, couverture en simili-cuir navy. Édition limitée et numérotée.",
       "sizes": [],
-      "colors": ["Navy et or"]
+      "colors": ["Navy et or"],
+      "details": ["Papier : 120 g", "Tranche : dorée", "Couverture : simili-cuir navy", "Édition : limitée et numérotée"]
     },
     {
       "id": "16",
@@ -191,7 +206,8 @@
       "stock": 12,
       "description": "T-shirt Heritage, logo historique eXalt, coton épais délavé. Une pièce pour les anciens et les nostalgiques.",
       "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Matière : coton épais délavé", "Marquage : logo historique eXalt", "Entretien : lavage à 30 °C sur l'envers, pas de sèche-linge"]
     },
     {
       "id": "17",
@@ -203,7 +219,8 @@
       "stock": 15,
       "description": "Le polo eXalt en rose, même coupe que le navy, pour ceux qui assument.",
       "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "colors": ["Rose"]
+      "colors": ["Rose"],
+      "details": ["Couleur : rose", "Coupe : identique au Polo Navy", "Entretien : lavage à 30 °C sur l'envers, pas de sèche-linge"]
     },
     {
       "id": "18",
@@ -215,7 +232,8 @@
       "stock": 20,
       "description": "Sac de conférence en toile robuste, bandoulière réglable, poches multiples. Le sac officiel des événements eXalt.",
       "sizes": [],
-      "colors": ["Navy"]
+      "colors": ["Navy"],
+      "details": ["Matière : toile robuste", "Bandoulière : réglable", "Rangement : poches multiples", "Entretien : nettoyer avec un chiffon humide"]
     },
     {
       "id": "99",

@@ -11,6 +11,8 @@ interface Product {
   sizes?: string[];
   colors?: string[];
   alternatives?: string[];
+  details?: string[];
+  images?: string[];
 }
 
 interface ProductInCart extends Product {
