@@ -40,3 +40,11 @@ export const distanceKm = (lat1: number, lng1: number, lat2: number, lng2: numbe
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
+
+// Stock fictif d'un produit dans un magasin : toujours le même pour un couple magasin/produit.
+export const getStoreStock = (storeId: string, productId: string) => {
+  let h = 0;
+  for (const c of `${storeId}:${productId}`) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  const v = h % 13;
+  return v < 3 ? 0 : v - 2;
+};

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { EXALT_STORES, ExaltStore, distanceKm } from "../data/stores";
+import { EXALT_STORES, ExaltStore, distanceKm, getStoreStock } from "../data/stores";
 
 const RADIUS_KM = 20;
 const LEAFLET_VERSION = "1.9.4";
@@ -28,48 +28,80 @@ const loadLeaflet = (): Promise<any> => {
 };
 
 type Home = { label: string; lat: number; lng: number };
-type StoreWithDistance = ExaltStore & { distance: number };
+type StoreWithInfo = ExaltStore & { distance?: number; stock: number };
+type Suggestion = { label: string; context: string; lat: number; lng: number };
 
 const FRANCE_BOUNDS: [[number, number], [number, number]] = [[42.3, -4.8], [51.1, 8.3]];
+const ADDRESS_API = "https://api-adresse.data.gouv.fr";
 
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 const formatKm = (km: number) => `${km.toFixed(1).replace(".", ",")} km`;
+const stockLabel = (stock: number) => (stock === 0 ? "Rupture" : `${stock} en stock`);
 
-const storeIcon = (L: any, label: string, active: boolean) =>
-  L.divIcon({
+// Épingle numérotée + pastille de stock
+const storeIcon = (L: any, label: string, stock: number, active: boolean) => {
+  const pill = stock === 0 ? "background:#F3F4F6;color:#6B7280" : "background:#ECFDF5;color:#047857";
+  return L.divIcon({
     className: "",
-    html: `<div style="background:${active ? "#F0047F" : "#0A0F5C"};color:#fff;font:700 12px/1 system-ui,sans-serif;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 3px 8px rgba(10,15,92,.35)"><span style="transform:rotate(45deg)">${label}</span></div>`,
+    html: `<div style="position:relative;width:30px;height:30px">
+      <div style="background:${active ? "#F0047F" : "#0A0F5C"};color:#fff;font:700 12px/1 system-ui,sans-serif;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 3px 8px rgba(10,15,92,.35)"><span style="transform:rotate(45deg)">${label}</span></div>
+      <div style="position:absolute;left:26px;top:-6px;white-space:nowrap;${pill};font:600 11px/1 system-ui,sans-serif;padding:4px 7px;border-radius:999px;border:1px solid #fff;box-shadow:0 2px 6px rgba(10,15,92,.2)">${stockLabel(stock)}</div>
+    </div>`,
     iconSize: [30, 30],
     iconAnchor: [15, 30],
     popupAnchor: [0, -28],
   });
+};
 
-const storePopup = (s: ExaltStore, distance?: number) =>
-  `<div style="font-family:system-ui,sans-serif;min-width:160px"><strong style="color:#0A0F5C">${escapeHtml(s.name)}</strong><br/>${escapeHtml(s.address)}<br/>${escapeHtml(s.city)}${
-    distance !== undefined ? `<br/><span style="color:#F0047F;font-weight:600">${formatKm(distance)}</span>` : ""
+const storePopup = (s: StoreWithInfo) =>
+  `<div style="font-family:system-ui,sans-serif;min-width:170px"><strong style="color:#0A0F5C">${escapeHtml(s.name)}</strong><br/>${escapeHtml(s.address)}<br/>${escapeHtml(s.city)}<br/><span style="font-weight:600;color:${s.stock ? "#047857" : "#6B7280"}">${stockLabel(s.stock)}</span>${
+    s.distance !== undefined ? ` · <span style="color:#F0047F;font-weight:600">${formatKm(s.distance)}</span>` : ""
   }</div>`;
 
-const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean; onClose: () => void; productTitle?: string }) => {
+const StoreLocatorModal = ({
+  isOpen,
+  onClose,
+  productTitle,
+  productId,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  productTitle?: string;
+  productId?: string | number;
+}) => {
   const [address, setAddress] = useState("");
   const [home, setHome] = useState<Home | null>(null);
-  const [stores, setStores] = useState<StoreWithDistance[]>([]);
+  const [stores, setStores] = useState<StoreWithInfo[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [highlighted, setHighlighted] = useState(-1);
   const mapEl = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const layerRef = useRef<any>(null);
   const markersRef = useRef<Record<string, any>>({});
   const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsOpenRef = useRef(false);
+  const skipSuggestRef = useRef(false);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
+  suggestionsOpenRef.current = suggestions.length > 0;
+
+  const pid = String(productId ?? "");
+  const allStores: StoreWithInfo[] = EXALT_STORES.map((s) => ({ ...s, stock: getStoreStock(s.id, pid) }));
 
   useEffect(() => {
     if (!isOpen) return;
     inputRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onCloseRef.current();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (suggestionsOpenRef.current) setSuggestions([]);
+      else onCloseRef.current();
+    };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => {
@@ -78,6 +110,41 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
     };
   }, [isOpen]);
 
+  // Propositions d'adresses pendant la saisie (3 max)
+  useEffect(() => {
+    if (skipSuggestRef.current) {
+      skipSuggestRef.current = false;
+      return;
+    }
+    const q = address.trim();
+    if (q.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`${ADDRESS_API}/search/?q=${encodeURIComponent(q)}&limit=3&autocomplete=1`, { signal: controller.signal });
+        const data = await res.json();
+        setSuggestions(
+          (data?.features ?? []).slice(0, 3).map((f: any) => ({
+            label: f.properties.label,
+            context: f.properties.context,
+            lng: f.geometry.coordinates[0],
+            lat: f.geometry.coordinates[1],
+          }))
+        );
+        setHighlighted(-1);
+      } catch {
+        /* saisie en cours ou réseau indisponible : pas de proposition */
+      }
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [address]);
+
   // Crée la carte à l'ouverture, la détruit à la fermeture
   useEffect(() => {
     if (!isOpen) return;
@@ -85,7 +152,7 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
     loadLeaflet()
       .then((L) => {
         if (cancelled || !mapEl.current) return;
-        const map = L.map(mapEl.current, { scrollWheelZoom: false, zoomControl: true });
+        const map = L.map(mapEl.current, { scrollWheelZoom: false });
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 18,
           attribution: "© OpenStreetMap",
@@ -118,8 +185,8 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
     layer.clearLayers();
     markersRef.current = {};
     if (!home) {
-      EXALT_STORES.forEach((s) => {
-        markersRef.current[s.id] = L.marker([s.lat, s.lng], { icon: storeIcon(L, "", false) }).bindPopup(storePopup(s)).addTo(layer);
+      allStores.forEach((s) => {
+        markersRef.current[s.id] = L.marker([s.lat, s.lng], { icon: storeIcon(L, "", s.stock, false) }).bindPopup(storePopup(s)).addTo(layer);
       });
       map.fitBounds(FRANCE_BOUNDS);
       return;
@@ -136,21 +203,21 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
       .bindPopup(`<strong>Chez toi</strong><br/>${escapeHtml(home.label)}`)
       .addTo(layer);
     stores.forEach((s, i) => {
-      markersRef.current[s.id] = L.marker([s.lat, s.lng], { icon: storeIcon(L, String(i + 1), false) })
-        .bindPopup(storePopup(s, s.distance))
+      markersRef.current[s.id] = L.marker([s.lat, s.lng], { icon: storeIcon(L, String(i + 1), s.stock, false) })
+        .bindPopup(storePopup(s))
         .on("click", () => setActiveId(s.id))
         .addTo(layer);
     });
     map.fitBounds(circle.getBounds(), { padding: [16, 16] });
   };
 
-  useEffect(drawLayer, [home, stores]);
+  useEffect(drawLayer, [home, stores, pid]);
 
   // Met en avant le magasin choisi dans la liste
   useEffect(() => {
     const L = (window as any).L;
     if (!L || !home) return;
-    stores.forEach((s, i) => markersRef.current[s.id]?.setIcon(storeIcon(L, String(i + 1), s.id === activeId)));
+    stores.forEach((s, i) => markersRef.current[s.id]?.setIcon(storeIcon(L, String(i + 1), s.stock, s.id === activeId)));
     const active = stores.find((s) => s.id === activeId);
     if (active && mapRef.current) {
       mapRef.current.setView([active.lat, active.lng], Math.max(mapRef.current.getZoom(), 13));
@@ -158,39 +225,105 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
     }
   }, [activeId, home, stores]);
 
+  const showStoresAround = (lat: number, lng: number, label: string) => {
+    const nearby = allStores
+      .map((s) => ({ ...s, distance: distanceKm(lat, lng, s.lat, s.lng) }))
+      .filter((s) => s.distance <= RADIUS_KM)
+      .sort((a, b) => a.distance - b.distance);
+    setActiveId(null);
+    setStores(nearby);
+    setHome({ label, lat, lng });
+  };
+
+  const pickSuggestion = (s: Suggestion) => {
+    skipSuggestRef.current = true;
+    setAddress(s.label);
+    setSuggestions([]);
+    setError(null);
+    showStoresAround(s.lat, s.lng, s.label);
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (highlighted >= 0 && suggestions[highlighted]) {
+      pickSuggestion(suggestions[highlighted]);
+      return;
+    }
     const q = address.trim();
     if (q.length < 3) {
       setError("Saisis ton adresse complète (rue, ville ou code postal).");
       return;
     }
+    setSuggestions([]);
     setLoading(true);
     setError(null);
     try {
       // Base Adresse Nationale (gratuite, sans clé)
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(q)}&limit=1`);
+      const res = await fetch(`${ADDRESS_API}/search/?q=${encodeURIComponent(q)}&limit=1`);
       const data = await res.json();
       const feature = data?.features?.[0];
       if (!feature) {
         setError("Adresse introuvable. Essaie avec le code postal ou le nom de la ville.");
-        setLoading(false);
-        return;
+      } else {
+        const [lng, lat] = feature.geometry.coordinates;
+        showStoresAround(lat, lng, feature.properties.label);
       }
-      const [lng, lat] = feature.geometry.coordinates;
-      const nearby = EXALT_STORES.map((s) => ({ ...s, distance: distanceKm(lat, lng, s.lat, s.lng) }))
-        .filter((s) => s.distance <= RADIUS_KM)
-        .sort((a, b) => a.distance - b.distance);
-      setActiveId(null);
-      setStores(nearby);
-      setHome({ label: feature.properties.label, lat, lng });
     } catch {
       setError("La recherche d'adresse ne répond pas. Réessaie dans un instant.");
     }
     setLoading(false);
   };
 
+  const handleLocate = () => {
+    if (!navigator.geolocation) {
+      setError("Ton navigateur ne permet pas la géolocalisation. Saisis ton adresse.");
+      return;
+    }
+    setLocating(true);
+    setError(null);
+    setSuggestions([]);
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const { latitude: lat, longitude: lng } = coords;
+        let label = "Ta position actuelle";
+        try {
+          const res = await fetch(`${ADDRESS_API}/reverse/?lon=${lng}&lat=${lat}&limit=1`);
+          const data = await res.json();
+          label = data?.features?.[0]?.properties?.label ?? label;
+        } catch {
+          /* on garde « Ta position actuelle » */
+        }
+        skipSuggestRef.current = true;
+        setAddress(label === "Ta position actuelle" ? "" : label);
+        showStoresAround(lat, lng, label);
+        setLocating(false);
+      },
+      (err) => {
+        setError(
+          err.code === err.PERMISSION_DENIED
+            ? "Tu as refusé la géolocalisation. Autorise-la dans ton navigateur ou saisis ton adresse."
+            : "Impossible de te localiser pour l'instant. Saisis ton adresse."
+        );
+        setLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!suggestions.length) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlighted((h) => (h + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlighted((h) => (h <= 0 ? suggestions.length - 1 : h - 1));
+    }
+  };
+
   if (!isOpen) return null;
+
+  const nearbyInStock = stores.filter((s) => s.stock > 0).length;
 
   return (
     <div
@@ -226,21 +359,70 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
         {/* Corps : recherche + liste à gauche, carte à droite */}
         <div className="flex-1 min-h-0 grid grid-cols-[minmax(320px,400px)_1fr] max-md:grid-cols-1 max-md:grid-rows-[auto_minmax(200px,38%)_1fr]">
           <div className="flex flex-col min-h-0 border-r border-gray-100 max-md:border-r-0 max-md:contents">
-            <form onSubmit={handleSearch} className="p-6 max-md:p-5 max-md:pb-4 flex-none max-md:order-1">
+            <form onSubmit={handleSearch} className="p-6 max-md:p-5 max-md:pb-4 flex-none max-md:order-1 relative z-10">
               <label htmlFor="store-address" className="text-sm font-semibold text-exaltNavy">
                 L'adresse de ton domicile
               </label>
               <div className="mt-2 flex flex-col gap-2">
-                <input
-                  ref={inputRef}
-                  id="store-address"
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Ex. 10 rue de Rivoli, Paris"
-                  autoComplete="street-address"
-                  className="w-full h-12 rounded-full border-gray-300 px-5 text-sm focus:border-exaltNavy focus:ring-exaltNavy"
-                />
+                <div className="flex gap-2">
+                  <div className="relative flex-1 min-w-0">
+                    <input
+                      ref={inputRef}
+                      id="store-address"
+                      type="text"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      onKeyDown={handleInputKeyDown}
+                      onBlur={() => setTimeout(() => setSuggestions([]), 150)}
+                      placeholder="Ex. 10 rue de Rivoli, Paris"
+                      autoComplete="off"
+                      role="combobox"
+                      aria-expanded={suggestions.length > 0}
+                      aria-controls="store-address-suggestions"
+                      aria-autocomplete="list"
+                      aria-activedescendant={highlighted >= 0 ? `store-suggestion-${highlighted}` : undefined}
+                      className="w-full h-12 rounded-full border-gray-300 px-5 text-sm focus:border-exaltNavy focus:ring-exaltNavy"
+                    />
+                    {suggestions.length > 0 && (
+                      <ul
+                        id="store-address-suggestions"
+                        role="listbox"
+                        className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden"
+                      >
+                        {suggestions.map((s, i) => (
+                          <li
+                            key={`${s.label}-${i}`}
+                            id={`store-suggestion-${i}`}
+                            role="option"
+                            aria-selected={i === highlighted}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              pickSuggestion(s);
+                            }}
+                            onMouseEnter={() => setHighlighted(i)}
+                            className={`px-4 py-3 cursor-pointer flex items-start gap-3 ${i === highlighted ? "bg-exaltCream" : "bg-white"}`}
+                          >
+                            <span aria-hidden="true" className="text-exaltPink mt-0.5">📍</span>
+                            <span className="min-w-0">
+                              <span className="block text-sm font-semibold text-exaltNavy truncate">{s.label}</span>
+                              <span className="block text-xs text-gray-500 truncate">{s.context}</span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLocate}
+                    disabled={locating}
+                    title="Me géolocaliser"
+                    className="h-12 px-4 rounded-full border-2 border-exaltNavy text-exaltNavy hover:bg-exaltNavy hover:text-white transition-colors text-sm font-semibold flex items-center gap-1.5 flex-none disabled:opacity-60"
+                  >
+                    <span aria-hidden="true">📍</span>
+                    <span className="max-[400px]:sr-only">{locating ? "Localisation…" : "Me géolocaliser"}</span>
+                  </button>
+                </div>
                 <button
                   type="submit"
                   disabled={loading}
@@ -255,9 +437,11 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
             <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6 max-md:px-5 max-md:pt-4 max-md:order-3">
               {!home ? (
                 <div className="rounded-2xl bg-exaltCream p-5 text-sm text-exaltNavy">
-                  <p className="font-semibold">{EXALT_STORES.length} magasins eXalt en France</p>
+                  <p className="font-semibold">
+                    {allStores.filter((s) => s.stock > 0).length} magasins sur {allStores.length} ont ce produit en stock
+                  </p>
                   <p className="text-gray-600 mt-1">
-                    Saisis ton adresse pour voir ceux à moins de {RADIUS_KM} km de chez toi, avec la distance et l'itinéraire.
+                    Saisis ton adresse ou géolocalise-toi pour voir ceux à moins de {RADIUS_KM} km de chez toi.
                   </p>
                 </div>
               ) : (
@@ -266,6 +450,7 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
                     {stores.length === 0 ? "Aucun magasin" : <strong className="text-exaltNavy">{stores.length} magasin{stores.length > 1 ? "s" : ""}</strong>}
                     {` à moins de ${RADIUS_KM} km de `}
                     <span className="text-exaltNavy">{home.label}</span>
+                    {stores.length > 0 && `, dont ${nearbyInStock} avec ce produit en stock`}
                   </p>
                   {stores.length === 0 ? (
                     <div className="rounded-2xl bg-exaltCream p-5 text-sm text-gray-600">
@@ -296,13 +481,19 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline justify-between gap-2">
                                   <p className="font-semibold text-exaltNavy truncate">{s.name}</p>
-                                  <span className="text-sm font-semibold text-exaltPink flex-none">{formatKm(s.distance)}</span>
+                                  <span className="text-sm font-semibold text-exaltPink flex-none">{formatKm(s.distance ?? 0)}</span>
                                 </div>
                                 <p className="text-sm text-gray-600">
                                   {s.address}, {s.city}
                                 </p>
                                 <div className="flex items-center justify-between gap-2 mt-2">
-                                  <p className="text-xs text-gray-500">{s.hours}</p>
+                                  <span
+                                    className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                                      s.stock ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"
+                                    }`}
+                                  >
+                                    {stockLabel(s.stock)}
+                                  </span>
                                   <a
                                     href={`https://www.openstreetmap.org/directions?route=${home.lat}%2C${home.lng}%3B${s.lat}%2C${s.lng}`}
                                     target="_blank"
@@ -313,6 +504,7 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
                                     Itinéraire
                                   </a>
                                 </div>
+                                <p className="text-xs text-gray-500 mt-1">{s.hours}</p>
                               </div>
                             </div>
                           </li>
@@ -322,7 +514,7 @@ const StoreLocatorModal = ({ isOpen, onClose, productTitle }: { isOpen: boolean;
                   )}
                 </>
               )}
-              <p className="text-[11px] text-gray-400 mt-4">Magasins fictifs pour le prototype.</p>
+              <p className="text-[11px] text-gray-400 mt-4">Magasins et stocks fictifs pour le prototype.</p>
             </div>
           </div>
 

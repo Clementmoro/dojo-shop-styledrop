@@ -215,6 +215,7 @@ const SingleProduct = () => {
         isOpen={isStoreLocatorOpen}
         onClose={() => setIsStoreLocatorOpen(false)}
         productTitle={singleProduct?.title}
+        productId={singleProduct?.id}
       />
 
       {/* similar products */}
