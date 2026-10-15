@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 // Spectacle du produit « Surprise », joué après le paiement :
-// damier de couleurs → bleu nuit 2 s → bouquet final → texte → photo de Clément.
+// damier de couleurs → bleu nuit 2 s → bouquet final → texte → photo de Clément Moreau.
 type Phase = "grid" | "night" | "fireworks" | "text" | "photo";
 
 const GRID = 10; // 10 × 10 carrés, chacun 10 % de la largeur et de la hauteur
@@ -168,7 +168,7 @@ const SurpriseShow = ({ onClose }: { onClose: () => void }) => {
               {photoOk ? (
                 <img
                   src={PHOTO_SRC}
-                  alt="Clément"
+                  alt="Clément Moreau"
                   onError={() => setPhotoOk(false)}
                   className="w-44 h-44 rounded-full object-cover border-4 border-exaltYellow shadow-2xl max-sm:w-32 max-sm:h-32"
                 />
@@ -177,7 +177,7 @@ const SurpriseShow = ({ onClose }: { onClose: () => void }) => {
                   CM
                 </div>
               )}
-              <figcaption className="text-white font-semibold">Clément</figcaption>
+              <figcaption className="text-white font-semibold">Clément Moreau</figcaption>
             </figure>
           )}
         </div>
