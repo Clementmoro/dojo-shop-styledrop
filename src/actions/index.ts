@@ -19,7 +19,7 @@ export const searchAction = async ({ request }: SearchActionRequest) => {
   // converting form data to object for easy access
   const data = Object.fromEntries(formData);
 
-  return redirect(`/search?query=${data?.searchInput || ""}`);
+  return redirect(`/search?query=${encodeURIComponent(String(data?.searchInput || ""))}`);
 };
 
 
