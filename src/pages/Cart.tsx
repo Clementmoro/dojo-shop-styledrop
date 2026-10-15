@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiCheck as CheckIcon, HiXMark as XMarkIcon } from "react-icons/hi2";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { Link } from "react-router-dom";
@@ -34,6 +34,28 @@ const Cart = () => {
   const total = subtotal === 0 ? 0 : taxableAmount + shipping;
   const missingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - taxableAmount);
   const freeShippingProgress = Math.min(100, (taxableAmount / FREE_SHIPPING_THRESHOLD) * 100);
+
+  // Suggestion : le produit le moins cher qui fait atteindre la livraison offerte
+  const [catalog, setCatalog] = useState<Product[]>([]);
+  useEffect(() => {
+    fetch("/api/products")
+      .then((response) => response.json())
+      .then((data: Product[]) => setCatalog(data))
+      .catch(() => setCatalog([]));
+  }, []);
+  const cartTitles = productsInCart.map((product) => product.title);
+  const candidates = catalog.filter(
+    (product) =>
+      !product.hidden &&
+      product.stock > 0 &&
+      product.price < FREE_SHIPPING_THRESHOLD &&
+      !cartTitles.includes(product.title)
+  );
+  const suggestedProduct =
+    missingForFreeShipping > 0
+      ? [...candidates].sort((a, b) => a.price - b.price).find((product) => product.price >= missingForFreeShipping) ??
+        [...candidates].sort((a, b) => b.price - a.price)[0]
+      : undefined;
 
   const handleApplyPromo = () => {
     if (!promoInput.trim()) return;
@@ -180,6 +202,29 @@ const Cart = () => {
                     style={{ width: `${freeShippingProgress}%` }}
                   />
                 </div>
+
+                {suggestedProduct && (
+                  <div className="mt-3 flex items-center gap-3 border-t border-gray-100 pt-3">
+                    <img
+                      src={suggestedProduct.image.startsWith("http") || suggestedProduct.image.startsWith("/") ? suggestedProduct.image : `/assets/${suggestedProduct.image}`}
+                      alt={suggestedProduct.title}
+                      className="h-14 w-14 flex-shrink-0 rounded-xl bg-exaltCream object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-gray-500">
+                        {suggestedProduct.price >= missingForFreeShipping ? "Ajoute-le et ta livraison est offerte" : "Pour t'en rapprocher"}
+                      </p>
+                      <p className="truncate text-sm font-semibold text-exaltNavy">{suggestedProduct.title}</p>
+                      <p className="text-sm font-bold text-exaltNavy">{formatPrice(suggestedProduct.price)}</p>
+                    </div>
+                    <Link
+                      to={`/product/${suggestedProduct.id}`}
+                      className="flex-shrink-0 rounded-full bg-exaltNavy px-4 py-2 text-xs font-semibold text-white hover:bg-exaltPink transition-colors"
+                    >
+                      Voir
+                    </Link>
+                  </div>
+                )}
               </div>
 
               <dl className="mt-6 space-y-4 text-sm">
