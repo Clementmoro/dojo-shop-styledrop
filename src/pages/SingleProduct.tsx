@@ -6,7 +6,7 @@ import {
   StandardSelectInput,
   WaitlistForm,
 } from "../components";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
@@ -36,6 +36,9 @@ const PRODUCT_TYPES = [
   { keyword: "notebook", noun: "carnets" },
   { keyword: "bag", noun: "sacs" },
 ];
+
+const imageSrc = (image?: string) =>
+  image?.startsWith("http") || image?.startsWith("/") ? image : `/assets/${image}`;
 
 const getAlternatives = (current: Product, products: Product[]) => {
   const type = PRODUCT_TYPES.find((t) => current.title.toLowerCase().includes(t.keyword));
@@ -130,25 +133,89 @@ const SingleProduct = () => {
           🥚 Tu as trouvé le produit fantôme. Il n'existe dans aucun menu : garde le secret jusqu'au débrief.
         </div>
       )}
-      <div className="grid grid-cols-2 gap-x-12 max-lg:grid-cols-1">
-        <div className="rounded-3xl bg-exaltCream overflow-hidden">
+      <div
+        className={
+          isOutOfStock
+            ? "grid grid-cols-2 gap-x-10 items-start max-md:grid-cols-1"
+            : "grid grid-cols-2 gap-x-12 max-lg:grid-cols-1"
+        }
+      >
+        <div
+          className={`rounded-3xl bg-exaltCream overflow-hidden ${
+            isOutOfStock ? "md:sticky md:top-28 max-md:h-[26vh]" : ""
+          }`}
+        >
           <img
-            src={singleProduct?.image?.startsWith("http") || singleProduct?.image?.startsWith("/") ? singleProduct.image : `/assets/${singleProduct?.image}`}
+            src={imageSrc(singleProduct?.image)}
             alt={singleProduct?.title}
-            className={`w-full h-full object-cover ${isSecret ? "gold-product" : ""}`}
+            className={`w-full h-full object-cover ${isSecret ? "gold-product" : ""} ${
+              isOutOfStock ? "grayscale-[40%]" : ""
+            }`}
           />
         </div>
-        <div className="w-full flex flex-col gap-6 mt-6">
+        <div className={`w-full flex flex-col mt-6 ${isOutOfStock ? "gap-5 max-md:mt-4" : "gap-6"}`}>
           <div className="flex flex-col gap-2">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-exaltPink">
               {formatCategoryName(singleProduct?.category || "")}
             </p>
-            <h1 className="font-display text-4xl font-bold text-exaltNavy">{singleProduct?.title}</h1>
-            <p className="text-2xl font-bold text-exaltNavy">{singleProduct?.price} €</p>
-            {singleProduct?.description && (
+            <h1 className={`font-display font-bold text-exaltNavy ${isOutOfStock ? "text-4xl max-md:text-3xl" : "text-4xl"}`}>
+              {singleProduct?.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-2xl font-bold text-exaltNavy">{singleProduct?.price} €</p>
+              {isOutOfStock && (
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+                  Rupture de stock
+                </span>
+              )}
+            </div>
+            {!isOutOfStock && singleProduct?.description && (
               <p className="text-gray-600 leading-relaxed mt-2">{singleProduct.description}</p>
             )}
           </div>
+          {isOutOfStock && singleProduct && (
+            <>
+              <WaitlistForm key={singleProduct.id} product={singleProduct} />
+              {alternatives.items.length > 0 && (
+                <section aria-labelledby="alternatives-title" className="flex flex-col gap-3">
+                  <h2 id="alternatives-title" className="font-display text-lg font-bold text-exaltNavy">
+                    {alternatives.label}
+                  </h2>
+                  <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:grid-cols-1 xl:grid-cols-3">
+                    {alternatives.items.map((product) => (
+                      <li key={product.id}>
+                        <Link
+                          to={`/product/${product.id}`}
+                          className="group h-full flex items-center gap-3 rounded-2xl border border-gray-200 bg-white p-2.5 min-h-[72px] transition-colors hover:border-exaltNavy focus-visible:outline focus-visible:outline-2 focus-visible:outline-exaltPink"
+                        >
+                          <img
+                            src={imageSrc(product.image)}
+                            alt=""
+                            className="w-14 h-14 shrink-0 rounded-xl object-cover bg-exaltCream"
+                          />
+                          <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+                            <span className="text-sm font-semibold text-exaltNavy group-hover:text-exaltPink transition-colors leading-snug">
+                              {product.title}
+                            </span>
+                            <span className="text-sm">
+                              <span className="font-bold text-exaltNavy">{product.price} €</span>
+                              <span className="text-green-700"> · En stock</span>
+                            </span>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+              {singleProduct.description && (
+                <p className="text-gray-600 leading-relaxed">{singleProduct.description}</p>
+              )}
+            </>
+          )}
+          {!isOutOfStock && (
+          <>
           <div className="flex flex-col gap-3">
             <SelectInputUpgrade
               selectList={[
@@ -215,13 +282,12 @@ const SingleProduct = () => {
               onClick={handleAddToCart}
               disabled={isOutOfStock}
             />
-            {isOutOfStock && singleProduct && (
-              <WaitlistForm key={singleProduct.id} product={singleProduct} />
-            )}
             <p className="text-gray-500 text-sm text-right">
               Livraison estimée le {getEstimatedDelivery()}
             </p>
           </div>
+          </>
+          )}
           <div>
             <Dropdown dropdownTitle="Détails du produit">
               Produit officiel eXalt. Marquage réalisé en France par notre atelier partenaire. Entretien
@@ -235,32 +301,6 @@ const SingleProduct = () => {
           </div>
         </div>
       </div>
-
-      {/* alternatives en stock pour un produit en rupture */}
-      {isOutOfStock && singleProduct && alternatives.items.length > 0 && (
-        <div>
-          <h2 className="font-display text-exaltNavy text-3xl font-bold mt-24 mb-2 max-sm:text-2xl">
-            {alternatives.label}
-          </h2>
-          <p className="text-gray-600">
-            « {singleProduct.title} » est en rupture, mais ces produits sont prêts à partir.
-          </p>
-          <div className="grid grid-cols-3 gap-6 mt-8 max-md:grid-cols-2 max-md:gap-4">
-            {alternatives.items.map((product: Product) => (
-              <ProductItem
-                key={product.id}
-                id={product.id}
-                image={product.image}
-                title={product.title}
-                category={product.category}
-                price={product.price}
-                popularity={product.popularity}
-                stock={product.stock}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* similar products */}
       <div>

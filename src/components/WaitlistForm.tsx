@@ -52,7 +52,7 @@ const WaitlistForm = ({ product }: { product: Product }) => {
 
   if (registered) {
     return (
-      <div className="rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-green-800">
+      <div role="status" className="rounded-2xl bg-green-50 border border-green-200 px-5 py-4 text-green-800">
         <p className="font-semibold">✅ Vous êtes sur la liste d'attente</p>
         <p className="text-sm mt-1">
           On vous envoie un email dès que « {product.title} » revient en stock.
@@ -64,34 +64,45 @@ const WaitlistForm = ({ product }: { product: Product }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-2xl border-2 border-exaltPink/30 bg-exaltCream px-5 py-5 flex flex-col gap-3"
+      aria-labelledby="waitlist-title"
+      className="rounded-2xl border-2 border-exaltPink/40 bg-exaltCream p-4 sm:p-5 flex flex-col gap-3"
     >
       <div>
-        <p className="font-display text-lg font-bold text-exaltNavy">
+        <h2 id="waitlist-title" className="font-display text-lg font-bold text-exaltNavy">
           🔔 Prévenez-moi du retour en stock
-        </p>
+        </h2>
         <p className="text-sm text-gray-600 mt-1">
-          Laissez votre email, on vous écrit dès que ce produit est de nouveau disponible.
+          Un seul email, dès que ce produit est de nouveau disponible.
         </p>
       </div>
-      <input
-        type="text"
-        placeholder="Prénom (facultatif)"
-        value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
-        className="border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-exaltNavy"
-      />
-      <input
-        type="email"
-        required
-        placeholder="Votre email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-exaltNavy"
-      />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[2fr_3fr]">
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-exaltNavy">Prénom (facultatif)</span>
+          <input
+            type="text"
+            autoComplete="given-name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full min-h-[48px] border border-gray-300 rounded-lg px-4 text-base bg-white outline-none focus:border-exaltNavy focus:ring-2 focus:ring-exaltNavy/20"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-xs font-semibold text-exaltNavy">Email</span>
+          <input
+            type="email"
+            required
+            inputMode="email"
+            autoComplete="email"
+            placeholder="vous@exemple.fr"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full min-h-[48px] border border-gray-300 rounded-lg px-4 text-base bg-white outline-none focus:border-exaltNavy focus:ring-2 focus:ring-exaltNavy/20"
+          />
+        </label>
+      </div>
       <button
         type="submit"
-        className="bg-exaltNavy text-white font-semibold rounded-lg py-3 hover:bg-exaltNavyLight transition-colors"
+        className="w-full min-h-[48px] bg-exaltNavy text-white font-semibold rounded-lg hover:bg-exaltNavyLight transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-exaltPink"
       >
         M'inscrire à la liste d'attente
       </button>
