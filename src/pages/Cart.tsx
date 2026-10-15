@@ -52,14 +52,15 @@ const Cart = () => {
       product.price < FREE_SHIPPING_THRESHOLD &&
       !cartTitles.includes(product.title)
   );
-  // 3 suggestions : d'abord les moins chers qui suffisent, puis les plus chers pour s'en rapprocher
-  const reachingProducts = candidates
-    .filter((product) => product.price >= missingForFreeShipping)
-    .sort((a, b) => a.price - b.price);
-  const closerProducts = candidates
-    .filter((product) => product.price < missingForFreeShipping)
-    .sort((a, b) => b.price - a.price);
-  const suggestedProducts = missingForFreeShipping > 0 ? [...reachingProducts, ...closerProducts].slice(0, 3) : [];
+  // 3 suggestions max : uniquement les produits qui font passer le panier à 81 € ou plus, du moins cher au plus cher
+  const SUGGESTION_TARGET = 81;
+  const suggestedProducts =
+    missingForFreeShipping > 0
+      ? candidates
+          .filter((product) => taxableAmount + product.price >= SUGGESTION_TARGET)
+          .sort((a, b) => a.price - b.price)
+          .slice(0, 3)
+      : [];
 
   const handleAddSuggestion = (product: Product) => {
     // Taille et couleur par défaut, comme sur la fiche produit
