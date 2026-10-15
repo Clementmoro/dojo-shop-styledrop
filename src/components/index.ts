@@ -23,3 +23,4 @@ export { default as ShowingSearchPagination } from "./ShowingSearchPagination";
 export { default as QuizPopup } from "./QuizPopup";export { default as KonamiEgg } from "./KonamiEgg";
 export { default as AnnouncementBar } from "./AnnouncementBar";
 export { default as WaitlistForm } from "./WaitlistForm";
+export { default as ShopTheLook } from "./ShopTheLook";

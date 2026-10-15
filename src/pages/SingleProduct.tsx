@@ -3,6 +3,7 @@ import {
   Dropdown,
   ProductItem,
   QuantityInput,
+  ShopTheLook,
   StandardSelectInput,
   WaitlistForm,
 } from "../components";
@@ -301,6 +302,10 @@ const SingleProduct = () => {
           </div>
         </div>
       </div>
+
+      {singleProduct && !isSecret && (
+        <ShopTheLook product={singleProduct} products={products} />
+      )}
 
       {/* similar products */}
       <div>
