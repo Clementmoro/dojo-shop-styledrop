@@ -53,8 +53,8 @@ const ProductItem = ({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <Link to={`/product/${id}`} className="group flex flex-col gap-3">
+    <div className="flex flex-col gap-3 h-full">
+      <Link to={`/product/${id}`} className="group flex flex-1 flex-col gap-3">
         <div className="relative aspect-square rounded-2xl bg-exaltCream overflow-hidden">
           <img
             src={
@@ -97,7 +97,7 @@ const ProductItem = ({
           type="button"
           onClick={handleQuickAdd}
           disabled={isOutOfStock}
-          className="mx-1 h-10 rounded-full border border-exaltNavy text-exaltNavy text-sm font-semibold flex items-center justify-center gap-2 transition-colors hover:bg-exaltNavy hover:text-white disabled:border-gray-300 disabled:text-gray-400 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+          className="mt-auto mx-1 h-10 shrink-0 rounded-full border border-exaltNavy text-exaltNavy text-sm font-semibold flex items-center justify-center gap-2 transition-colors hover:bg-exaltNavy hover:text-white disabled:border-gray-300 disabled:text-gray-400 disabled:hover:bg-transparent disabled:cursor-not-allowed"
         >
           <HiOutlineShoppingBag className="text-lg" aria-hidden="true" />
           {isOutOfStock ? "Indisponible" : "Ajout rapide"}
