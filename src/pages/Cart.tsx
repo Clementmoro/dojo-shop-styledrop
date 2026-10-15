@@ -14,7 +14,7 @@ import {
   formatPrice,
   getPromoDiscountRate,
 } from "../utils/promoCodes";
-import { getShippingFee } from "../utils/shipping";
+import { FREE_SHIPPING_THRESHOLD, getShippingFee } from "../utils/shipping";
 
 const TAX_RATE = 0.2;
 
@@ -32,6 +32,8 @@ const Cart = () => {
   const tax = taxableAmount - taxableAmount / (1 + TAX_RATE);
   const shipping = getShippingFee(taxableAmount);
   const total = subtotal === 0 ? 0 : taxableAmount + shipping;
+  const missingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - taxableAmount);
+  const freeShippingProgress = Math.min(100, (taxableAmount / FREE_SHIPPING_THRESHOLD) * 100);
 
   const handleApplyPromo = () => {
     if (!promoInput.trim()) return;
@@ -153,6 +155,32 @@ const Cart = () => {
               <h2 id="summary-heading" className="text-lg font-semibold text-exaltNavy">
                 Récapitulatif
               </h2>
+
+              {/* Jauge livraison offerte */}
+              <div className="mt-4 rounded-2xl bg-white px-4 py-3">
+                <p className="text-sm font-medium text-exaltNavy">
+                  {missingForFreeShipping > 0 ? (
+                    <>
+                      Plus que <span className="font-bold text-exaltPink">{formatPrice(missingForFreeShipping)}</span> pour la livraison offerte 🚚
+                    </>
+                  ) : (
+                    <span className="text-green-700">Livraison offerte ✓</span>
+                  )}
+                </p>
+                <div
+                  className="mt-2 h-2 w-full rounded-full bg-gray-200 overflow-hidden"
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={FREE_SHIPPING_THRESHOLD}
+                  aria-valuenow={Math.min(taxableAmount, FREE_SHIPPING_THRESHOLD)}
+                  aria-label="Progression vers la livraison offerte"
+                >
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${missingForFreeShipping > 0 ? "bg-exaltPink" : "bg-green-600"}`}
+                    style={{ width: `${freeShippingProgress}%` }}
+                  />
+                </div>
+              </div>
 
               <dl className="mt-6 space-y-4 text-sm">
                 <div className="flex items-center justify-between">
