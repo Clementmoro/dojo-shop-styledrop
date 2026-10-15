@@ -5,7 +5,7 @@ import ProductGridWrapper from "./ProductGridWrapper";
 const HomeCollectionSection = () => {
   return (
     <section>
-      <div className="max-w-screen-2xl flex items-end justify-between mx-auto mt-20 px-5 max-[400px]:px-3">
+      <div className="max-w-screen-2xl flex flex-col items-start gap-3 mx-auto mt-20 px-5 max-[400px]:px-3">
         <div>
           <p className="text-exaltPink text-sm font-semibold uppercase tracking-[0.2em] mb-2">
             Sélection
