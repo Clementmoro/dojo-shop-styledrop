@@ -13,6 +13,7 @@ import WithSelectInputWrapper from "../utils/withSelectInputWrapper";
 import WithNumberInputWrapper from "../utils/withNumberInputWrapper";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import toast from "react-hot-toast";
+import StoreLocatorModal from "../components/StoreLocatorModal";
 
 // Date de livraison estimée : aujourd'hui + 4 jours ouvrés
 const getEstimatedDelivery = () => {
@@ -28,6 +29,7 @@ const getEstimatedDelivery = () => {
 const SingleProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [singleProduct, setSingleProduct] = useState<Product | null>(null);
+  const [isStoreLocatorOpen, setIsStoreLocatorOpen] = useState(false);
   // defining default values for input fields
   const [size, setSize] = useState<string>("xs");
   const [color, setColor] = useState<string>("black");
@@ -179,6 +181,18 @@ const SingleProduct = () => {
               onClick={handleAddToCart}
               disabled={isOutOfStock}
             />
+            <button
+              type="button"
+              onClick={() => setIsStoreLocatorOpen(true)}
+              className={`w-full h-12 rounded-full border-2 font-semibold text-sm flex items-center justify-center gap-2 transition-colors ${
+                isOutOfStock
+                  ? "border-exaltPink text-exaltPink hover:bg-exaltPink hover:text-white"
+                  : "border-exaltNavy text-exaltNavy hover:bg-exaltNavy hover:text-white"
+              }`}
+            >
+              <span aria-hidden="true">📍</span>
+              {isOutOfStock ? "Indisponible en ligne ? Trouve un magasin eXalt" : "Trouver un magasin eXalt près de chez moi"}
+            </button>
             <p className="text-gray-500 text-sm text-right">
               Livraison estimée le {getEstimatedDelivery()}
             </p>
@@ -196,6 +210,12 @@ const SingleProduct = () => {
           </div>
         </div>
       </div>
+
+      <StoreLocatorModal
+        isOpen={isStoreLocatorOpen}
+        onClose={() => setIsStoreLocatorOpen(false)}
+        productTitle={singleProduct?.title}
+      />
 
       {/* similar products */}
       <div>
