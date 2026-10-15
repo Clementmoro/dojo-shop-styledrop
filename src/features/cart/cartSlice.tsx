@@ -69,6 +69,12 @@ export const cartSlice = createSlice({
       state.promoCode = action.payload.code;
       state.discountRate = action.payload.rate;
     },
+    clearCart: (state) => {
+      state.productsInCart = [];
+      state.subtotal = 0;
+      state.promoCode = null;
+      state.discountRate = 0;
+    },
     removePromoCode: (state) => {
       state.promoCode = null;
       state.discountRate = 0;
@@ -89,6 +95,7 @@ export const {
   calculateTotalPrice,
   applyPromoCode,
   removePromoCode,
+  clearCart,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

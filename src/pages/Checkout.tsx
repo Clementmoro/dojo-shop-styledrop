@@ -19,12 +19,13 @@ import {
 import { IconType } from "react-icons";
 import { DeliveryMap } from "../components";
 import { useAppDispatch, useAppSelector } from "../hooks";
-import { removeProductFromTheCart } from "../features/cart/cartSlice";
+import { clearCart, removeProductFromTheCart } from "../features/cart/cartSlice";
 import customFetch from "../axios/custom";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { checkCheckoutFormData } from "../utils/checkCheckoutFormData";
 import { formatPrice } from "../utils/promoCodes";
+import { computeCartTotals } from "../utils/pricing";
 
 const paymentMethods: { id: string; title: string; icon: IconType }[] = [
   { id: "credit-card", title: "Carte bancaire", icon: TbCreditCard },
@@ -39,7 +40,7 @@ const COUNTRIES_EUROPE = [
 const COUNTRIES_OTHER = ["United States", "Canada", "Mexico"];
 
 // champs à remplir par étape (mêmes champs obligatoires qu'avant)
-const CONTACT_FIELDS = ["emailAddress", "firstName", "lastName", "address", "city", "country", "postalCode", "region", "phone"];
+const CONTACT_FIELDS = ["emailAddress", "firstName", "lastName", "address", "city", "country", "postalCode", "phone"];
 const GIFT_FIELDS = ["giftMessage", "giftRecipientName", "giftAddress", "giftCity", "giftPostalCode", "giftCountry"];
 const PAYMENT_FIELDS = ["cardNumber", "nameOnCard", "expirationDate", "cvc"];
 
@@ -88,11 +89,7 @@ const SectionTitle = ({ icon: Icon, title, subtitle }: { icon: IconType; title: 
 
 const Checkout = () => {
   const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector((state) => state.cart);
-  const discount = subtotal * discountRate;
-  const taxableAmount = subtotal - discount;
-  const shipping = subtotal ? 5 : 0;
-  const tax = subtotal ? taxableAmount / 5 : 0;
-  const total = subtotal ? taxableAmount + shipping + tax : 0;
+  const { discount, shipping, total, includedTax } = computeCartTotals(subtotal, discountRate);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const formRef = useRef<HTMLFormElement>(null);
@@ -109,7 +106,8 @@ const Checkout = () => {
   };
   const isFilled = (fields: string[]) => fields.every((f) => (values[f] ?? "").toString().trim() !== "");
   const contactDone = isFilled(CONTACT_FIELDS) && (!isGift || isFilled(GIFT_FIELDS));
-  const paymentDone = isFilled(PAYMENT_FIELDS);
+  const payByCard = (values.paymentType ?? "credit-card") === "credit-card";
+  const paymentDone = payByCard ? isFilled(PAYMENT_FIELDS) : Boolean(values.paymentType);
 
   const goToStep = (target: number) => {
     setStep(target);
@@ -185,12 +183,13 @@ const Checkout = () => {
       response = await customFetch.post("/orders", {
         ...checkoutData,
         orderStatus: "Processing",
-        orderDate: new Date().toLocaleDateString(),
+        orderDate: new Date().toISOString(),
       });
     }
 
     if (response.status === 201) {
       toast.success("Commande validée, merci !");
+      dispatch(clearCart());
       navigate("/order-confirmation");
     } else {
       toast.error("Oups, une erreur est survenue. Réessaie dans un instant.");
@@ -309,7 +308,7 @@ const Checkout = () => {
                 <Field id="city" label="Ville">
                   <input type="text" id="city" name="city" autoComplete="address-level2" className={inputCls} />
                 </Field>
-                <Field id="region" label="Région">
+                <Field id="region" label="Région" optional>
                   <input type="text" id="region" name="region" autoComplete="address-level1" className={inputCls} />
                 </Field>
                 <Field id="country" label="Pays">
@@ -441,7 +440,14 @@ const Checkout = () => {
                 </div>
               </fieldset>
 
-              <div className="grid grid-cols-4 gap-4">
+              {!payByCard && (
+                <p className="rounded-2xl bg-exaltCream p-4 text-sm text-exaltNavy">
+                  {values.paymentType === "paypal"
+                    ? "Tu seras redirigé vers PayPal pour régler ta commande après validation."
+                    : "Tu recevras nos coordonnées bancaires par e-mail. Ta commande partira dès réception du virement."}
+                </p>
+              )}
+              <div className={payByCard ? "grid grid-cols-4 gap-4" : "hidden"}>
                 <Field id="card-number" label="Numéro de carte" className="col-span-4">
                   <input type="text" id="card-number" name="cardNumber" autoComplete="cc-number" inputMode="numeric" placeholder="1234 5678 9012 3456" className={inputCls} />
                 </Field>
@@ -544,16 +550,15 @@ const Checkout = () => {
               )}
               <div className="flex justify-between">
                 <dt className="text-gray-600">Livraison</dt>
-                <dd className="font-medium text-exaltNavy">{formatPrice(shipping)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-600">TVA (20 %)</dt>
-                <dd className="font-medium text-exaltNavy">{formatPrice(tax)}</dd>
+                <dd className="font-medium text-exaltNavy">
+                  {shipping === 0 && subtotal > 0 ? <span className="text-green-700">Offerte</span> : formatPrice(shipping)}
+                </dd>
               </div>
               <div className="flex items-baseline justify-between border-t border-gray-200/70 pt-3">
-                <dt className="font-semibold text-exaltNavy">Total</dt>
+                <dt className="font-semibold text-exaltNavy">Total TTC</dt>
                 <dd className="text-xl font-bold text-exaltNavy">{formatPrice(total)}</dd>
               </div>
+              <p className="text-right text-xs text-gray-500">dont TVA (20 %) : {formatPrice(includedTax)}</p>
             </dl>
           </div>
         </aside>

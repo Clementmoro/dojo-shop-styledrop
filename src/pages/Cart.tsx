@@ -9,14 +9,8 @@ import {
   updateProductQuantity,
 } from "../features/cart/cartSlice";
 import toast from "react-hot-toast";
-import {
-  EXPIRED_PROMO_CODES,
-  formatPrice,
-  getPromoDiscountRate,
-} from "../utils/promoCodes";
-
-const SHIPPING_FEE = 5;
-const TAX_RATE = 0.2;
+import { findActivePromoCode, formatPrice, isExpiredPromoCode } from "../utils/promoCodes";
+import { computeCartTotals, FREE_SHIPPING_THRESHOLD } from "../utils/pricing";
 
 const Cart = () => {
   const { productsInCart, subtotal, promoCode, discountRate } = useAppSelector(
@@ -26,24 +20,24 @@ const Cart = () => {
   const [promoInput, setPromoInput] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
 
-  const discount = subtotal * discountRate;
-  const taxableAmount = subtotal - discount;
-  const tax = taxableAmount * TAX_RATE;
-  const shipping = subtotal === 0 ? 0 : SHIPPING_FEE;
-  const total = subtotal === 0 ? 0 : taxableAmount + tax + shipping;
+  const { discount, shipping, total, includedTax, missingForFreeShipping } = computeCartTotals(
+    subtotal,
+    discountRate
+  );
 
   const handleApplyPromo = () => {
     if (!promoInput.trim()) return;
-    if (EXPIRED_PROMO_CODES.includes(promoInput.trim())) {
-      setPromoError("Code expiré");
+    if (isExpiredPromoCode(promoInput)) {
+      setPromoError("Ce code a expiré");
       return;
     }
-    const rate = getPromoDiscountRate(promoInput);
-    if (rate === null) {
-      setPromoError("Code invalide");
+    const promo = findActivePromoCode(promoInput);
+    if (!promo) {
+      setPromoError("Code invalide : vérifie l'orthographe");
       return;
     }
-    dispatch(applyPromoCode({ code: promoInput.trim(), rate }));
+    const { code, rate } = promo;
+    dispatch(applyPromoCode({ code, rate }));
     setPromoError(null);
     setPromoInput("");
     toast.success(`-${rate * 100} % appliqué`);
@@ -103,12 +97,17 @@ const Cart = () => {
                             type="number"
                             id={`quantity-${product.id}`}
                             className="w-16 h-9 rounded-lg border-gray-300 text-center"
+                            min={1}
+                            max={product?.stock || undefined}
                             value={product?.quantity}
                             onChange={(e) => {
+                              const parsed = parseInt(e.target.value, 10);
+                              if (Number.isNaN(parsed)) return;
+                              const max = product?.stock || parsed;
                               dispatch(
                                 updateProductQuantity({
                                   id: product?.id,
-                                  quantity: parseInt(e.target.value),
+                                  quantity: Math.min(Math.max(parsed, 1), max),
                                 })
                               );
                             }}
@@ -175,16 +174,20 @@ const Cart = () => {
                 )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                   <dt className="text-gray-600">Livraison</dt>
-                  <dd className="font-medium text-exaltNavy">{formatPrice(shipping)}</dd>
+                  <dd className="font-medium text-exaltNavy">
+                    {shipping === 0 ? <span className="text-green-700">Offerte</span> : formatPrice(shipping)}
+                  </dd>
                 </div>
+                {missingForFreeShipping > 0 && (
+                  <p className="text-xs text-gray-500">
+                    Plus que {formatPrice(missingForFreeShipping)} pour la livraison offerte (dès {FREE_SHIPPING_THRESHOLD} €).
+                  </p>
+                )}
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="text-gray-600">TVA (20 %)</dt>
-                  <dd className="font-medium text-exaltNavy">{formatPrice(tax)}</dd>
-                </div>
-                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
-                  <dt className="text-base font-semibold text-exaltNavy">Total</dt>
+                  <dt className="text-base font-semibold text-exaltNavy">Total TTC</dt>
                   <dd className="text-base font-bold text-exaltNavy">{formatPrice(total)}</dd>
                 </div>
+                <p className="text-right text-xs text-gray-500">dont TVA (20 %) : {formatPrice(includedTax)}</p>
               </dl>
 
               {!promoCode && (

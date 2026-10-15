@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 
-const CARD_NUMBER_RE = /^\d{16}$/;
+const CARD_NUMBER_RE = /^\d{15,16}$/;
 const CVC_RE = /^\d{3,4}$/;
 const EXPIRY_RE = /^(0[1-9]|1[0-2])\/\d{2}$/;
 
@@ -21,41 +21,49 @@ export const checkCheckoutFormData = (checkoutData: {
   if (!d?.city)         { toast.error("La ville est obligatoire");          return false; }
   if (!d?.country)      { toast.error("Le pays est obligatoire");       return false; }
   if (!d?.postalCode)   { toast.error("Le code postal est obligatoire");   return false; }
-  if (!d?.region)       { toast.error("La région est obligatoire");        return false; }
   if (!d?.phone)        { toast.error("Le téléphone est obligatoire");         return false; }
 
-  // Payment : required
-  if (!d?.nameOnCard)   { toast.error("Le nom sur la carte est obligatoire");  return false; }
+  // Payment : les champs carte ne concernent que le paiement par carte
+  const payByCard = !d?.paymentType || d.paymentType === "credit-card";
+  if (payByCard) {
+    if (!d?.nameOnCard)   { toast.error("Le nom sur la carte est obligatoire");  return false; }
 
-  // US1 : CB format validation
-  const cardNum = (d?.cardNumber as string)?.replace(/\s/g, "");
-  if (!cardNum) {
-    toast.error("Le numéro de carte est obligatoire");
-    return false;
-  }
-  if (!CARD_NUMBER_RE.test(cardNum)) {
-    toast.error("Numéro de carte invalide : 16 chiffres requis");
-    return false;
-  }
+    // US1 : CB format validation
+    const cardNum = (d?.cardNumber as string)?.replace(/\s/g, "");
+    if (!cardNum) {
+      toast.error("Le numéro de carte est obligatoire");
+      return false;
+    }
+    if (!CARD_NUMBER_RE.test(cardNum)) {
+      toast.error("Numéro de carte invalide : 15 ou 16 chiffres requis");
+      return false;
+    }
 
-  const cvc = d?.cvc as string;
-  if (!cvc) {
-    toast.error("Le cryptogramme est obligatoire");
-    return false;
-  }
-  if (!CVC_RE.test(cvc)) {
-    toast.error("CVC invalide : 3 ou 4 chiffres requis");
-    return false;
-  }
+    const cvc = d?.cvc as string;
+    if (!cvc) {
+      toast.error("Le cryptogramme est obligatoire");
+      return false;
+    }
+    if (!CVC_RE.test(cvc)) {
+      toast.error("CVC invalide : 3 ou 4 chiffres requis");
+      return false;
+    }
 
-  const expiry = d?.expirationDate as string;
-  if (!expiry) {
-    toast.error("La date d'expiration est obligatoire");
-    return false;
-  }
-  if (!EXPIRY_RE.test(expiry)) {
-    toast.error("Date d'expiration invalide : format MM/AA requis");
-    return false;
+    const expiry = d?.expirationDate as string;
+    if (!expiry) {
+      toast.error("La date d'expiration est obligatoire");
+      return false;
+    }
+    if (!EXPIRY_RE.test(expiry)) {
+      toast.error("Date d'expiration invalide : format MM/AA requis");
+      return false;
+    }
+    const [month, year] = expiry.split("/").map(Number);
+    const now = new Date();
+    if (2000 + year < now.getFullYear() || (2000 + year === now.getFullYear() && month < now.getMonth() + 1)) {
+      toast.error("Cette carte a expiré");
+      return false;
+    }
   }
 
   // Cart

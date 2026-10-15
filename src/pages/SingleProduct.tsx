@@ -5,6 +5,7 @@ import { addProductToTheCart } from "../features/cart/cartSlice";
 import { useAppDispatch } from "../hooks";
 import { formatCategoryName } from "../utils/formatCategoryName";
 import { formatPrice } from "../utils/promoCodes";
+import { computeCartTotals, FREE_SHIPPING_THRESHOLD, TAX_RATE } from "../utils/pricing";
 import toast from "react-hot-toast";
 import { IconType } from "react-icons";
 import {
@@ -53,9 +54,6 @@ const getEstimatedDelivery = () => {
   return date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
 };
 
-// mêmes règles que le panier : TVA ajoutée au prix affiché + frais de livraison fixes
-const CART_TAX_RATE = 0.2;
-const CART_SHIPPING_FEE = 5;
 
 // guide des tailles : mesures indicatives (à valider avec le fournisseur)
 const SIZE_GUIDE = [
@@ -275,14 +273,18 @@ const SingleProduct = () => {
     return [...sameCategory, ...others].slice(0, 3);
   })();
 
-  // prix final tel que le panier le calculera : produit HT + TVA + livraison
-  const priceExclTax = (singleProduct?.price ?? 0) * quantity;
-  const taxAmount = priceExclTax * CART_TAX_RATE;
-  const finalPrice = priceExclTax + taxAmount + CART_SHIPPING_FEE;
+  // prix final tel que le panier le calculera : prix TTC + livraison (offerte dès 80 €)
+  const productsPrice = (singleProduct?.price ?? 0) * quantity;
+  const {
+    shipping: shippingPrice,
+    total: finalPrice,
+    missingForFreeShipping,
+  } = computeCartTotals(productsPrice);
+  const includedProductTax = productsPrice - productsPrice / (1 + TAX_RATE);
   const priceParts = [
-    { key: "product", label: "Produit (HT)", amount: priceExclTax, color: "bg-exaltNavy", sign: "" },
-    { key: "tax", label: "TVA 20 %", amount: taxAmount, color: "bg-exaltPink", sign: "+ " },
-    { key: "shipping", label: "Livraison", amount: CART_SHIPPING_FEE, color: "bg-exaltYellow", sign: "+ " },
+    { key: "product", label: "Produit hors TVA", amount: productsPrice - includedProductTax, color: "bg-exaltNavy" },
+    { key: "tax", label: "TVA incluse (20 %)", amount: includedProductTax, color: "bg-exaltPink" },
+    { key: "shipping", label: "Livraison", amount: shippingPrice, color: "bg-exaltYellow" },
   ];
 
   const focusStockAlert = () => {
@@ -377,7 +379,7 @@ const SingleProduct = () => {
               {singleProduct?.price} €
               {singleProduct && (
                 <span className="rounded-full bg-exaltCream px-2 py-0.5 text-xs font-semibold tracking-wide text-exaltNavy/70">
-                  HT
+                  TTC
                 </span>
               )}
             </p>
@@ -594,7 +596,7 @@ const SingleProduct = () => {
               </div>
 
               <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-exaltCream" aria-hidden="true">
-                {priceParts.map((part, idx) => (
+                {priceParts.filter((part) => part.amount > 0).map((part, idx) => (
                   <div
                     key={part.key}
                     className={`${part.color} h-full transition-all duration-500 ${idx > 0 ? "border-l-2 border-white" : ""}`}
@@ -611,8 +613,11 @@ const SingleProduct = () => {
                       {part.label}
                     </dt>
                     <dd className="font-medium tabular-nums text-exaltNavy">
-                      {part.sign}
-                      {formatPrice(part.amount)}
+                      {part.key === "shipping" && part.amount === 0 ? (
+                        <span className="text-green-700">Offerte</span>
+                      ) : (
+                        formatPrice(part.amount)
+                      )}
                     </dd>
                   </div>
                 ))}
@@ -621,6 +626,12 @@ const SingleProduct = () => {
                   <dd className="text-2xl font-bold tabular-nums text-exaltNavy">{formatPrice(finalPrice)}</dd>
                 </div>
               </dl>
+              <p className="flex items-center gap-2 rounded-xl bg-exaltCream px-3 py-2 text-xs text-exaltNavy">
+                <TbTruckDelivery className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                {missingForFreeShipping > 0
+                  ? `Plus que ${formatPrice(missingForFreeShipping)} pour la livraison offerte (dès ${FREE_SHIPPING_THRESHOLD} €).`
+                  : "Livraison offerte sur cette commande."}
+              </p>
             </section>
           )}
 
@@ -762,7 +773,7 @@ const SingleProduct = () => {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-exaltNavy truncate">{singleProduct.title}</p>
             <p className="text-sm font-bold text-exaltNavy">
-              {isOutOfStock ? `${singleProduct.price} € HT` : `${formatPrice(finalPrice)} au total`}
+              {isOutOfStock ? `${singleProduct.price} €` : `${formatPrice(finalPrice)} livré`}
               {size ? ` · ${size}` : ""}
             </p>
           </div>

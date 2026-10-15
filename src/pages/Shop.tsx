@@ -18,6 +18,7 @@ const Shop = () => {
     <div className="max-w-screen-2xl mx-auto pt-10">
       <ShopBanner category={category} />
       <ShopPageContent
+        key={category ?? "all"}
         category={category}
         page={parseInt(searchParams.get("page") || "1")}
       />
